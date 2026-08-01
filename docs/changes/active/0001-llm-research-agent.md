@@ -2,7 +2,7 @@
 id: 1
 slug: llm-research-agent
 title: LLM Research Agent — Reddit/HN/arXiv monitor with Obsidian vault output
-status: in-progress
+status: implemented
 priority: high
 type: feat
 created: 2026-08-01
@@ -18,7 +18,7 @@ trivial: false
 auto_groomable: false
 branch: feat/llm-research-agent
 claimed_at: 2026-08-01T22:30:58Z
-pr:
+pr: https://github.com/ethanhinson/llm-research-agent/pull/1
 issue:
 blocked_by:
 reconciled: true
