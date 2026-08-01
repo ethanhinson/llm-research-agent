@@ -73,7 +73,10 @@ def start_scheduler(
     daily_time: str = "08:00",
     weekly_day: str = "sunday",
 ):
-    hour, minute = daily_time.split(":")
+    parts = daily_time.split(":")
+    if len(parts) < 2:
+        raise ValueError(f"daily_time must be HH:MM, got: {daily_time!r}")
+    hour, minute = parts[0], parts[1]
 
     scheduler = BlockingScheduler()
 

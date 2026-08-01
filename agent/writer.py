@@ -1,5 +1,6 @@
 import re
 import datetime
+import yaml
 from pathlib import Path
 
 from agent.models import RawItem
@@ -30,7 +31,7 @@ status: new
 # {title}
 
 ## Summary
-{body}
+{summary}
 
 ## How It Works
 {body}
@@ -58,6 +59,11 @@ class Writer:
         path = self._strategies_dir / filename
 
         tags_str = ", ".join(item.tags) if item.tags else "emerging"
+        body = item.body[:500]
+        # Summary: first sentence or up to 150 chars; How It Works: full body
+        first_sentence_end = body.find(". ")
+        summary = body[:first_sentence_end + 1] if first_sentence_end != -1 else body[:150]
+
         content = NOTE_TEMPLATE.format(
             title=item.title.replace('"', '\\"'),
             date=self._date,
@@ -66,7 +72,8 @@ class Writer:
             novelty=item.novelty,
             validated=str(item.validated).lower(),
             sources_count=item.sources_count,
-            body=item.body[:500],
+            summary=summary or body,
+            body=body,
             engagement=item.engagement,
             source_label=item.title,
             url=item.url,
@@ -89,7 +96,6 @@ class Writer:
             if len(parts) < 3:
                 continue
             try:
-                import yaml
                 fm = yaml.safe_load(parts[1])
             except Exception:
                 continue
@@ -104,8 +110,7 @@ class Writer:
 
         lines = ["# Strategy Index\n", "| Title | Category | Novelty | Validated |",
                  "|-------|----------|---------|-----------|"]
-        for _, novelty, title, link, validated in rows:
-            cat = rows[[r[2] for r in rows].index(title)][0]
+        for cat, novelty, title, link, validated in rows:
             lines.append(f"| {link} | {cat} | {novelty} | {validated} |")
 
         (self._vault / "index.md").write_text("\n".join(lines) + "\n")

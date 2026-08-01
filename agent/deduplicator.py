@@ -14,9 +14,11 @@ class Deduplicator:
         self._index: dict = self._load()
 
     def _load(self) -> dict:
+        default = {"urls": [], "titles": []}
         if self._path.exists():
-            return json.loads(self._path.read_text())
-        return {"urls": [], "titles": []}
+            data = json.loads(self._path.read_text())
+            return {**default, **{k: v for k, v in data.items() if k in default}}
+        return default
 
     def _save(self):
         self._path.parent.mkdir(parents=True, exist_ok=True)

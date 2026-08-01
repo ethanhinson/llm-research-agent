@@ -37,6 +37,8 @@ class Evaluator:
             max_tokens=512,
             messages=[{"role": "user", "content": prompt}],
         )
+        if not message.content or not hasattr(message.content[0], "text"):
+            return self._parse_scores(items, "")
         response_text = message.content[0].text
         return self._parse_scores(items, response_text)
 

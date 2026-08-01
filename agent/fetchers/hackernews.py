@@ -13,7 +13,9 @@ class HNFetcher:
         resp = httpx.get(
             HN_API,
             params={"tags": "story", "hitsPerPage": 100, "numericFilters": f"points>={self.threshold}"},
+            timeout=15,
         )
+        resp.raise_for_status()
         hits = resp.json().get("hits", [])
         items = []
         for hit in hits:
