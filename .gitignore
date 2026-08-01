@@ -1,3 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+.env
+
+# Vault dedup index (machine-local, regenerated each run)
+vault/.index.json
+
 # docket:start (managed by docket — do not hand-edit)
 .docket/
 .worktrees/

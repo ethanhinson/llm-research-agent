@@ -1,0 +1,34 @@
+thresholds:
+  reddit_upvotes: 100
+  hn_points: 50
+
+schedule:
+  daily_sweep: "08:00"
+  weekly_deep: "sunday 08:00"
+
+sources:
+  subreddits:
+    - LocalLLaMA
+    - MachineLearning
+    - ChatGPT
+    - singularity
+    - ClaudeAI
+    - Oobabooga
+    - StableDiffusion
+    - artificial
+    - GPT4
+    - OpenAI
+
+  feeds:
+    - name: "Simon Willison's blog"
+      url: "https://simonwillison.net/atom/everything/"
+      type: blog
+    - name: "Anthropic blog"
+      url: "https://www.anthropic.com/news/rss.xml"
+      type: blog
+    - name: "OpenAI blog"
+      url: "https://openai.com/blog/rss.xml"
+      type: blog
+    - name: "Hugging Face blog"
+      url: "https://huggingface.co/blog/feed.xml"
+      type: blog
