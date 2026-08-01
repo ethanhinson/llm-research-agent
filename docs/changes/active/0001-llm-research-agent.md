@@ -12,7 +12,7 @@ related: []
 discovered_from: []
 adrs: []
 spec: docs/superpowers/specs/2026-08-01-llm-research-agent-design.md
-plan:
+plan: docs/superpowers/plans/2026-08-01-llm-research-agent-plan.md
 results:
 trivial: false
 auto_groomable: false
@@ -21,7 +21,7 @@ claimed_at: 2026-08-01T22:30:58Z
 pr:
 issue:
 blocked_by:
-reconciled: false
+reconciled: true
 ---
 
 <!-- docket:artifacts:start (generated — do not hand-edit) -->
