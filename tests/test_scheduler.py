@@ -26,8 +26,8 @@ def config(tmp_path):
 
 
 def test_run_sweep_filters_and_writes(config, mocker):
-    above = make_item("Good item", engagement=200)
-    below = make_item("Low item", engagement=10)
+    above = make_item("Flash Attention 3: faster LLM inference", engagement=200)
+    below = make_item("Low quality post about elevators", engagement=10)
 
     mocker.patch("agent.scheduler.HNFetcher.fetch", return_value=[above, below])
     mocker.patch("agent.scheduler.RedditFetcher.fetch", return_value=[])
@@ -49,7 +49,7 @@ def test_run_sweep_filters_and_writes(config, mocker):
     )
 
     assert len(written) == 1
-    assert written[0].title == "Good item"
+    assert written[0].title == "Flash Attention 3: faster LLM inference"
 
 
 def test_start_scheduler_registers_two_jobs(config, mocker):

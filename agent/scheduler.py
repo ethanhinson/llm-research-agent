@@ -10,6 +10,7 @@ from agent.fetchers.reddit import RedditFetcher
 from agent.fetchers.web import WebFetcher
 from agent.models import RawItem
 from agent.tools.cross_validate import cross_validate
+from agent.topic_filter import is_relevant
 from agent.writer import Writer
 
 
@@ -54,7 +55,9 @@ def run_sweep(
         or ("web/" in item.source)
     ]
 
-    after_cv = cross_validate(after_engagement)
+    after_topic = [item for item in after_engagement if is_relevant(item)]
+
+    after_cv = cross_validate(after_topic)
 
     evaluator = Evaluator(api_key=api_key)
     scored = evaluator.score(after_cv)
