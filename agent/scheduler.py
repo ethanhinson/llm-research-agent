@@ -28,13 +28,20 @@ def run_sweep(
     hn_threshold = thresholds.get("hn_points", 50)
     reddit_threshold = thresholds.get("reddit_upvotes", 100)
 
+    def _fetch(fetcher_fn):
+        try:
+            return fetcher_fn()
+        except Exception as exc:
+            print(f"[warn] fetcher failed, skipping: {exc}")
+            return []
+
     raw: list[RawItem] = []
-    raw.extend(HNFetcher(threshold=hn_threshold).fetch())
+    raw.extend(_fetch(lambda: HNFetcher(threshold=hn_threshold).fetch()))
     if subreddits:
-        raw.extend(RedditFetcher(subreddits=subreddits, threshold=reddit_threshold).fetch())
-    raw.extend(ArxivFetcher().fetch())
+        raw.extend(_fetch(lambda: RedditFetcher(subreddits=subreddits, threshold=reddit_threshold).fetch()))
+    raw.extend(_fetch(lambda: ArxivFetcher().fetch()))
     if feeds:
-        raw.extend(WebFetcher(feeds=feeds).fetch())
+        raw.extend(_fetch(lambda: WebFetcher(feeds=feeds).fetch()))
 
     dedup = Deduplicator(index_path)
     after_dedup = [item for item in raw if not dedup.is_duplicate(item)]

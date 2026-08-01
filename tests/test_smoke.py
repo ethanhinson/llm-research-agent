@@ -40,7 +40,7 @@ def test_smoke_one_note_written(vault, mocker):
     mocker.patch("agent.scheduler.WebFetcher.fetch", return_value=[])
 
     mock_message = MagicMock()
-    mock_message.content = [MagicMock(text="1. Mixture of Experts explained: 8")]
+    mock_message.content = [MagicMock(text="1. 8 architecture")]
     mocker.patch("anthropic.Anthropic.messages", new_callable=lambda: type(
         "M", (), {"create": staticmethod(lambda **kw: mock_message)}
     ))

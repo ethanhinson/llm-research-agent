@@ -11,8 +11,8 @@ def make_item(title):
 
 
 MOCK_SCORE_RESPONSE = """\
-1. Flash Attention: 8
-2. Chain of Draft: 6
+1. 8 architecture
+2. 6 prompting
 """
 
 
@@ -27,7 +27,9 @@ def test_evaluator_sets_novelty_scores(mocker):
     result = evaluator.score(items)
 
     assert result[0].novelty == 8
+    assert result[0].category == "architecture"
     assert result[1].novelty == 6
+    assert result[1].category == "prompting"
 
 
 def test_evaluator_handles_empty_list(mocker):
