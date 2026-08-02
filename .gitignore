@@ -10,8 +10,15 @@ dist/
 build/
 .env
 
-# Vault dedup index (machine-local, regenerated each run)
+# Vault dedup index and Obsidian app config (machine-local)
 vault/.index.json
+vault/.obsidian/
+
+# Runtime logs
+logs/
+
+# Ad-hoc test scripts
+test_search_now.py
 
 # docket:start (managed by docket — do not hand-edit)
 .docket/
