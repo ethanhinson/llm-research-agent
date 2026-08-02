@@ -2,7 +2,7 @@
 id: 3
 slug: fix-apscheduler-weekday-name
 title: Fix APScheduler weekday name crash — "sunday" → "sun"
-status: in-progress
+status: implemented
 priority: high
 type: fix
 created: 2026-08-02
@@ -18,13 +18,16 @@ trivial: true
 auto_groomable: false
 branch: feat/fix-apscheduler-weekday-name
 claimed_at: 2026-08-02T05:30:00Z
-pr:
+pr: https://github.com/ethanhinson/llm-research-agent/pull/3
 issue:
 blocked_by:
 reconciled: false
 ---
 
 <!-- docket:artifacts:start (generated — do not hand-edit) -->
+| Artifact | Link |
+|---|---|
+| PR | [#3](https://github.com/ethanhinson/llm-research-agent/pull/3) |
 <!-- docket:artifacts:end -->
 
 ## Why
