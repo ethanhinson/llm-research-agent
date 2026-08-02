@@ -1,12 +1,12 @@
 # Backlog
 
-**2 changes** — 🟢 1 in progress · ✅ 1 done
+**2 changes** — 🔵 1 implemented · ✅ 1 done
 
-## 🟢 In progress (1)
+## 🔵 Implemented — awaiting merge (1)
 
-| # | Title | Priority | Type | Spec | Branch |
-|---|-------|----------|------|------|--------|
-| [0002](active/0002-multi-backend-web-search.md) | Multi-Backend Web Search — continuous internet search across Tavily, Bing, and SerpAPI | `medium` | `feat` | [spec](../superpowers/specs/2026-08-01-multi-backend-web-search.md) | `feat/multi-backend-web-search` |
+| # | Title | Priority | Type | PR | Readiness |
+|---|-------|----------|------|----|-----------|
+| [0002](active/0002-multi-backend-web-search.md) | Multi-Backend Web Search — continuous internet search across Tavily, Bing, and SerpAPI | `medium` | `feat` | [#2](https://github.com/ethanhinson/llm-research-agent/pull/2) |  |
 
 ```mermaid
 graph TD
