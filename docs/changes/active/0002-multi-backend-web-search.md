@@ -12,12 +12,12 @@ related: [1]
 discovered_from: []
 adrs: []
 spec: docs/superpowers/specs/2026-08-01-multi-backend-web-search.md
-plan:
+plan: docs/superpowers/plans/2026-08-02-multi-backend-web-search.md
 results:
 trivial: false
 auto_groomable: false
 branch: feat/multi-backend-web-search
-claimed_at: 2026-08-02T03:49:07Z
+claimed_at: 2026-08-02T03:50:00Z
 pr:
 issue:
 blocked_by:
@@ -28,6 +28,7 @@ reconciled: true
 | Artifact | Link |
 |---|---|
 | Spec | [2026-08-01-multi-backend-web-search.md](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/superpowers/specs/2026-08-01-multi-backend-web-search.md) |
+| Plan | [2026-08-02-multi-backend-web-search.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/multi-backend-web-search/docs/superpowers/plans/2026-08-02-multi-backend-web-search.md) |
 <!-- docket:artifacts:end -->
 
 ## Why
