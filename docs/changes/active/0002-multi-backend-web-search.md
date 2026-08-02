@@ -2,11 +2,11 @@
 id: 2
 slug: multi-backend-web-search
 title: Multi-Backend Web Search — continuous internet search across Tavily, Bing, and SerpAPI
-status: proposed
+status: in-progress
 priority: medium
 type: feat
 created: 2026-08-01
-updated: 2026-08-01
+updated: 2026-08-02
 depends_on: []
 related: [1]
 discovered_from: []
@@ -16,8 +16,8 @@ plan:
 results:
 trivial: false
 auto_groomable: false
-branch:
-claimed_at:
+branch: feat/multi-backend-web-search
+claimed_at: 2026-08-02T03:44:33Z
 pr:
 issue:
 blocked_by:
