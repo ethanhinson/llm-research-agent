@@ -2,7 +2,7 @@
 id: 2
 slug: multi-backend-web-search
 title: Multi-Backend Web Search — continuous internet search across Tavily, Bing, and SerpAPI
-status: in-progress
+status: implemented
 priority: medium
 type: feat
 created: 2026-08-01
@@ -17,8 +17,8 @@ results:
 trivial: false
 auto_groomable: false
 branch: feat/multi-backend-web-search
-claimed_at: 2026-08-02T03:50:00Z
-pr:
+claimed_at: 2026-08-02T04:57:44Z
+pr: https://github.com/ethanhinson/llm-research-agent/pull/2
 issue:
 blocked_by:
 reconciled: true
@@ -29,6 +29,7 @@ reconciled: true
 |---|---|
 | Spec | [2026-08-01-multi-backend-web-search.md](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/superpowers/specs/2026-08-01-multi-backend-web-search.md) |
 | Plan | [2026-08-02-multi-backend-web-search.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/multi-backend-web-search/docs/superpowers/plans/2026-08-02-multi-backend-web-search.md) |
+| PR | [#2](https://github.com/ethanhinson/llm-research-agent/pull/2) |
 <!-- docket:artifacts:end -->
 
 ## Why
