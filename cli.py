@@ -24,7 +24,6 @@ def cmd_sweep(args, cfg):
     from agent.scheduler import run_sweep
     deep = getattr(args, "deep", False)
     thresholds = cfg.get("thresholds", {})
-    subreddits = cfg.get("sources", {}).get("subreddits", [])
     feeds = cfg.get("sources", {}).get("feeds", [])
     api_key = os.getenv("ANTHROPIC_API_KEY")
     items = run_sweep(
@@ -32,7 +31,6 @@ def cmd_sweep(args, cfg):
         index_path=INDEX_PATH,
         thresholds=thresholds,
         api_key=api_key,
-        subreddits=subreddits,
         feeds=feeds,
         deep=deep,
     )
@@ -42,7 +40,6 @@ def cmd_sweep(args, cfg):
 def cmd_start(args, cfg):
     from agent.scheduler import start_scheduler
     thresholds = cfg.get("thresholds", {})
-    subreddits = cfg.get("sources", {}).get("subreddits", [])
     feeds = cfg.get("sources", {}).get("feeds", [])
     schedule = cfg.get("schedule", {})
     api_key = os.getenv("ANTHROPIC_API_KEY")
@@ -52,7 +49,6 @@ def cmd_start(args, cfg):
         index_path=INDEX_PATH,
         thresholds=thresholds,
         api_key=api_key,
-        subreddits=subreddits,
         feeds=feeds,
         daily_time=schedule.get("daily_sweep", "08:00"),
         weekly_day=schedule.get("weekly_deep", "sunday 08:00").split()[0],

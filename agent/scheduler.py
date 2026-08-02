@@ -6,7 +6,7 @@ from agent.deduplicator import Deduplicator
 from agent.evaluator import Evaluator
 from agent.fetchers.arxiv import ArxivFetcher
 from agent.fetchers.hackernews import HNFetcher
-from agent.fetchers.reddit import RedditFetcher
+
 from agent.fetchers.web import WebFetcher
 from agent.models import RawItem
 from agent.tools.cross_validate import cross_validate
@@ -19,15 +19,15 @@ def run_sweep(
     index_path: Path,
     thresholds: dict,
     api_key: str | None,
-    subreddits: list[str],
     feeds: list[dict],
     deep: bool = False,
+    novelty_min: int = 6,
 ) -> list[RawItem]:
     vault_path = Path(vault_path)
     index_path = Path(index_path)
 
     hn_threshold = thresholds.get("hn_points", 50)
-    reddit_threshold = thresholds.get("reddit_upvotes", 100)
+    min_novelty = thresholds.get("novelty_min", novelty_min)
 
     def _fetch(fetcher_fn):
         try:
@@ -38,8 +38,6 @@ def run_sweep(
 
     raw: list[RawItem] = []
     raw.extend(_fetch(lambda: HNFetcher(threshold=hn_threshold).fetch()))
-    if subreddits:
-        raw.extend(_fetch(lambda: RedditFetcher(subreddits=subreddits, threshold=reddit_threshold).fetch()))
     raw.extend(_fetch(lambda: ArxivFetcher().fetch()))
     if feeds:
         raw.extend(_fetch(lambda: WebFetcher(feeds=feeds).fetch()))
@@ -62,15 +60,17 @@ def run_sweep(
     evaluator = Evaluator(api_key=api_key)
     scored = evaluator.score(after_cv)
 
+    above_threshold = [item for item in scored if item.novelty >= min_novelty]
+
     writer = Writer(vault_path=vault_path)
-    for item in scored:
+    for item in above_threshold:
         writer.write_note(item)
         dedup.mark_seen(item)
 
-    if scored:
+    if above_threshold:
         writer.regenerate_index()
 
-    return scored
+    return above_threshold
 
 
 def start_scheduler(
@@ -78,7 +78,6 @@ def start_scheduler(
     index_path: Path,
     thresholds: dict,
     api_key: str | None,
-    subreddits: list[str],
     feeds: list[dict],
     daily_time: str = "08:00",
     weekly_day: str = "sunday",
@@ -100,7 +99,6 @@ def start_scheduler(
             "index_path": index_path,
             "thresholds": thresholds,
             "api_key": api_key,
-            "subreddits": subreddits,
             "feeds": feeds,
             "deep": False,
         },
@@ -119,7 +117,6 @@ def start_scheduler(
             "index_path": index_path,
             "thresholds": thresholds,
             "api_key": api_key,
-            "subreddits": subreddits,
             "feeds": feeds,
             "deep": True,
         },

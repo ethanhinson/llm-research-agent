@@ -34,6 +34,24 @@ def test_web_fetcher_maps_fields():
     assert items[0].engagement == 0
 
 
+def test_web_fetcher_filters_old_entries():
+    old_rss = """<?xml version="1.0"?>
+<rss version="2.0"><channel><title>T</title>
+<item><title>Old post</title><link>https://a.com/old</link>
+<description>Old content.</description>
+<pubDate>Mon, 01 Jan 2024 10:00:00 +0000</pubDate>
+</item></channel></rss>"""
+    feeds = [{"name": "T", "url": "https://t.com/feed", "type": "blog"}]
+    fetcher = WebFetcher(feeds=feeds, lookback_days=7)
+    with patch("httpx.get") as mock_get:
+        mock_resp = MagicMock()
+        mock_resp.content = old_rss.encode()
+        mock_get.return_value = mock_resp
+        items = fetcher.fetch()
+
+    assert items == []
+
+
 def test_web_fetcher_truncates_body():
     long_desc = "x" * 3000
     rss = f"""<?xml version="1.0"?>

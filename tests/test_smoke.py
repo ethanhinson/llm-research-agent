@@ -35,7 +35,6 @@ def test_smoke_one_note_written(vault, mocker):
     )
 
     mocker.patch("agent.scheduler.HNFetcher.fetch", return_value=[above, below])
-    mocker.patch("agent.scheduler.RedditFetcher.fetch", return_value=[])
     mocker.patch("agent.scheduler.ArxivFetcher.fetch", return_value=[])
     mocker.patch("agent.scheduler.WebFetcher.fetch", return_value=[])
 
@@ -49,9 +48,8 @@ def test_smoke_one_note_written(vault, mocker):
     sched_module.run_sweep(
         vault_path=vault,
         index_path=index_path,
-        thresholds={"hn_points": 50, "reddit_upvotes": 100},
+        thresholds={"hn_points": 50, "novelty_min": 0},
         api_key="test",
-        subreddits=[],
         feeds=[],
     )
 

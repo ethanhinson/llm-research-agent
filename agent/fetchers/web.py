@@ -1,14 +1,21 @@
+import time
+import calendar
+
 import httpx
 import feedparser
 
 from agent.models import RawItem
 
+LOOKBACK_DAYS = 7
+
 
 class WebFetcher:
-    def __init__(self, feeds: list[dict]):
+    def __init__(self, feeds: list[dict], lookback_days: int = LOOKBACK_DAYS):
         self.feeds = feeds
+        self.lookback_days = lookback_days
 
     def fetch(self) -> list[RawItem]:
+        cutoff = time.time() - self.lookback_days * 86400
         items = []
         for feed in self.feeds:
             try:
@@ -17,10 +24,15 @@ class WebFetcher:
                 for entry in parsed.entries:
                     title = entry.get("title", "")
                     url = entry.get("link", "")
-                    body = entry.get("summary", entry.get("description", ""))[:2000]
-                    published = entry.get("published", "")
                     if not title or not url:
                         continue
+                    pub = entry.get("published_parsed") or entry.get("updated_parsed")
+                    if pub:
+                        ts = calendar.timegm(pub)
+                        if ts < cutoff:
+                            continue
+                    body = entry.get("summary", entry.get("description", ""))[:2000]
+                    published = entry.get("published", "")
                     items.append(
                         RawItem(
                             title=title,

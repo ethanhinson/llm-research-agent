@@ -1,24 +1,12 @@
 thresholds:
-  reddit_upvotes: 100
   hn_points: 50
+  novelty_min: 6
 
 schedule:
   daily_sweep: "08:00"
   weekly_deep: "sunday 08:00"
 
 sources:
-  subreddits:
-    - LocalLLaMA
-    - MachineLearning
-    - ChatGPT
-    - singularity
-    - ClaudeAI
-    - Oobabooga
-    - StableDiffusion
-    - artificial
-    - GPT4
-    - OpenAI
-
   feeds:
     - name: "Simon Willison's blog"
       url: "https://simonwillison.net/atom/everything/"
@@ -32,3 +20,15 @@ sources:
     - name: "Hugging Face blog"
       url: "https://huggingface.co/blog/feed.xml"
       type: blog
+    - name: "Lilian Weng's blog"
+      url: "https://lilianweng.github.io/index.xml"
+      type: blog
+    - name: "The Gradient"
+      url: "https://thegradient.pub/rss/"
+      type: blog
+    - name: "Google DeepMind blog"
+      url: "https://deepmind.google/blog/rss.xml"
+      type: blog
+    - name: "Interconnects (Nathan Lambert)"
+      url: "https://www.interconnects.ai/feed"
+      type: newsletter

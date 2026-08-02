@@ -21,7 +21,7 @@ def config(tmp_path):
     return {
         "vault_path": vault,
         "index_path": index,
-        "thresholds": {"reddit_upvotes": 100, "hn_points": 50},
+        "thresholds": {"reddit_upvotes": 100, "hn_points": 50, "novelty_min": 6},
     }
 
 
@@ -30,10 +30,15 @@ def test_run_sweep_filters_and_writes(config, mocker):
     below = make_item("Low quality post about elevators", engagement=10)
 
     mocker.patch("agent.scheduler.HNFetcher.fetch", return_value=[above, below])
-    mocker.patch("agent.scheduler.RedditFetcher.fetch", return_value=[])
     mocker.patch("agent.scheduler.ArxivFetcher.fetch", return_value=[])
     mocker.patch("agent.scheduler.WebFetcher.fetch", return_value=[])
-    mock_score = mocker.patch("agent.scheduler.Evaluator.score", side_effect=lambda x: x)
+
+    def mock_score(items):
+        for item in items:
+            item.novelty = 8
+        return items
+
+    mocker.patch("agent.scheduler.Evaluator.score", side_effect=mock_score)
 
     written = []
     mocker.patch("agent.scheduler.Writer.write_note", side_effect=lambda i: written.append(i) or Path("/tmp/x.md"))
@@ -44,7 +49,6 @@ def test_run_sweep_filters_and_writes(config, mocker):
         index_path=config["index_path"],
         thresholds=config["thresholds"],
         api_key="test",
-        subreddits=[],
         feeds=[],
     )
 
@@ -63,7 +67,6 @@ def test_start_scheduler_registers_two_jobs(config, mocker):
             index_path=config["index_path"],
             thresholds=config["thresholds"],
             api_key="test",
-            subreddits=[],
             feeds=[],
             daily_time="08:00",
             weekly_day="sunday",

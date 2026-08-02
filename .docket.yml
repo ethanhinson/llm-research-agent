@@ -1,0 +1,12 @@
+metadata_branch: docket
+integration_branch: auto
+changes_dir: docs/changes
+adrs_dir: docs/adrs
+results_dir: docs/results
+auto_groom: false
+board_surfaces: [inline]
+finalize:
+  gate: local
+learnings:
+  enabled: true
+  cap: 300

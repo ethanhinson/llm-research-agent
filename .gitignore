@@ -1,5 +1,8 @@
 # Python
 __pycache__/
+
+# Code index (generated tooling)
+.codeindex/
 *.py[cod]
 *.egg-info/
 .eggs/
