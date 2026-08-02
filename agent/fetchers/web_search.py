@@ -66,6 +66,7 @@ class BingSearchClient:
                 params={"q": query, "count": max_results, "freshness": "Week"},
                 timeout=15,
             )
+            resp.raise_for_status()
             data = resp.json()
             items = []
             for item in data.get("webPages", {}).get("value", []):
@@ -94,7 +95,6 @@ class SerpAPISearchClient:
             print("[warn] SERPAPI_KEY not set, skipping SerpAPI search")
             return []
         try:
-            time.sleep(0.5)
             resp = httpx.get(
                 "https://serpapi.com/search.json",
                 params={
@@ -106,6 +106,7 @@ class SerpAPISearchClient:
                 timeout=15,
             )
             time.sleep(0.5)
+            resp.raise_for_status()
             data = resp.json()
             items = []
             for item in data.get("organic_results", []):
