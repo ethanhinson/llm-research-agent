@@ -7,7 +7,10 @@ Monitors Reddit, Hacker News, arXiv, and AI blogs for emerging LLM strategies. D
 ```bash
 pip install -e ".[dev]"
 cp .env.example .env
-# Fill in ANTHROPIC_API_KEY and optionally Reddit credentials
+# Fill in ANTHROPIC_API_KEY.
+# Optionally add web-search backend keys — TAVILY_API_KEY, BING_SEARCH_API_KEY,
+# SERPAPI_KEY — to enable the continuous multi-backend search sweep. Any backend
+# whose key is absent is silently skipped, so configuring even one is enough.
 ```
 
 ## CLI
@@ -15,7 +18,7 @@ cp .env.example .env
 ```bash
 python cli.py sweep          # one-shot sweep now
 python cli.py sweep --deep   # deep sweep (broader arXiv, source discovery)
-python cli.py start          # start scheduler (daily + weekly, runs in foreground)
+python cli.py start          # start scheduler (daily + weekly + a web-search sweep every search.interval_hours; runs in foreground)
 python cli.py sources        # list known sources
 python cli.py status         # stats: strategies documented, last run, source count
 ```

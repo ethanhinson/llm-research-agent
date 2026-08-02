@@ -42,6 +42,7 @@ def cmd_start(args, cfg):
     thresholds = cfg.get("thresholds", {})
     feeds = cfg.get("sources", {}).get("feeds", [])
     schedule = cfg.get("schedule", {})
+    search_cfg = cfg.get("search", {})
     api_key = os.getenv("ANTHROPIC_API_KEY")
     print("Starting scheduler. Press Ctrl+C to stop.")
     start_scheduler(
@@ -52,6 +53,7 @@ def cmd_start(args, cfg):
         feeds=feeds,
         daily_time=schedule.get("daily_sweep", "08:00"),
         weekly_day=schedule.get("weekly_deep", "sunday 08:00").split()[0],
+        search_cfg=search_cfg,
     )
 
 
