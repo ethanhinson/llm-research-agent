@@ -28,6 +28,8 @@ reconciled: true
 | Artifact | Link |
 |---|---|
 | Spec | [2026-08-01-llm-research-agent-design.md](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/superpowers/specs/2026-08-01-llm-research-agent-design.md) |
+| Plan | [2026-08-01-llm-research-agent-plan.md](https://github.com/ethanhinson/llm-research-agent/blob/main/docs/superpowers/plans/2026-08-01-llm-research-agent-plan.md) |
+| PR | [#1](https://github.com/ethanhinson/llm-research-agent/pull/1) |
 <!-- docket:artifacts:end -->
 
 ## Why
