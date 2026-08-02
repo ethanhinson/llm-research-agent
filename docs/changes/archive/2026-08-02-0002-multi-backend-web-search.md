@@ -28,7 +28,7 @@ reconciled: true
 | Artifact | Link |
 |---|---|
 | Spec | [2026-08-01-multi-backend-web-search.md](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/superpowers/specs/2026-08-01-multi-backend-web-search.md) |
-| Plan | [2026-08-02-multi-backend-web-search.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/multi-backend-web-search/docs/superpowers/plans/2026-08-02-multi-backend-web-search.md) |
+| Plan | [2026-08-02-multi-backend-web-search.md](https://github.com/ethanhinson/llm-research-agent/blob/main/docs/superpowers/plans/2026-08-02-multi-backend-web-search.md) |
 | PR | [#2](https://github.com/ethanhinson/llm-research-agent/pull/2) |
 <!-- docket:artifacts:end -->
 
