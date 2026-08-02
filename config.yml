@@ -2,6 +2,18 @@ thresholds:
   hn_points: 50
   novelty_min: 6
 
+search:
+  interval_hours: 6
+  max_results_per_query: 10
+  max_queries: 10
+  dynamic_queries_enabled: true
+  fixed_queries:
+    - "LLM prompting techniques 2026"
+    - "agentic AI patterns"
+    - "multimodal language models"
+    - "LLM inference optimization"
+    - "AI agent frameworks"
+
 schedule:
   daily_sweep: "08:00"
   weekly_deep: "sunday 08:00"
