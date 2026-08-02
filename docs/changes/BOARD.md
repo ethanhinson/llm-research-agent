@@ -1,9 +1,16 @@
 # Backlog
 
-**2 changes** — ✅ 2 done
+**3 changes** — 🟡 1 proposed · ✅ 2 done
+
+## 🟡 Proposed (1)
+
+| # | Title | Priority | Type | Readiness |
+|---|-------|----------|------|-----------|
+| [0003](active/0003-fix-apscheduler-weekday-name.md) | Fix APScheduler weekday name crash — "sunday" → "sun" | `high` | `fix` | build-ready |
 
 ```mermaid
 graph TD
+  0003
 ```
 
 <details><summary>✅ Archive — done (2)</summary>
