@@ -169,6 +169,7 @@ def start_scheduler(
     weekly_day: str = "sunday",
     search_cfg: dict | None = None,
 ):
+    weekly_day = weekly_day[:3].lower()
     parts = daily_time.split(":")
     if len(parts) < 2:
         raise ValueError(f"daily_time must be HH:MM, got: {daily_time!r}")
