@@ -1,12 +1,12 @@
 # Backlog
 
-**3 changes** — 🟡 1 proposed · ✅ 2 done
+**3 changes** — 🔵 1 implemented · ✅ 2 done
 
-## 🟡 Proposed (1)
+## 🔵 Implemented — awaiting merge (1)
 
-| # | Title | Priority | Type | Readiness |
-|---|-------|----------|------|-----------|
-| [0003](active/0003-fix-apscheduler-weekday-name.md) | Fix APScheduler weekday name crash — "sunday" → "sun" | `high` | `fix` | build-ready |
+| # | Title | Priority | Type | PR | Readiness |
+|---|-------|----------|------|----|-----------|
+| [0003](active/0003-fix-apscheduler-weekday-name.md) | Fix APScheduler weekday name crash — "sunday" → "sun" | `high` | `fix` | [#3](https://github.com/ethanhinson/llm-research-agent/pull/3) |  |
 
 ```mermaid
 graph TD
