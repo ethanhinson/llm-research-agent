@@ -1,9 +1,20 @@
 # Backlog
 
-**4 changes** — ✅ 4 done
+**6 changes** — 🟡 2 proposed · ✅ 4 done
+
+## 🟡 Proposed (2)
+
+| # | Title | Priority | Type | Readiness |
+|---|-------|----------|------|-----------|
+| [0005](active/0005-retroactive-reclassify-vault-notes.md) | Retroactive re-classification of existing vault notes | `medium` | `chore` | build-ready |
+| [0006](active/0006-llm-topic-tags.md) | LLM-generated freeform topic tags | `medium` | `feat` | build-ready |
 
 ```mermaid
 graph TD
+  0004 --> 0005
+  0004 --> 0006
+  0004:::done
+  classDef done fill:#d3f9d8;
 ```
 
 <details><summary>✅ Archive — done (4)</summary>
