@@ -2,11 +2,11 @@
 id: 4
 slug: multi-type-content-evaluation
 title: Multi-type content evaluation — expand tagging beyond novelty
-status: implemented
+status: done
 priority: medium
 type: feat
 created: 2026-08-02
-updated: 2026-08-02
+updated: 2026-08-03
 depends_on: []
 related: [1, 2]
 discovered_from: []
