@@ -28,6 +28,7 @@ reconciled: false
 | Artifact | Link |
 |---|---|
 | Spec | [2026-08-02-multi-type-content-evaluation.md](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/superpowers/specs/2026-08-02-multi-type-content-evaluation.md) |
+| PR | [#4](https://github.com/ethanhinson/llm-research-agent/pull/4) |
 <!-- docket:artifacts:end -->
 
 ## Why
