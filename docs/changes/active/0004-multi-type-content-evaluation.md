@@ -2,7 +2,7 @@
 id: 4
 slug: multi-type-content-evaluation
 title: Multi-type content evaluation — expand tagging beyond novelty
-status: proposed
+status: implemented
 priority: medium
 type: feat
 created: 2026-08-02
@@ -16,8 +16,8 @@ plan:
 results:
 trivial: false
 auto_groomable: false
-branch:
-pr:
+branch: feat/multi-type-content-evaluation
+pr: https://github.com/ethanhinson/llm-research-agent/pull/4
 blocked_by:
 reconciled: false
 ---
