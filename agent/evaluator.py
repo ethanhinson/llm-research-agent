@@ -37,16 +37,25 @@ Items:
 
 SCORE_PROMPT = """\
 You are scoring LLM/AI content items. Each item has been pre-classified by type.
-For each item, output exactly one line:
-<n>. <score> [<subcategory>]
+
+Output format — exactly one line per item:
+- research items:  <n>. <score> <subcategory>     (subcategory is REQUIRED, not optional)
+- all other items: <n>. <score>
 
 Scoring axis per type:
 - research:   novelty 1-10  (10=breakthrough new technique, 5=incremental, 1=already well-known)
-  subcategory required for research: prompting | architecture | agentic | tooling | use-case
+  subcategory must be one of: prompting | architecture | agentic | tooling | use-case
 - release:    significance 1-10  (10=landmark release that changes the field, 1=minor patch)
 - news:       timeliness 1-10  (10=major consequential development right now, 1=stale/trivial)
 - benchmark:  authority 1-10  (10=rigorous methodology + credible source, 1=cherry-picked/unclear)
 - tutorial:   practicality 1-10  (10=immediately actionable with working code/steps, 1=too abstract)
+
+Example output for a mixed batch:
+1. 8 architecture
+2. 7
+3. 4
+4. 9 prompting
+5. 6
 
 Items (with pre-classified types):
 {items}"""
