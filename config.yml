@@ -1,6 +1,5 @@
 thresholds:
   hn_points: 50
-  novelty_min: 6
 
 search:
   interval_hours: 6

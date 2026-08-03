@@ -9,8 +9,11 @@ class RawItem:
     source: str
     engagement: int
     timestamp: str
-    novelty: int = 0
+    content_type: str = "research"   # research | release | news | benchmark | tutorial
+    score: int = 0                   # meaning depends on content_type
+    score_label: str = "novelty"     # novelty | significance | timeliness | authority | practicality
+    keep: bool = False               # LLM's explicit keep/skip decision
     validated: bool = False
     sources_count: int = 1
-    category: str = "architecture"
+    category: str = ""               # research sub-category only; empty for other types
     tags: list = field(default_factory=list)

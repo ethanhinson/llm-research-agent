@@ -39,7 +39,7 @@ def test_search_sweep_drives_pipeline_and_writes(vault, mocker):
 
     def mock_score(items):
         for it in items:
-            it.novelty = 9
+            it.keep = True
         return items
 
     mocker.patch("agent.scheduler.Evaluator.score", side_effect=mock_score)
@@ -55,7 +55,7 @@ def test_search_sweep_drives_pipeline_and_writes(vault, mocker):
     result = sched_module.search_sweep(
         vault_path=vault,
         index_path=index_path,
-        search_cfg={"max_results_per_query": 10, "novelty_min": 6},
+        search_cfg={"max_results_per_query": 10},
         api_key="test",
     )
 
@@ -78,7 +78,7 @@ def test_search_sweep_engagement_filter_admits_search_source(vault, mocker):
 
     def mock_score(items):
         for it in items:
-            it.novelty = 8
+            it.keep = True
         return items
 
     mocker.patch("agent.scheduler.Evaluator.score", side_effect=mock_score)
