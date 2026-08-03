@@ -70,7 +70,7 @@ class Writer:
         subdir = TYPE_DIRS.get(item.content_type, item.content_type)
         path = self._strategies_dir / subdir / filename
 
-        tags_str = ", ".join(item.tags) if item.tags else "emerging"
+        tags_str = ", ".join(item.tags) if item.tags else item.content_type
         body = item.body[:500]
         first_sentence_end = body.find(". ")
         summary = body[:first_sentence_end + 1] if first_sentence_end != -1 else body[:150]

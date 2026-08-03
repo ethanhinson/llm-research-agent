@@ -87,7 +87,15 @@ class Evaluator:
             self._classify_batch(batch)
             self._score_batch(batch)
             self._validate_batch(batch)
+            self._set_tags(batch)
         return items
+
+    def _set_tags(self, batch: list[RawItem]):
+        for item in batch:
+            tags = [item.content_type]
+            if item.content_type == "research" and item.category:
+                tags.append(item.category)
+            item.tags = tags
 
     def _call(self, prompt: str) -> str:
         message = self._client.messages.create(
