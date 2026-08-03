@@ -21,7 +21,7 @@ def config(tmp_path):
     return {
         "vault_path": vault,
         "index_path": index,
-        "thresholds": {"reddit_upvotes": 100, "hn_points": 50, "novelty_min": 6},
+        "thresholds": {"reddit_upvotes": 100, "hn_points": 50},
     }
 
 
@@ -35,7 +35,7 @@ def test_run_sweep_filters_and_writes(config, mocker):
 
     def mock_score(items):
         for item in items:
-            item.novelty = 8
+            item.keep = True
         return items
 
     mocker.patch("agent.scheduler.Evaluator.score", side_effect=mock_score)

@@ -28,13 +28,11 @@ def run_sweep(
     api_key: str | None,
     feeds: list[dict],
     deep: bool = False,
-    novelty_min: int = 6,
 ) -> list[RawItem]:
     vault_path = Path(vault_path)
     index_path = Path(index_path)
 
     hn_threshold = thresholds.get("hn_points", 50)
-    min_novelty = thresholds.get("novelty_min", novelty_min)
 
     def _fetch(fetcher_fn):
         try:
@@ -67,28 +65,23 @@ def run_sweep(
     evaluator = Evaluator(api_key=api_key)
     scored = evaluator.score(after_cv)
 
-    above_threshold = [item for item in scored if item.novelty >= min_novelty]
+    kept = [item for item in scored if item.keep]
 
     writer = Writer(vault_path=vault_path)
-    for item in above_threshold:
+    for item in kept:
         writer.write_note(item)
         dedup.mark_seen(item)
 
-    if above_threshold:
+    if kept:
         writer.regenerate_index()
 
-    return above_threshold
+    return kept
 
 
 def _recent_strategy_titles(vault_path: Path, limit: int = 20) -> list[str]:
-    """Best-effort read of recent strategy note titles from the vault.
-
-    recent_titles is only a hint for dynamic query generation; any failure
-    here must never break the sweep, so we swallow errors and fall back to [].
-    """
     try:
         strategies_dir = Path(vault_path) / "strategies"
-        paths = sorted(strategies_dir.glob("*.md"), reverse=True)[:limit]
+        paths = sorted(strategies_dir.glob("**/*.md"), reverse=True)[:limit]
         return [p.stem for p in paths]
     except Exception:
         return []
@@ -145,18 +138,17 @@ def search_sweep(
     evaluator = Evaluator(api_key=api_key)
     scored = evaluator.score(after_cv)
 
-    min_novelty = search_cfg.get("novelty_min", 6)
-    above_threshold = [item for item in scored if item.novelty >= min_novelty]
+    kept = [item for item in scored if item.keep]
 
     writer = Writer(vault_path=vault_path)
-    for item in above_threshold:
+    for item in kept:
         writer.write_note(item)
         dedup.mark_seen(item)
 
-    if above_threshold:
+    if kept:
         writer.regenerate_index()
 
-    return above_threshold
+    return kept
 
 
 def start_scheduler(

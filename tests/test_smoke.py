@@ -1,4 +1,4 @@
-"""Full pipeline smoke test: 2 items in, 1 above threshold, 1 below, 1 note written."""
+"""Full pipeline smoke test: 2 items in, 1 kept, 1 skipped, 1 note written."""
 import pytest
 from pathlib import Path
 from unittest.mock import MagicMock
@@ -38,22 +38,23 @@ def test_smoke_one_note_written(vault, mocker):
     mocker.patch("agent.scheduler.ArxivFetcher.fetch", return_value=[])
     mocker.patch("agent.scheduler.WebFetcher.fetch", return_value=[])
 
-    mock_message = MagicMock()
-    mock_message.content = [MagicMock(text="1. 8 architecture")]
-    mocker.patch("anthropic.Anthropic.messages", new_callable=lambda: type(
-        "M", (), {"create": staticmethod(lambda **kw: mock_message)}
-    ))
+    def mock_score(items):
+        for item in items:
+            item.keep = item.title == "Mixture of Experts explained"
+        return items
+
+    mocker.patch("agent.scheduler.Evaluator.score", side_effect=mock_score)
 
     index_path = vault.parent / ".index.json"
     sched_module.run_sweep(
         vault_path=vault,
         index_path=index_path,
-        thresholds={"hn_points": 50, "novelty_min": 0},
+        thresholds={"hn_points": 50},
         api_key="test",
         feeds=[],
     )
 
-    notes = list((vault / "strategies").glob("*.md"))
+    notes = list((vault / "strategies").glob("**/*.md"))
     assert len(notes) == 1
     content = notes[0].read_text()
     assert "Mixture of Experts" in content
