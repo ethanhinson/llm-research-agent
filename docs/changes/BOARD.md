@@ -1,9 +1,16 @@
 # Backlog
 
-**3 changes** — ✅ 3 done
+**4 changes** — 🟡 1 proposed · ✅ 3 done
+
+## 🟡 Proposed (1)
+
+| # | Title | Priority | Type | Readiness |
+|---|-------|----------|------|-----------|
+| [0004](active/0004-multi-type-content-evaluation.md) | Multi-type content evaluation — expand tagging beyond novelty | `medium` | `feat` | build-ready |
 
 ```mermaid
 graph TD
+  0004
 ```
 
 <details><summary>✅ Archive — done (3)</summary>
