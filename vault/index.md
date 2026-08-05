@@ -171,6 +171,9 @@
 
 | Title | Practicality |
 |---|---|
+| [[strategies/tutorials/2026-08-05-install-llama-cpp-on-macos-with-homebrew.md|Install llama.cpp on macOS with Homebrew]] | 9 |
+| [[strategies/tutorials/2026-08-05-run-local-llms-on-mac-with-llama-cpp-server-and-models.md|Run local LLMs on Mac with llama.cpp: models & OpenAI-compatible server]] | 8 |
+| [[strategies/tutorials/2026-08-05-build-llama-cpp-from-source-on-apple-silicon-with-metal.md|Build llama.cpp from source on Apple Silicon with Metal]] | 8 |
 | [[strategies/tutorials/2026-08-02-run-kimi-k3-using-29-gb-of-ram-at-050-toks.md|Run Kimi K3 using 29 GB of RAM at 0.50 tok/s]] | 8 |
 | [[strategies/tutorials/2026-08-02-an-opinionated-guide-to-which-ai-to-use-to-do-stuff.md|An opinionated guide to which AI to use to do stuff]] | 8 |
 | [[strategies/tutorials/2026-08-03-quoting-david-crawshaws-prompt.md|Quoting David Crawshaw's prompt]] | 7 |
