@@ -1,14 +1,19 @@
 # Backlog
 
-**7 changes** — 🟡 3 proposed · ✅ 4 done
+**7 changes** — 🟢 1 in progress · 🟡 2 proposed · ✅ 4 done
 
-## 🟡 Proposed (3)
+## 🟢 In progress (1)
+
+| # | Title | Priority | Type | Spec | Branch |
+|---|-------|----------|------|------|--------|
+| [0007](active/0007-full-content-note-synthesis.md) | Full-content retrieval + LLM note synthesis | `high` | `feat` | [spec](../superpowers/specs/2026-08-06-full-content-note-synthesis.md) | `feat/full-content-note-synthesis` |
+
+## 🟡 Proposed (2)
 
 | # | Title | Priority | Type | Readiness |
 |---|-------|----------|------|-----------|
 | [0005](active/0005-retroactive-reclassify-vault-notes.md) | Retroactive re-classification of existing vault notes | `medium` | `chore` | build-ready |
 | [0006](active/0006-llm-topic-tags.md) | LLM-generated freeform topic tags | `medium` | `feat` | build-ready |
-| [0007](active/0007-full-content-note-synthesis.md) | Full-content retrieval + LLM note synthesis | `high` | `feat` | build-ready |
 
 ```mermaid
 graph TD
