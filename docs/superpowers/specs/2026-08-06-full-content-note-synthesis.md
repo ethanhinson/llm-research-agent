@@ -62,6 +62,10 @@ New `cli.py regenerate` command (flags mirroring `reclassify`: `--date`, `--all`
 
 Backfill respects the same `min_score` gate against the note's existing score.
 
+### 5. Backdated sweeps (`--lookback-days`)
+
+`cli.py sweep` currently exposes only `--deep`; there is no way to widen the crawl window. Add `--lookback-days N` (and optional `--date YYYY-MM-DD` for the note date stamp), threaded to `WebFetcher(lookback_days=…)` and to the search fetchers' recency filters where they have one. This exists primarily so the E2E validation below can crawl a few weeks of past content, but it is a generally useful knob (e.g. re-seeding the vault after downtime).
+
 ## Out of scope
 
 - Changing search backends or query generation.
@@ -74,7 +78,21 @@ Backfill respects the same `min_score` gate against the note's existing score.
 - `tests/test_enricher.py` — extraction happy path (mocked httpx), arXiv branch, failure fallback to snippet, min-length guard.
 - `tests/test_synthesizer.py` — prompt assembly, response parsing, API-failure fallback (mocked anthropic client, matching existing evaluator test style).
 - `tests/test_writer.py` — extended: synthesized sections land in the template; below-threshold items keep the old path.
-- `tests/test_cli.py` — `regenerate` command with mocked enricher/synthesizer: in-place rewrite preserves frontmatter, index regenerated.
+- `tests/test_cli.py` — `regenerate` command with mocked enricher/synthesizer: in-place rewrite preserves frontmatter, index regenerated; `sweep --lookback-days` threads the window to the fetchers.
+
+## E2E validation (acceptance — real APIs, part of this change's build)
+
+Unit tests alone don't prove the notes actually read well; the build MUST finish with a live end-to-end run of the analysis, using backdated crawling so the run itself produces real vault value:
+
+1. **Backdated live sweep**: `python cli.py sweep --lookback-days 21` against live search backends + the Anthropic API — crawls roughly three weeks into the past so the run writes a meaningful batch of new notes rather than an empty same-day window.
+2. **Live backfill**: `python cli.py regenerate --all` over the existing ~100 snippet-junk notes.
+3. **Acceptance checks on the resulting vault** (recorded in the change's results file):
+   - Above-threshold notes contain synthesized prose: no `[...]` elision markers, no mid-sentence truncation, no hardcoded "Engagement: N signals" line, no citation-list Summaries.
+   - `content_source` distribution reported per domain — the majority of above-threshold notes should be `full`; every `snippet` fallback is listed with its domain, giving the first real answer to "which sites can't we retrieve?".
+   - Spot-read at least 5 notes across types (research/release/news/tutorial) and paste one before/after pair into the results file.
+   - `vault/index.md` regenerated and consistent with the note frontmatter.
+
+The E2E run costs real API calls by design — the score gate bounds it, and the resulting notes are the product, not a fixture. If a search backend or the API is unavailable at build time, the run is deferred to finalize, not skipped silently.
 
 ## Decisions taken
 

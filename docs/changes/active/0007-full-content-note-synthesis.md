@@ -45,8 +45,10 @@ For kept items scoring at or above a configurable threshold: fetch the full page
 - `agent/writer.py` wired to synthesized sections; `agent/models.py` gains `content_source`
 - `config.yml`: new `synthesis:` block (`enabled`, `min_score` default 6, `max_chars` default 8000)
 - New `cli.py regenerate` command (`--date`, `--all`, `--min-score`) for backfill
+- New `sweep --lookback-days N` flag to widen the crawl window into the past
 - New dependency: trafilatura
 - Tests for enricher, synthesizer, writer wiring, and the regenerate command
+- **E2E acceptance run (required, live APIs)**: a backdated sweep (`--lookback-days 21`) plus `regenerate --all` over the existing vault; verify synthesized prose (no `[...]`/truncation/hardcoded lines), report `content_source` per domain, spot-read ≥5 notes — evidence recorded in the results file. The run's notes are real product output, not fixtures.
 
 ## Out of scope
 
