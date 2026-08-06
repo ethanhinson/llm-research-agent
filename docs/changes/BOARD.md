@@ -1,12 +1,6 @@
 # Backlog
 
-**7 changes** — 🟢 1 in progress · 🟡 2 proposed · ✅ 4 done
-
-## 🟢 In progress (1)
-
-| # | Title | Priority | Type | Spec | Branch |
-|---|-------|----------|------|------|--------|
-| [0007](active/0007-full-content-note-synthesis.md) | Full-content retrieval + LLM note synthesis | `high` | `feat` | [spec](../superpowers/specs/2026-08-06-full-content-note-synthesis.md) | `feat/full-content-note-synthesis` |
+**7 changes** — 🟡 2 proposed · 🔵 1 implemented · ✅ 4 done
 
 ## 🟡 Proposed (2)
 
@@ -14,6 +8,12 @@
 |---|-------|----------|------|-----------|
 | [0005](active/0005-retroactive-reclassify-vault-notes.md) | Retroactive re-classification of existing vault notes | `medium` | `chore` | build-ready |
 | [0006](active/0006-llm-topic-tags.md) | LLM-generated freeform topic tags | `medium` | `feat` | build-ready |
+
+## 🔵 Implemented — awaiting merge (1)
+
+| # | Title | Priority | Type | PR | Readiness |
+|---|-------|----------|------|----|-----------|
+| [0007](active/0007-full-content-note-synthesis.md) | Full-content retrieval + LLM note synthesis | `high` | `feat` | [#5](https://github.com/ethanhinson/llm-research-agent/pull/5) |  |
 
 ```mermaid
 graph TD
