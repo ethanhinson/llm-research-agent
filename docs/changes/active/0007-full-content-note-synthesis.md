@@ -2,23 +2,23 @@
 id: 7
 slug: full-content-note-synthesis
 title: Full-content retrieval + LLM note synthesis
-status: in-progress
+status: implemented
 priority: high
 type: feat
 created: 2026-08-06
 updated: 2026-08-06
-claimed_at: 2026-08-06T21:11:44Z
+claimed_at: 2026-08-06T21:31:38Z
 depends_on: []
 related: [4, 5, 6]
 discovered_from: []
 adrs: []
 spec: docs/superpowers/specs/2026-08-06-full-content-note-synthesis.md
 plan: docs/superpowers/plans/2026-08-06-full-content-note-synthesis-plan.md
-results:
+results: docs/results/2026-08-06-full-content-note-synthesis-results.md
 trivial: false
 auto_groomable: false
 branch: feat/full-content-note-synthesis
-pr:
+pr: https://github.com/ethanhinson/llm-research-agent/pull/5
 blocked_by:
 reconciled: true
 ---
@@ -30,6 +30,8 @@ reconciled: true
 |---|---|
 | Spec | [2026-08-06-full-content-note-synthesis.md](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/superpowers/specs/2026-08-06-full-content-note-synthesis.md) |
 | Plan | [2026-08-06-full-content-note-synthesis-plan.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/full-content-note-synthesis/docs/superpowers/plans/2026-08-06-full-content-note-synthesis-plan.md) |
+| Results | [2026-08-06-full-content-note-synthesis-results.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/full-content-note-synthesis/docs/results/2026-08-06-full-content-note-synthesis-results.md) |
+| PR | [#5](https://github.com/ethanhinson/llm-research-agent/pull/5) |
 <!-- docket:artifacts:end -->
 
 ## Why
