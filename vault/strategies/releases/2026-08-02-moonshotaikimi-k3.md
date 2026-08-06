@@ -29,3 +29,5 @@ Engagement: 0 signals. Cross-source validated: false.
 - [moonshotai/Kimi-K3](https://simonwillison.net/2026/Jul/27/kimi-k3/#atom-everything) — web/Simon Willison's blog · 0
 
 ## Related
+- [[strategies/tutorials/2026-08-03-kimi-k3-cloud-api-access-moonshot-openai-compatible|Kimi K3 Cloud API Access: Moonshot AI OpenAI-Compatible Endpoint]]
+- [[strategies/tutorials/2026-08-03-unified-llm-access-openrouter-litellm-claude|Unified LLM API Access: OpenRouter + LiteLLM]]

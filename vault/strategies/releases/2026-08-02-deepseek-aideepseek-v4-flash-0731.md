@@ -29,3 +29,5 @@ Engagement: 0 signals. Cross-source validated: false.
 - [deepseek-ai/DeepSeek-V4-Flash-0731](https://simonwillison.net/2026/Jul/31/deepseek-v4-flash-0731/#atom-everything) — web/Simon Willison's blog · 0
 
 ## Related
+- [[strategies/tutorials/2026-08-03-deepseek-v4-flash-and-pro-api-integration|DeepSeek V4 Flash + Pro: API Integration and Model IDs]]
+- [[strategies/tutorials/2026-08-03-unified-llm-access-openrouter-litellm-claude|Unified LLM API Access: OpenRouter + LiteLLM]]
