@@ -103,7 +103,9 @@ def cmd_regenerate(args, cfg):
         f"Regenerate complete. "
         f"regenerated={report.get('regenerated', 0)} "
         f"fetch-failed={report.get('fetch_failed', 0)} "
-        f"skipped-below-threshold={report.get('skipped', 0)}"
+        f"skipped-below-threshold={report.get('skipped', 0)} "
+        f"preserved={report.get('preserved', 0)} "
+        f"errored={report.get('errored', 0)}"
     )
     tally = report.get("content_source_by_domain", {})
     if tally:

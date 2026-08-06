@@ -81,12 +81,20 @@ class Regenerator:
         return sorted(self._strategies.glob("**/*.md"))
 
     def _run(self, notes: list[Path]) -> dict:
-        report = {"regenerated": 0, "fetch_failed": 0, "skipped": 0}
+        report = {"regenerated": 0, "fetch_failed": 0, "skipped": 0,
+                  "preserved": 0, "errored": 0}
         source_tally: dict[str, int] = {}
         for path in notes:
-            outcome = self._regenerate_note(path, source_tally)
+            try:
+                outcome = self._regenerate_note(path, source_tally)
+            except Exception as exc:  # one bad note must not abort the batch
+                print(f"[warn] regenerate errored for {path.name}: {exc}")
+                outcome = "errored"
             report[outcome] = report.get(outcome, 0) + 1
-        self._writer.regenerate_index()
+        try:
+            self._writer.regenerate_index()
+        except Exception as exc:
+            print(f"[warn] index regeneration failed: {exc}")
         report["content_source_by_domain"] = source_tally
         return report
 
@@ -126,6 +134,12 @@ class Regenerator:
             outcome = "fetch_failed"
 
         sections = self._synthesizer.synthesize(item) or {}
+
+        # If synthesis produced nothing AND enrichment did not upgrade the body
+        # to full text, we have nothing better than what is already on disk —
+        # leave the note untouched rather than clobber it with a title-only body.
+        if not sections and item.content_source != "full":
+            return "preserved"
 
         # tally content_source per domain
         domain = _domain(url)

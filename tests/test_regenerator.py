@@ -144,3 +144,47 @@ def test_index_regenerated(tmp_path, mocker):
     index = (tmp_path / "vault" / "index.md").read_text()
     assert "## Research" in index
     assert "Mixture of Experts explained" in index
+
+
+def test_malformed_note_does_not_abort_batch(tmp_path, mocker):
+    # A note that raises during rewrite must not stop the rest of the batch.
+    good = _write(tmp_path, LEGACY_NOTE, name="2026-08-01-good.md")
+    bad = _write(tmp_path, LEGACY_NOTE, name="2026-08-01-bad.md")
+
+    mocker.patch("agent.regenerator.ContentEnricher.enrich", side_effect=lambda i: i)
+    mocker.patch(
+        "agent.regenerator.NoteSynthesizer.synthesize",
+        return_value={"summary": "s", "how_it_works": "h", "why_it_matters": "w"},
+    )
+
+    real_read = type(bad).read_text
+
+    def flaky_read(self, *a, **k):
+        if self.name == "2026-08-01-bad.md":
+            raise UnicodeDecodeError("utf-8", b"", 0, 1, "boom")
+        return real_read(self, *a, **k)
+
+    mocker.patch.object(type(bad), "read_text", flaky_read)
+
+    reg = Regenerator(vault_path=tmp_path / "vault", api_key="test", min_score=6)
+    report = reg.regenerate_all()
+
+    # the good note was still regenerated; the bad one tallied as a failure
+    assert report["regenerated"] == 1
+    assert report.get("fetch_failed", 0) + report.get("errored", 0) >= 1
+
+
+def test_total_synthesis_failure_preserves_note(tmp_path, mocker):
+    # enrich yields no full text AND synthesize returns {} -> do not clobber the
+    # note with a title-only body; keep the original content.
+    p = _write(tmp_path, LEGACY_NOTE)
+    original = p.read_text()
+
+    mocker.patch("agent.regenerator.ContentEnricher.enrich", side_effect=lambda i: i)
+    mocker.patch("agent.regenerator.NoteSynthesizer.synthesize", return_value={})
+
+    reg = Regenerator(vault_path=tmp_path / "vault", api_key="test", min_score=6)
+    report = reg.regenerate_all()
+
+    assert p.read_text() == original  # untouched
+    assert report.get("regenerated", 0) == 0
