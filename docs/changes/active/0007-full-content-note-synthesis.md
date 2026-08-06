@@ -7,7 +7,7 @@ priority: high
 type: feat
 created: 2026-08-06
 updated: 2026-08-06
-claimed_at: 2026-08-06T21:09:13Z
+claimed_at: 2026-08-06T21:11:44Z
 depends_on: []
 related: [4, 5, 6]
 discovered_from: []
@@ -20,7 +20,7 @@ auto_groomable: false
 branch: feat/full-content-note-synthesis
 pr:
 blocked_by:
-reconciled: false
+reconciled: true
 ---
 
 ## Artifacts
@@ -61,3 +61,17 @@ For kept items scoring at or above a configurable threshold: fetch the full page
 ## Open questions
 
 ## Reconcile log
+
+### 2026-08-06 (docket-implement-next)
+
+Reconciled the change + spec against current `main` code. Design holds; no obsolescence, no fundamental invalidation. Adjustments folded in:
+
+- **Search backends drift (descriptive).** Spec's Problem section names "Brave/fallback snippet". Actual backends in `agent/fetchers/web_search.py` are **Tavily, Bing, SerpAPI** (no Brave). The enricher operates on `RawItem.url` and `content_source` is backend-agnostic, so the design is unaffected — noting the corrected backend set for the plan.
+- **`sweep` command does NOT exercise search backends (substantive, plan-relevant).** `cli.py`'s `cmd_sweep` calls only `agent.scheduler.run_sweep`, which fetches HN/arXiv/RSS feeds — NOT `search_sweep` (Tavily/Bing/SerpAPI), which is currently wired only into the scheduler (`start`). The spec's E2E acceptance requires `python cli.py sweep --lookback-days 21` against **live search backends + Anthropic API**. The plan must thread `--lookback-days` such that the `sweep` command actually runs the search-backend path (e.g. run both `run_sweep` and `search_sweep`, or route the flag to a combined path) so live search backends are genuinely exercised, and thread `lookback_days` into `WebFetcher(lookback_days=…)` (already parameterized) and the search recency filters where present.
+- **Live-key availability.** `.env` has `TAVILY_API_KEY`, `ANTHROPIC_API_KEY`, `OPENROUTER_API_KEY`. `BING_SEARCH_API_KEY` / `SERPAPI_KEY` are absent, so **Tavily is the only live search backend** (Bing/SerpAPI self-skip). One live search backend satisfies the spec's "live search backends" — no deferral needed on that basis.
+- **`trafilatura` not installed.** New dependency; build must add it to `pyproject.toml` and install it in `.venv`.
+- **Vault scale drift (descriptive).** Spec says "~100 snippet-junk notes"; the vault now holds **323 notes** (research 97, releases 13, news 29, benchmarks 9, tutorials 8) under `vault/strategies/<subdir>/`, index at `vault/index.md`. Backfill scope is larger but the design is unchanged. Notes have parseable `## Sources` first-URL and full YAML frontmatter (list-form tags post-migration) that `regenerate` must preserve verbatim; existing notes lack `content_source` (regenerate adds it).
+- **`reclassify` not built.** Spec says `regenerate` flags "mirror `reclassify`"; change 0005 (which owns `reclassify`) is still `proposed`/unbuilt, so no `reclassify` command exists yet. The `regenerate` flags (`--date`, `--all`, `--min-score`) are fully specified independently — treat the "mirror" as stylistic, not a dependency.
+- **Latent pre-existing bug (out of scope).** `agent/scheduler.py:57` references undefined `reddit_threshold` in `run_sweep`; only triggers if a `reddit` source exists (none currently). Already flagged out-of-scope by an in-code comment (line 123). Not this change's fix — reported here, not minted (auto-capture disabled this run).
+
+Related changes 4 (done — multi-type evaluation, added `content_type`/`score_label`/`category`/`tags` to `RawItem`), 5 (proposed — reclassify), 6 (proposed — topic tags) reviewed: `regenerate` preserves frontmatter, so it composes with 5/6 in either order as the spec's Out-of-scope states. No ADRs cited or produced yet.
