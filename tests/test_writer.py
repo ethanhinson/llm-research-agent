@@ -84,6 +84,58 @@ def test_writer_slug_derived_from_title(tmp_path):
     assert "flash-attention-3" in path.name
 
 
+def test_writer_uses_synthesized_sections(tmp_path):
+    vault = _vault(tmp_path)
+    writer = Writer(vault_path=vault, date="2026-08-01")
+    item = make_item()
+    item.content_source = "full"
+    sections = {
+        "summary": "A synthesized summary sentence.",
+        "how_it_works": "A synthesized explanation of the mechanism.",
+        "why_it_matters": "A synthesized paragraph on practitioner impact.",
+    }
+    path = writer.write_note(item, sections=sections)
+    content = path.read_text()
+
+    assert "A synthesized summary sentence." in content
+    assert "A synthesized explanation of the mechanism." in content
+    assert "A synthesized paragraph on practitioner impact." in content
+    assert "## Why It Matters" in content
+    # legacy hardcoded line must NOT appear when synthesized
+    assert "Engagement:" not in content
+    assert "Why It's Gaining Traction" not in content
+
+
+def test_writer_falls_back_to_template_without_sections(tmp_path):
+    vault = _vault(tmp_path)
+    writer = Writer(vault_path=vault, date="2026-08-01")
+    path = writer.write_note(make_item())  # no sections
+    content = path.read_text()
+    # legacy path keeps the body-excerpt template behavior
+    assert "A fast attention implementation." in content
+
+
+def test_writer_records_content_source_in_frontmatter(tmp_path):
+    vault = _vault(tmp_path)
+    writer = Writer(vault_path=vault, date="2026-08-01")
+    item = make_item()
+    item.content_source = "full"
+    path = writer.write_note(item, sections={"summary": "s", "how_it_works": "h", "why_it_matters": "w"})
+    fm = yaml.safe_load(path.read_text().split("---")[1])
+    assert fm["content_source"] == "full"
+
+
+def test_writer_partial_sections_fall_back_per_section(tmp_path):
+    vault = _vault(tmp_path)
+    writer = Writer(vault_path=vault, date="2026-08-01")
+    item = make_item()
+    # only summary synthesized; other two fall back to legacy template text
+    path = writer.write_note(item, sections={"summary": "Only a summary here."})
+    content = path.read_text()
+    assert "Only a summary here." in content
+    assert "## Why It Matters" in content
+
+
 def test_writer_regenerates_index_grouped_by_type(tmp_path):
     vault = _vault(tmp_path)
     writer = Writer(vault_path=vault, date="2026-08-01")
