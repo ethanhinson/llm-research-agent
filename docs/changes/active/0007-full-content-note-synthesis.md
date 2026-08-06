@@ -13,7 +13,7 @@ related: [4, 5, 6]
 discovered_from: []
 adrs: []
 spec: docs/superpowers/specs/2026-08-06-full-content-note-synthesis.md
-plan:
+plan: docs/superpowers/plans/2026-08-06-full-content-note-synthesis-plan.md
 results:
 trivial: false
 auto_groomable: false
@@ -29,6 +29,7 @@ reconciled: true
 | Artifact | Link |
 |---|---|
 | Spec | [2026-08-06-full-content-note-synthesis.md](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/superpowers/specs/2026-08-06-full-content-note-synthesis.md) |
+| Plan | [2026-08-06-full-content-note-synthesis-plan.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/full-content-note-synthesis/docs/superpowers/plans/2026-08-06-full-content-note-synthesis-plan.md) |
 <!-- docket:artifacts:end -->
 
 ## Why
