@@ -43,7 +43,7 @@ Each sweep runs: **Fetch → Deduplicate → Engagement filter → Cross-validat
 
 ## Configuration
 
-Edit `config.yml` to adjust thresholds, schedule, and sources. Add Reddit credentials and an Anthropic API key to `.env`.
+Edit `config.yml` to adjust thresholds, schedule, and sources. Put API keys in `.env` (see `.env.example`); `.env` is gitignored and must never be committed.
 
 ## Tests
 
