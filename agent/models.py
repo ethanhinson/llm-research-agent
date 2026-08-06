@@ -17,3 +17,4 @@ class RawItem:
     sources_count: int = 1
     category: str = ""               # research sub-category only; empty for other types
     tags: list = field(default_factory=list)
+    content_source: str = "snippet"  # snippet | full — where the note body text came from
