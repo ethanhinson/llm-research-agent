@@ -86,3 +86,33 @@ def test_sweep_parser_accepts_lookback_days():
     cli._build_sweep_parser(sub)
     args = parser.parse_args(["sweep", "--lookback-days", "14"])
     assert args.lookback_days == 14
+
+
+def test_cmd_regenerate_dispatches(mocker):
+    import cli
+    from argparse import Namespace
+
+    mock_reg = MagicMock()
+    mock_reg.regenerate_all.return_value = {
+        "regenerated": 2, "fetch_failed": 0, "skipped": 1,
+        "content_source_by_domain": {"full:example.com": 2},
+    }
+    mocker.patch("agent.regenerator.Regenerator", return_value=mock_reg)
+
+    cfg = {"synthesis": {"enabled": True, "min_score": 6, "max_chars": 8000}}
+    args = Namespace(date=None, all=True, min_score=None)
+    cli.cmd_regenerate(args=args, cfg=cfg)
+
+    assert mock_reg.regenerate_all.call_count == 1
+
+
+def test_regenerate_parser_accepts_flags():
+    import cli
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    sub = parser.add_subparsers(dest="command")
+    cli._build_regenerate_parser(sub)
+    args = parser.parse_args(["regenerate", "--all", "--min-score", "7"])
+    assert args.all is True
+    assert args.min_score == 7

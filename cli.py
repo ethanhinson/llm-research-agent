@@ -78,6 +78,53 @@ def _build_sweep_parser(subparsers):
     return sweep_p
 
 
+def cmd_regenerate(args, cfg):
+    from agent.regenerator import Regenerator
+    synthesis_cfg = cfg.get("synthesis", {})
+    min_score = getattr(args, "min_score", None)
+    if min_score is None:
+        min_score = synthesis_cfg.get("min_score", 6)
+    max_chars = synthesis_cfg.get("max_chars", 8000)
+    api_key = os.getenv("ANTHROPIC_API_KEY")
+
+    reg = Regenerator(
+        vault_path=VAULT_PATH,
+        api_key=api_key,
+        min_score=min_score,
+        max_chars=max_chars,
+    )
+    date = getattr(args, "date", None)
+    if date:
+        report = reg.regenerate(date=date)
+    else:
+        report = reg.regenerate_all()
+
+    print(
+        f"Regenerate complete. "
+        f"regenerated={report.get('regenerated', 0)} "
+        f"fetch-failed={report.get('fetch_failed', 0)} "
+        f"skipped-below-threshold={report.get('skipped', 0)}"
+    )
+    tally = report.get("content_source_by_domain", {})
+    if tally:
+        print("content_source per domain:")
+        for key in sorted(tally):
+            print(f"  {key}: {tally[key]}")
+
+
+def _build_regenerate_parser(subparsers):
+    p = subparsers.add_parser(
+        "regenerate", help="Backfill existing vault notes with synthesized prose"
+    )
+    p.add_argument("--date", default=None, help="Only notes stamped YYYY-MM-DD")
+    p.add_argument("--all", action="store_true", help="Regenerate all notes")
+    p.add_argument(
+        "--min-score", type=int, default=None,
+        help="Override the synthesis min_score gate",
+    )
+    return p
+
+
 def cmd_start(args, cfg):
     from agent.scheduler import start_scheduler
     thresholds = cfg.get("thresholds", {})
@@ -139,6 +186,7 @@ def main():
     sub = parser.add_subparsers(dest="command")
 
     _build_sweep_parser(sub)
+    _build_regenerate_parser(sub)
 
     sub.add_parser("start", help="Start the scheduler (runs in foreground)")
     sub.add_parser("sources", help="List known sources")
@@ -147,6 +195,8 @@ def main():
     args = parser.parse_args()
     if args.command == "sweep":
         cmd_sweep(args, cfg)
+    elif args.command == "regenerate":
+        cmd_regenerate(args, cfg)
     elif args.command == "start":
         cmd_start(args, cfg)
     elif args.command == "sources":
