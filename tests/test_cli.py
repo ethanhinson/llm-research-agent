@@ -48,3 +48,41 @@ def test_cli_status_prints_info(tmp_path, capsys):
         import importlib, cli
         with patch("cli.VAULT_PATH", vault):
             importlib.reload(cli)
+
+
+def test_cmd_sweep_threads_lookback_and_runs_search(mocker):
+    import cli
+    from argparse import Namespace
+
+    mock_run = mocker.patch("agent.scheduler.run_sweep", return_value=[])
+    mock_search = mocker.patch("agent.scheduler.search_sweep", return_value=[])
+
+    cfg = {
+        "thresholds": {"hn_points": 50},
+        "sources": {"feeds": [{"name": "x", "url": "http://x", "type": "blog"}]},
+        "search": {"max_results_per_query": 10},
+        "synthesis": {"enabled": True, "min_score": 6, "max_chars": 8000},
+    }
+    args = Namespace(deep=False, lookback_days=21, date=None)
+    cli.cmd_sweep(args=args, cfg=cfg)
+
+    # run_sweep got the lookback window and the synthesis config
+    _, run_kwargs = mock_run.call_args
+    assert run_kwargs["lookback_days"] == 21
+    assert run_kwargs["synthesis_cfg"] == cfg["synthesis"]
+
+    # the search-backend path was exercised too (reconcile fix)
+    assert mock_search.call_count == 1
+    _, search_kwargs = mock_search.call_args
+    assert search_kwargs["synthesis_cfg"] == cfg["synthesis"]
+
+
+def test_sweep_parser_accepts_lookback_days():
+    import cli
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    sub = parser.add_subparsers(dest="command")
+    cli._build_sweep_parser(sub)
+    args = parser.parse_args(["sweep", "--lookback-days", "14"])
+    assert args.lookback_days == 14

@@ -21,20 +21,61 @@ def load_config() -> dict:
 
 
 def cmd_sweep(args, cfg):
-    from agent.scheduler import run_sweep
+    from agent import scheduler
     deep = getattr(args, "deep", False)
+    lookback_days = getattr(args, "lookback_days", None)
+    date = getattr(args, "date", None)
     thresholds = cfg.get("thresholds", {})
     feeds = cfg.get("sources", {}).get("feeds", [])
+    search_cfg = cfg.get("search", {})
+    synthesis_cfg = cfg.get("synthesis", {})
     api_key = os.getenv("ANTHROPIC_API_KEY")
-    items = run_sweep(
+
+    # Feed / HN / arXiv path.
+    feed_items = scheduler.run_sweep(
         vault_path=VAULT_PATH,
         index_path=INDEX_PATH,
         thresholds=thresholds,
         api_key=api_key,
         feeds=feeds,
         deep=deep,
+        lookback_days=lookback_days,
+        synthesis_cfg=synthesis_cfg,
+        date=date,
     )
-    print(f"Sweep complete. {len(items)} new strategies documented.")
+
+    # Search-backend path (Tavily/Bing/SerpAPI) — each client self-skips
+    # without its key, so this is safe even when only one backend is configured.
+    search_items = []
+    if search_cfg:
+        search_items = scheduler.search_sweep(
+            vault_path=VAULT_PATH,
+            index_path=INDEX_PATH,
+            search_cfg=search_cfg,
+            api_key=api_key,
+            synthesis_cfg=synthesis_cfg,
+            date=date,
+        )
+
+    total = len(feed_items) + len(search_items)
+    print(f"Sweep complete. {total} new strategies documented.")
+
+
+def _build_sweep_parser(subparsers):
+    sweep_p = subparsers.add_parser("sweep", help="Run a one-shot sweep now")
+    sweep_p.add_argument("--deep", action="store_true", help="Run a deep sweep")
+    sweep_p.add_argument(
+        "--lookback-days",
+        type=int,
+        default=None,
+        help="Widen the crawl window to N days into the past",
+    )
+    sweep_p.add_argument(
+        "--date",
+        default=None,
+        help="Note date stamp (YYYY-MM-DD); defaults to today",
+    )
+    return sweep_p
 
 
 def cmd_start(args, cfg):
@@ -97,8 +138,7 @@ def main():
     parser = argparse.ArgumentParser(description="LLM Research Agent")
     sub = parser.add_subparsers(dest="command")
 
-    sweep_p = sub.add_parser("sweep", help="Run a one-shot sweep now")
-    sweep_p.add_argument("--deep", action="store_true", help="Run a deep sweep")
+    _build_sweep_parser(sub)
 
     sub.add_parser("start", help="Start the scheduler (runs in foreground)")
     sub.add_parser("sources", help="List known sources")
