@@ -29,8 +29,8 @@ reconciled: true
 | Artifact | Link |
 |---|---|
 | Spec | [2026-08-03-retroactive-reclassify-vault-notes.md](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/superpowers/specs/2026-08-03-retroactive-reclassify-vault-notes.md) |
-| Plan | [2026-08-07-retroactive-reclassify-vault-notes.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/retroactive-reclassify-vault-notes/docs/superpowers/plans/2026-08-07-retroactive-reclassify-vault-notes.md) |
-| Results | [2026-08-07-retroactive-reclassify-vault-notes-results.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/retroactive-reclassify-vault-notes/docs/results/2026-08-07-retroactive-reclassify-vault-notes-results.md) |
+| Plan | [2026-08-07-retroactive-reclassify-vault-notes.md](https://github.com/ethanhinson/llm-research-agent/blob/main/docs/superpowers/plans/2026-08-07-retroactive-reclassify-vault-notes.md) |
+| Results | [2026-08-07-retroactive-reclassify-vault-notes-results.md](https://github.com/ethanhinson/llm-research-agent/blob/main/docs/results/2026-08-07-retroactive-reclassify-vault-notes-results.md) |
 | PR | [#6](https://github.com/ethanhinson/llm-research-agent/pull/6) |
 <!-- docket:artifacts:end -->
 

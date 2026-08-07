@@ -1,5 +1,5 @@
 <!-- docket:backlink:start (generated — do not hand-edit) -->
-> ↩ **[Change 0005 — Retroactive re-classification of existing vault notes](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/changes/active/0005-retroactive-reclassify-vault-notes.md)**
+> ↩ **[Change 0005 — Retroactive re-classification of existing vault notes](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/changes/archive/2026-08-07-0005-retroactive-reclassify-vault-notes.md)**
 <!-- docket:backlink:end -->
 
 # Retroactive Re-classification of Vault Notes — Design Spec
