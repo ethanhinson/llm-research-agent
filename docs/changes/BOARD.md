@@ -1,12 +1,12 @@
 # Backlog
 
-**10 changes** — 🟡 1 proposed · ✅ 9 done
+**10 changes** — 🟢 1 in progress · ✅ 9 done
 
-## 🟡 Proposed (1)
+## 🟢 In progress (1)
 
-| # | Title | Priority | Type | Readiness |
-|---|-------|----------|------|-----------|
-| [0010](active/0010-expand-article-sources.md) | Expand article sources — HF daily papers, arXiv keyword search, GitHub trending, wired SourceDiscovery | `medium` | `feat` | build-ready |
+| # | Title | Priority | Type | Spec | Branch |
+|---|-------|----------|------|------|--------|
+| [0010](active/0010-expand-article-sources.md) | Expand article sources — HF daily papers, arXiv keyword search, GitHub trending, wired SourceDiscovery | `medium` | `feat` | [spec](../superpowers/specs/2026-08-07-expand-article-sources.md) | `feat/expand-article-sources` |
 
 ```mermaid
 graph TD
