@@ -12,13 +12,13 @@ related: [9, 10, 13]
 discovered_from: []
 adrs: []
 spec: docs/superpowers/specs/2026-08-07-semantic-scholar-adapter.md
-plan:
+plan: docs/superpowers/plans/2026-08-07-semantic-scholar-adapter.md
 results:
 trivial: false
 auto_groomable: false
 branch: feat/semantic-scholar-adapter
 pr:
-claimed_at: 2026-08-07T19:28:06Z
+claimed_at: 2026-08-07T19:31:36Z
 blocked_by:
 reconciled: true
 ---
@@ -29,6 +29,7 @@ reconciled: true
 | Artifact | Link |
 |---|---|
 | Spec | [2026-08-07-semantic-scholar-adapter.md](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/superpowers/specs/2026-08-07-semantic-scholar-adapter.md) |
+| Plan | [2026-08-07-semantic-scholar-adapter.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/semantic-scholar-adapter/docs/superpowers/plans/2026-08-07-semantic-scholar-adapter.md) |
 <!-- docket:artifacts:end -->
 
 ## Why
