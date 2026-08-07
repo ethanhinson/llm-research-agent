@@ -1,6 +1,6 @@
 # Backlog
 
-**16 changes** — 🟡 4 proposed · 🔵 1 implemented · ✅ 11 done
+**16 changes** — 🟡 4 proposed · ✅ 12 done
 
 ## 🟡 Proposed (4)
 
@@ -11,15 +11,8 @@
 | [0015](active/0015-embedding-topic-prefilter.md) | Embedding-based topic pre-filter (replace/augment regex filter) | `medium` | `feat` | needs-brainstorm |
 | [0016](active/0016-hf-trending-artifacts.md) | Hugging Face trending models/datasets adapter | `medium` | `feat` | build-ready |
 
-## 🔵 Implemented — awaiting merge (1)
-
-| # | Title | Priority | Type | PR | Readiness |
-|---|-------|----------|------|----|-----------|
-| [0012](active/0012-semantic-scholar-adapter.md) | Semantic Scholar keyword-search adapter | `medium` | `feat` | [#12](https://github.com/ethanhinson/llm-research-agent/pull/12) |  |
-
 ```mermaid
 graph TD
-  0010 --> 0012
   0010 --> 0013
   0014
   0015
@@ -28,10 +21,11 @@ graph TD
   classDef done fill:#d3f9d8;
 ```
 
-<details><summary>✅ Archive — done (11)</summary>
+<details><summary>✅ Archive — done (12)</summary>
 
 | # | Title | Merged |
 |---|-------|--------|
+| [0012](archive/2026-08-07-0012-semantic-scholar-adapter.md) | Semantic Scholar keyword-search adapter | 2026-08-07 |
 | [0011](archive/2026-08-07-0011-curated-feed-expansion.md) | Add verified curated feeds — newsletters + Lobste.rs | 2026-08-07 |
 | [0010](archive/2026-08-07-0010-expand-article-sources.md) | Expand article sources — HF daily papers, arXiv keyword search, GitHub trending, wired SourceDiscovery | 2026-08-07 |
 | [0009](archive/2026-08-07-0009-source-adapter-layer.md) | Unify article intake behind a SourceAdapter layer | 2026-08-07 |
