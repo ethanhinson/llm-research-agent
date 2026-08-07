@@ -1,23 +1,23 @@
 # Backlog
 
-**16 changes** — 🟢 1 in progress · 🟡 6 proposed · ✅ 9 done
-
-## 🟢 In progress (1)
-
-| # | Title | Priority | Type | Spec | Branch |
-|---|-------|----------|------|------|--------|
-| [0010](active/0010-expand-article-sources.md) | Expand article sources — HF daily papers, arXiv keyword search, GitHub trending, wired SourceDiscovery | `medium` | `feat` | [spec](../superpowers/specs/2026-08-07-expand-article-sources.md) | `feat/expand-article-sources` |
+**16 changes** — 🟡 6 proposed · 🔵 1 implemented · ✅ 9 done
 
 ## 🟡 Proposed (6)
 
 | # | Title | Priority | Type | Readiness |
 |---|-------|----------|------|-----------|
 | [0011](active/0011-curated-feed-expansion.md) | Add verified curated feeds — newsletters + Lobste.rs | `medium` | `chore` | build-ready |
-| [0012](active/0012-semantic-scholar-adapter.md) | Semantic Scholar keyword-search adapter | `medium` | `feat` | ⏳ waiting on #10 — not yet built |
-| [0013](active/0013-bluesky-author-feeds.md) | Bluesky author-feed adapter with researcher registry | `medium` | `feat` | ⏳ waiting on #10 — not yet built |
+| [0012](active/0012-semantic-scholar-adapter.md) | Semantic Scholar keyword-search adapter | `medium` | `feat` | ⏳ waiting on #10 — needs your merge |
+| [0013](active/0013-bluesky-author-feeds.md) | Bluesky author-feed adapter with researcher registry | `medium` | `feat` | ⏳ waiting on #10 — needs your merge |
 | [0014](active/0014-cross-source-corroboration-ranking.md) | Cross-source corroboration + citation-velocity signals | `medium` | `feat` | needs-brainstorm |
 | [0015](active/0015-embedding-topic-prefilter.md) | Embedding-based topic pre-filter (replace/augment regex filter) | `medium` | `feat` | needs-brainstorm |
-| [0016](active/0016-hf-trending-artifacts.md) | Hugging Face trending models/datasets adapter | `medium` | `feat` | ⏳ waiting on #10 — not yet built |
+| [0016](active/0016-hf-trending-artifacts.md) | Hugging Face trending models/datasets adapter | `medium` | `feat` | ⏳ waiting on #10 — needs your merge |
+
+## 🔵 Implemented — awaiting merge (1)
+
+| # | Title | Priority | Type | PR | Readiness |
+|---|-------|----------|------|----|-----------|
+| [0010](active/0010-expand-article-sources.md) | Expand article sources — HF daily papers, arXiv keyword search, GitHub trending, wired SourceDiscovery | `medium` | `feat` | [#10](https://github.com/ethanhinson/llm-research-agent/pull/10) |  |
 
 ```mermaid
 graph TD
