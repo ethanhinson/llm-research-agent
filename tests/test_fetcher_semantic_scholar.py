@@ -123,6 +123,20 @@ def test_arxiv_url_preference(mocker):
     assert "https://www.semanticscholar.org/paper/y" in urls
 
 
+def test_arxiv_url_fallback_when_no_url_and_no_arxiv(mocker):
+    p = _paper(externalIds={"DOI": "10.1/x"}, url=None)
+    _mock_get(mocker, payload={"data": [p]})
+    items = SemanticScholarAdapter(queries=["q"]).fetch()
+    assert items[0].url == ""
+
+
+def test_arxiv_url_tolerates_non_dict_external_ids(mocker):
+    p = _paper(externalIds=None, url="https://s2/paper/z")
+    _mock_get(mocker, payload={"data": [p]})
+    items = SemanticScholarAdapter(queries=["q"]).fetch()
+    assert items[0].url == "https://s2/paper/z"
+
+
 def test_engagement_is_citation_count(mocker):
     _mock_get(mocker, payload={"data": [_paper(citationCount=99)]})
     items = SemanticScholarAdapter(queries=["q"]).fetch()
@@ -220,6 +234,23 @@ def test_empty_queries_returns_empty_no_http(mocker):
     mock_get = mocker.patch("httpx.get")
     assert SemanticScholarAdapter(queries=[]).fetch() == []
     assert mock_get.call_count == 0
+
+
+def test_polite_sleep_between_queries_when_unkeyed(mocker):
+    sleep = mocker.patch("time.sleep", return_value=None)
+    _mock_get(mocker, payload={"data": []})
+    SemanticScholarAdapter(queries=["a", "b", "c"]).fetch()
+    # one inter-request sleep between each pair of the 3 unkeyed queries
+    assert sleep.call_count == 2
+
+
+def test_no_polite_sleep_when_keyed(mocker, monkeypatch):
+    monkeypatch.setenv("S2_API_KEY", "k")
+    sleep = mocker.patch("time.sleep", return_value=None)
+    _mock_get(mocker, payload={"data": []})
+    SemanticScholarAdapter(queries=["a", "b", "c"]).fetch()
+    # keyed tier is a dedicated pool — no politeness sleeps needed
+    assert sleep.call_count == 0
 
 
 def test_is_source_adapter():
