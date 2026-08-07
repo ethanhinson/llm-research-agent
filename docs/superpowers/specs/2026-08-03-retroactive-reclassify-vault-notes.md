@@ -11,7 +11,9 @@
 
 ## Overview
 
-Before the three-pass evaluator shipped (change 0004), the pipeline had no content-type system — everything was classified as `research`. The vault currently has ~51 Aug 1 notes all sitting in `strategies/research/` with `type: research`, many of which are actually releases, news items, benchmarks, or tutorials. This change adds a `cli.py reclassify` command to fix them.
+Before the three-pass evaluator shipped (change 0004), the pipeline had no content-type system. This change adds a `cli.py reclassify` command to retroactively type and file pre-type-system notes.
+
+**Reconcile note (2026-08-07):** the original premise ("~51 Aug 1 notes in `strategies/research/`") is stale. The actual target set is **167 flat top-level notes** at `vault/strategies/*.md` (dated 2026-08-03/04/05), written under the OLD schema — `category:` + `novelty:` frontmatter, **no `type:` field**, never filed into a type subdir. The 156 notes already in the `research/`/`releases/`/`news/`/`benchmarks/`/`tutorials/` subdirs already carry the new schema. Reclassify targets the flat notes: type them, rewrite to the new schema, and move them into the correct subdir.
 
 ---
 
@@ -26,20 +28,21 @@ python cli.py reclassify [--date YYYY-MM-DD] [--all]
 
 ### Flow
 
-1. Collect target `.md` files from `vault/strategies/**/*.md` (filtered by date prefix if `--date` given)
-2. Parse each file's YAML frontmatter: extract `title`, and use the body (everything after `---`) as `body`
-3. Build a minimal `RawItem` per note: `title=fm["title"]`, `body=<note body>`, `url=fm.get("url", "")`, `source=fm.get("source", "")`, `engagement=0`, `timestamp=fm.get("date", "")`
-4. Run the batch through `Evaluator.score()` (all three passes: classify, score, validate)
-5. For each note, update frontmatter fields: `type`, `score`, `score_label`, `category` (research only), `tags`
-6. If `item.content_type` differs from the old `type`, move the file to the correct subdir (`strategies/<TYPE_DIRS[item.content_type]>/`)
-7. After all notes are processed, call `writer.regenerate_index()`
+1. Collect target `.md` files from `vault/strategies/**/*.md` (filtered by date prefix if `--date` given; `--all` = every note). Recursive glob covers both flat top-level notes and subdir notes.
+2. Parse each file with `agent.regenerator.split_note(content) -> (fm, body)` (reused helper)
+3. Build a `RawItem` per note. Read defensively across old + new schema: `title=fm.get("title", path.stem)`, `body=<note body text>`, `url=<first ## Sources url or "">`, `source=fm.get("source", "")`, `engagement=0`, `timestamp=fm.get("date", "")`. (Old-schema notes lack `type`/`score`/`score_label`; those are set by the evaluator, so absence is fine.)
+4. Run the batch through `Evaluator.score()` (all three passes: classify, score, validate — plus `_set_tags`)
+5. For each note, rewrite frontmatter fields: `type`, `score`, `score_label`, `category` (research only — remove the key otherwise), `tags`. Drop the old `novelty:` key.
+6. Move the file to the correct subdir (`strategies/<TYPE_DIRS[item.content_type]>/`). A flat top-level note always moves; a subdir note whose type is unchanged stays put.
+7. After all notes are processed, call `Writer(vault_path).regenerate_index()`
 
 ### Key implementation notes
 
 - The reclassify command does **not** touch the deduplicator index — reclassification is a metadata update, not a new item ingest
 - `item.keep` from the validate pass is informational only here — we re-classify regardless of keep/skip (the note already exists; we're not deciding whether to save it)
 - If a filename collision occurs on move (rare: two notes with identical slugs), append a `-2` suffix rather than overwriting
-- Print a summary at the end: `N notes reclassified, M moved, K unchanged`
+- The command follows the `cmd_regenerate(args, cfg)` + `_build_regenerate_parser(subparsers)` shape and is dispatched by the explicit if/elif chain in `main()`. The codebase does NOT use `set_defaults(func=...)`.
+- Print a summary at the end: `N notes reclassified, M moved, K errored`
 
 ---
 
@@ -61,13 +64,20 @@ Leave all other frontmatter fields untouched (`title`, `date`, `validated`, `sou
 
 ## CLI Integration
 
-Add `reclassify` to the argparse subcommands in `cli.py`:
+Follow the `cmd_regenerate` / `_build_regenerate_parser` pattern (change 0007). Add a `_build_reclassify_parser(subparsers)` builder, call it in `main()`, and add a `reclassify` branch to the if/elif dispatch:
 
 ```python
-sub = subparsers.add_parser("reclassify", help="Re-classify existing vault notes")
-sub.add_argument("--date", help="Only notes from this date (YYYY-MM-DD)")
-sub.add_argument("--all", action="store_true", help="Re-classify all notes")
-sub.set_defaults(func=cmd_reclassify)
+def _build_reclassify_parser(subparsers):
+    p = subparsers.add_parser("reclassify", help="Re-classify existing vault notes")
+    p.add_argument("--date", default=None, help="Only notes from this date (YYYY-MM-DD)")
+    p.add_argument("--all", action="store_true", help="Re-classify all notes")
+    return p
+
+# in main():
+_build_reclassify_parser(sub)
+...
+elif args.command == "reclassify":
+    cmd_reclassify(args, cfg)
 ```
 
 ---
