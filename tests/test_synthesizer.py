@@ -1,8 +1,21 @@
 """NoteSynthesizer tests — Haiku section synthesis with fail-soft fallback."""
-from unittest.mock import MagicMock
-
 from agent.models import RawItem
 from agent.synthesizer import NoteSynthesizer
+
+
+class FakeLLM:
+    """Injectable LLMClient stub. `complete` returns canned text or raises."""
+
+    def __init__(self, text="", *, error=None):
+        self.text = text
+        self.error = error
+        self.prompts = []
+
+    def complete(self, prompt, max_tokens):
+        self.prompts.append(prompt)
+        if self.error is not None:
+            raise self.error
+        return self.text
 
 
 def _item(**kw):
@@ -22,12 +35,6 @@ def _item(**kw):
     return RawItem(**base)
 
 
-def _mock_message(text):
-    msg = MagicMock()
-    msg.content = [MagicMock(text=text)]
-    return msg
-
-
 WELL_FORMED = """\
 SUMMARY:
 Mixture of Experts (MoE) is an architecture that routes each token to a small
@@ -43,28 +50,20 @@ is why frontier labs increasingly ship MoE models.
 """
 
 
-def test_prompt_assembly_includes_title_and_body(mocker):
-    synth = NoteSynthesizer(api_key="test-key")
-    captured = {}
-
-    def fake_create(**kwargs):
-        captured["prompt"] = kwargs["messages"][0]["content"]
-        return _mock_message(WELL_FORMED)
-
-    mocker.patch.object(synth._client.messages, "create", side_effect=fake_create)
+def test_prompt_assembly_includes_title_and_body():
+    fake = FakeLLM(WELL_FORMED)
+    synth = NoteSynthesizer(client=fake)
     synth.synthesize(_item())
 
-    prompt = captured["prompt"]
+    prompt = fake.prompts[0]
     assert "Mixture of Experts explained" in prompt
     assert "MoE routes tokens" in prompt
     assert "research" in prompt
 
 
-def test_well_formed_response_parses_three_sections(mocker):
-    synth = NoteSynthesizer(api_key="test-key")
-    mocker.patch.object(
-        synth._client.messages, "create", return_value=_mock_message(WELL_FORMED)
-    )
+def test_well_formed_response_parses_three_sections():
+    fake = FakeLLM(WELL_FORMED)
+    synth = NoteSynthesizer(client=fake)
     sections = synth.synthesize(_item())
     assert set(sections.keys()) >= {"summary", "how_it_works", "why_it_matters"}
     assert "routes each token" in sections["summary"]
@@ -72,21 +71,17 @@ def test_well_formed_response_parses_three_sections(mocker):
     assert "serving cost" in sections["why_it_matters"]
 
 
-def test_api_failure_returns_empty_no_raise(mocker):
-    synth = NoteSynthesizer(api_key="test-key")
-    mocker.patch.object(
-        synth._client.messages, "create", side_effect=RuntimeError("api down")
-    )
+def test_api_failure_returns_empty_no_raise():
+    fake = FakeLLM(error=RuntimeError("api down"))
+    synth = NoteSynthesizer(client=fake)
     sections = synth.synthesize(_item())
     assert sections == {}
 
 
-def test_partial_response_returns_what_parsed(mocker):
-    synth = NoteSynthesizer(api_key="test-key")
+def test_partial_response_returns_what_parsed():
     partial = "SUMMARY:\nJust a summary, nothing else.\n"
-    mocker.patch.object(
-        synth._client.messages, "create", return_value=_mock_message(partial)
-    )
+    fake = FakeLLM(partial)
+    synth = NoteSynthesizer(client=fake)
     sections = synth.synthesize(_item())
     assert sections.get("summary", "").strip() == "Just a summary, nothing else."
     # missing sections are absent or empty — writer falls back for those
