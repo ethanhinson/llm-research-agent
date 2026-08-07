@@ -65,6 +65,7 @@ def build_adapters(
     from agent.fetchers.semantic_scholar import SemanticScholarAdapter
     from agent.fetchers.web import WebFetcher
     from agent.fetchers.bluesky import BlueskyAdapter
+    from agent.fetchers.hf_trending import HFTrendingAdapter
 
     if kind == "sweep":
         lb = {} if lookback_days is None else {"lookback_days": lookback_days}
@@ -122,6 +123,20 @@ def build_adapters(
                 BlueskyAdapter(
                     authors=list(bsky_cfg.get("authors") or []),
                     min_engagement=bsky_cfg.get("min_engagement", 5),
+                    **lb,
+                )
+            )
+
+        # Change 0016: Hugging Face trending models + datasets. A single adapter
+        # queries both endpoints (sort=trendingScore, no auth), each fail-soft;
+        # `likes` is the engagement signal. `lookback_days` is threaded for
+        # interface parity but unused (trendingScore already encodes recency).
+        hf_trending_cfg = sources.get("hf_trending") or {}
+        if hf_trending_cfg.get("enabled"):
+            adapters.append(
+                HFTrendingAdapter(
+                    limit=hf_trending_cfg.get("limit", 20),
+                    min_likes=hf_trending_cfg.get("min_likes", 0),
                     **lb,
                 )
             )
