@@ -2,7 +2,7 @@
 id: 12
 slug: semantic-scholar-adapter
 title: Semantic Scholar keyword-search adapter
-status: in-progress
+status: implemented
 priority: medium
 type: feat
 created: 2026-08-07
@@ -13,12 +13,12 @@ discovered_from: []
 adrs: []
 spec: docs/superpowers/specs/2026-08-07-semantic-scholar-adapter.md
 plan: docs/superpowers/plans/2026-08-07-semantic-scholar-adapter.md
-results:
+results: docs/results/2026-08-07-semantic-scholar-adapter-results.md
 trivial: false
 auto_groomable: false
 branch: feat/semantic-scholar-adapter
-pr:
-claimed_at: 2026-08-07T19:31:36Z
+pr: https://github.com/ethanhinson/llm-research-agent/pull/12
+claimed_at: 2026-08-07T19:38:54Z
 blocked_by:
 reconciled: true
 ---
@@ -30,6 +30,8 @@ reconciled: true
 |---|---|
 | Spec | [2026-08-07-semantic-scholar-adapter.md](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/superpowers/specs/2026-08-07-semantic-scholar-adapter.md) |
 | Plan | [2026-08-07-semantic-scholar-adapter.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/semantic-scholar-adapter/docs/superpowers/plans/2026-08-07-semantic-scholar-adapter.md) |
+| Results | [2026-08-07-semantic-scholar-adapter-results.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/semantic-scholar-adapter/docs/results/2026-08-07-semantic-scholar-adapter-results.md) |
+| PR | [#12](https://github.com/ethanhinson/llm-research-agent/pull/12) |
 <!-- docket:artifacts:end -->
 
 ## Why
