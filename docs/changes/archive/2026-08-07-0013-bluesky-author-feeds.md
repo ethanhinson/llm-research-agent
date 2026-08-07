@@ -2,7 +2,7 @@
 id: 13
 slug: bluesky-author-feeds
 title: Bluesky author-feed adapter with researcher registry
-status: implemented
+status: done
 priority: medium
 type: feat
 created: 2026-08-07
@@ -20,7 +20,7 @@ branch: feat/bluesky-author-feeds
 pr: https://github.com/ethanhinson/llm-research-agent/pull/13
 blocked_by:
 reconciled: true
-claimed_at: 2026-08-07T20:18:32Z
+claimed_at: 
 ---
 
 ## Artifacts
