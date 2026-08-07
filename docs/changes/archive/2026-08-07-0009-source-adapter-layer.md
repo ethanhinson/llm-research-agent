@@ -2,11 +2,11 @@
 id: 9
 slug: source-adapter-layer
 title: Unify article intake behind a SourceAdapter layer
-status: implemented
+status: done
 priority: medium
 type: refactor
 created: 2026-08-07
-updated: 2026-08-07T06:47:09Z
+updated: 2026-08-07
 depends_on: []
 related: [2, 8, 10]
 discovered_from: []
@@ -17,7 +17,7 @@ results:
 trivial: false
 auto_groomable: false
 branch: feat/source-adapter-layer
-claimed_at: 2026-08-07T06:47:09Z
+claimed_at: 
 pr: https://github.com/ethanhinson/llm-research-agent/pull/9
 blocked_by:
 reconciled: true
