@@ -1,12 +1,17 @@
 # Backlog
 
-**10 changes** — 🟡 2 proposed · ✅ 8 done
+**10 changes** — 🟢 1 in progress · 🟡 1 proposed · ✅ 8 done
 
-## 🟡 Proposed (2)
+## 🟢 In progress (1)
+
+| # | Title | Priority | Type | Spec | Branch |
+|---|-------|----------|------|------|--------|
+| [0009](active/0009-source-adapter-layer.md) | Unify article intake behind a SourceAdapter layer | `medium` | `refactor` | [spec](../superpowers/specs/2026-08-07-source-adapter-layer.md) | `feat/source-adapter-layer` |
+
+## 🟡 Proposed (1)
 
 | # | Title | Priority | Type | Readiness |
 |---|-------|----------|------|-----------|
-| [0009](active/0009-source-adapter-layer.md) | Unify article intake behind a SourceAdapter layer | `medium` | `refactor` | build-ready |
 | [0010](active/0010-expand-article-sources.md) | Expand article sources — HF daily papers, arXiv keyword search, GitHub trending, wired SourceDiscovery | `medium` | `feat` | ⏳ waiting on #9 — not yet built |
 
 ```mermaid
