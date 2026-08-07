@@ -15,9 +15,11 @@ import yaml
 def _str_representer(dumper, val):
     return dumper.represent_str(str(val))
 
-_yaml_dumper = yaml.SafeDumper
-_yaml_dumper.add_representer(datetime.date, _str_representer)
-_yaml_dumper.add_representer(datetime.datetime, _str_representer)
+class _YamlDumper(yaml.SafeDumper):
+    pass
+
+_YamlDumper.add_representer(datetime.date, _str_representer)
+_YamlDumper.add_representer(datetime.datetime, _str_representer)
 
 from agent.evaluator import Evaluator
 from agent.models import RawItem
@@ -106,7 +108,7 @@ class Reclassifier:
 
         # Rebuild the file: rewritten frontmatter + original body verbatim.
         body = path.read_text().split("---", 2)[2].lstrip("\n")
-        fm_text = yaml.dump(new_fm, Dumper=_yaml_dumper, sort_keys=True, allow_unicode=True).strip()
+        fm_text = yaml.dump(new_fm, Dumper=_YamlDumper, sort_keys=True, allow_unicode=True).strip()
         content = f"---\n{fm_text}\n---\n\n{body}"
 
         subdir = TYPE_DIRS.get(item.content_type, item.content_type)
