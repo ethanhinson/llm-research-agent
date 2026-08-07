@@ -2,7 +2,7 @@
 id: 16
 slug: hf-trending-artifacts
 title: Hugging Face trending models/datasets adapter
-status: implemented
+status: done
 priority: medium
 type: feat
 created: 2026-08-07
@@ -19,7 +19,7 @@ auto_groomable: false
 branch: feat/hf-trending-artifacts
 pr: https://github.com/ethanhinson/llm-research-agent/pull/14
 blocked_by:
-claimed_at: 2026-08-07T20:35:14Z
+claimed_at: 
 reconciled: true
 ---
 
