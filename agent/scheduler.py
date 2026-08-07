@@ -29,6 +29,7 @@ def _write_kept(
     dedup: Deduplicator,
     api_key: str | None,
     synthesis_cfg: dict | None,
+    llm_cfg: dict | None = None,
 ):
     """Write each kept item, enriching + synthesizing above-threshold items.
 
@@ -42,7 +43,9 @@ def _write_kept(
     max_chars = cfg.get("max_chars", 8000)
 
     enricher = ContentEnricher(max_chars=max_chars) if enabled else None
-    synthesizer = NoteSynthesizer(api_key=api_key) if enabled else None
+    synthesizer = (
+        NoteSynthesizer(api_key=api_key, llm_cfg=llm_cfg) if enabled else None
+    )
 
     for item in kept:
         sections = None
@@ -73,6 +76,7 @@ def run_sweep(
     lookback_days: int | None = None,
     synthesis_cfg: dict | None = None,
     date: str | None = None,
+    llm_cfg: dict | None = None,
 ) -> list[RawItem]:
     vault_path = Path(vault_path)
     index_path = Path(index_path)
@@ -111,13 +115,13 @@ def run_sweep(
 
     after_cv = cross_validate(after_topic)
 
-    evaluator = Evaluator(api_key=api_key)
+    evaluator = Evaluator(api_key=api_key, llm_cfg=llm_cfg)
     scored = evaluator.score(after_cv)
 
     kept = [item for item in scored if item.keep]
 
     writer = Writer(vault_path=vault_path, date=date)
-    _write_kept(kept, writer, dedup, api_key, synthesis_cfg)
+    _write_kept(kept, writer, dedup, api_key, synthesis_cfg, llm_cfg=llm_cfg)
 
     return kept
 
@@ -138,6 +142,7 @@ def search_sweep(
     api_key: str | None,
     synthesis_cfg: dict | None = None,
     date: str | None = None,
+    llm_cfg: dict | None = None,
 ) -> list[RawItem]:
     vault_path = Path(vault_path)
     index_path = Path(index_path)
@@ -152,7 +157,7 @@ def search_sweep(
 
     recent_titles = _recent_strategy_titles(vault_path)
     queries = SearchQueryGenerator(
-        cfg={"search": search_cfg}, api_key=api_key
+        cfg={"search": search_cfg}, api_key=api_key, llm_cfg=llm_cfg
     ).queries(recent_titles=recent_titles)
 
     fetcher = MultiSearchFetcher(
@@ -181,13 +186,13 @@ def search_sweep(
 
     after_cv = cross_validate(after_topic)
 
-    evaluator = Evaluator(api_key=api_key)
+    evaluator = Evaluator(api_key=api_key, llm_cfg=llm_cfg)
     scored = evaluator.score(after_cv)
 
     kept = [item for item in scored if item.keep]
 
     writer = Writer(vault_path=vault_path, date=date)
-    _write_kept(kept, writer, dedup, api_key, synthesis_cfg)
+    _write_kept(kept, writer, dedup, api_key, synthesis_cfg, llm_cfg=llm_cfg)
 
     return kept
 
@@ -201,6 +206,7 @@ def start_scheduler(
     daily_time: str = "08:00",
     weekly_day: str = "sunday",
     search_cfg: dict | None = None,
+    llm_cfg: dict | None = None,
 ):
     weekly_day = weekly_day[:3].lower()
     parts = daily_time.split(":")
@@ -222,6 +228,7 @@ def start_scheduler(
             "api_key": api_key,
             "feeds": feeds,
             "deep": False,
+            "llm_cfg": llm_cfg,
         },
         id="daily_sweep",
         name="Daily LLM research sweep",
@@ -240,6 +247,7 @@ def start_scheduler(
             "api_key": api_key,
             "feeds": feeds,
             "deep": True,
+            "llm_cfg": llm_cfg,
         },
         id="weekly_deep_sweep",
         name="Weekly deep LLM research sweep",
@@ -255,6 +263,7 @@ def start_scheduler(
                 "index_path": index_path,
                 "search_cfg": search_cfg,
                 "api_key": api_key,
+                "llm_cfg": llm_cfg,
             },
             id="search_sweep",
             name="Multi-backend web search sweep",

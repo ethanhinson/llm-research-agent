@@ -58,12 +58,12 @@ def _tail_from_sources(body: str) -> str:
 
 class Regenerator:
     def __init__(self, vault_path, api_key: str | None = None, min_score: int = 6,
-                 max_chars: int = 8000):
+                 max_chars: int = 8000, llm_cfg: dict | None = None):
         self._vault = Path(vault_path)
         self._strategies = self._vault / "strategies"
         self._min_score = min_score
         self._enricher = ContentEnricher(max_chars=max_chars)
-        self._synthesizer = NoteSynthesizer(api_key=api_key)
+        self._synthesizer = NoteSynthesizer(api_key=api_key, llm_cfg=llm_cfg)
         self._writer = Writer(vault_path=self._vault)
 
     def regenerate_all(self) -> dict:

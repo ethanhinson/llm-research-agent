@@ -29,6 +29,7 @@ def cmd_sweep(args, cfg):
     feeds = cfg.get("sources", {}).get("feeds", [])
     search_cfg = cfg.get("search", {})
     synthesis_cfg = cfg.get("synthesis", {})
+    llm_cfg = cfg.get("llm", {})
     api_key = os.getenv("ANTHROPIC_API_KEY")
 
     # Feed / HN / arXiv path.
@@ -42,6 +43,7 @@ def cmd_sweep(args, cfg):
         lookback_days=lookback_days,
         synthesis_cfg=synthesis_cfg,
         date=date,
+        llm_cfg=llm_cfg,
     )
 
     # Search-backend path (Tavily/Bing/SerpAPI) — each client self-skips
@@ -55,6 +57,7 @@ def cmd_sweep(args, cfg):
             api_key=api_key,
             synthesis_cfg=synthesis_cfg,
             date=date,
+            llm_cfg=llm_cfg,
         )
 
     total = len(feed_items) + len(search_items)
@@ -85,6 +88,7 @@ def cmd_regenerate(args, cfg):
     if min_score is None:
         min_score = synthesis_cfg.get("min_score", 6)
     max_chars = synthesis_cfg.get("max_chars", 8000)
+    llm_cfg = cfg.get("llm", {})
     api_key = os.getenv("ANTHROPIC_API_KEY")
 
     reg = Regenerator(
@@ -92,6 +96,7 @@ def cmd_regenerate(args, cfg):
         api_key=api_key,
         min_score=min_score,
         max_chars=max_chars,
+        llm_cfg=llm_cfg,
     )
     date = getattr(args, "date", None)
     if date:
@@ -129,8 +134,9 @@ def _build_regenerate_parser(subparsers):
 
 def cmd_reclassify(args, cfg):
     from agent.reclassifier import Reclassifier
+    llm_cfg = cfg.get("llm", {})
     api_key = os.getenv("ANTHROPIC_API_KEY")
-    rec = Reclassifier(vault_path=VAULT_PATH, api_key=api_key)
+    rec = Reclassifier(vault_path=VAULT_PATH, api_key=api_key, llm_cfg=llm_cfg)
     date = getattr(args, "date", None)
     all_notes = getattr(args, "all", False)
     report = rec.reclassify(date=date, all_notes=all_notes)
@@ -157,6 +163,7 @@ def cmd_start(args, cfg):
     feeds = cfg.get("sources", {}).get("feeds", [])
     schedule = cfg.get("schedule", {})
     search_cfg = cfg.get("search", {})
+    llm_cfg = cfg.get("llm", {})
     api_key = os.getenv("ANTHROPIC_API_KEY")
     print("Starting scheduler. Press Ctrl+C to stop.")
     start_scheduler(
@@ -168,6 +175,7 @@ def cmd_start(args, cfg):
         daily_time=schedule.get("daily_sweep", "08:00"),
         weekly_day=schedule.get("weekly_deep", "sunday 08:00").split()[0],
         search_cfg=search_cfg,
+        llm_cfg=llm_cfg,
     )
 
 

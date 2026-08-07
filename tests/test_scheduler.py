@@ -56,6 +56,34 @@ def test_run_sweep_filters_and_writes(config, mocker):
     assert written[0].title == "Flash Attention 3: faster LLM inference"
 
 
+def test_run_sweep_threads_llm_cfg_to_evaluator(config, mocker):
+    """When cfg selects openrouter, run_sweep builds the evaluator via get_client
+    with that llm cfg (proving the provider/model is threaded, not hard-coded)."""
+    item = make_item("Flash Attention 3: faster LLM inference", engagement=200)
+    mocker.patch("agent.scheduler.HNFetcher.fetch", return_value=[item])
+    mocker.patch("agent.scheduler.ArxivFetcher.fetch", return_value=[])
+    mocker.patch("agent.scheduler.WebFetcher.fetch", return_value=[])
+
+    fake_client = MagicMock()
+    spy = mocker.patch("agent.evaluator.get_client", return_value=fake_client)
+
+    mocker.patch("agent.scheduler.Evaluator.score", side_effect=lambda items: items)
+    mocker.patch("agent.scheduler.Writer.write_note", return_value=Path("/tmp/x.md"))
+    mocker.patch("agent.scheduler.Writer.regenerate_index")
+
+    sched_module.run_sweep(
+        vault_path=config["vault_path"],
+        index_path=config["index_path"],
+        thresholds=config["thresholds"],
+        api_key="test",
+        feeds=[],
+        llm_cfg={"provider": "openrouter"},
+    )
+
+    assert spy.call_args_list, "get_client was never called for the evaluator"
+    assert spy.call_args_list[0].args[0] == {"llm": {"provider": "openrouter"}}
+
+
 def test_start_scheduler_registers_two_jobs(config, mocker):
     mock_scheduler = MagicMock()
     mock_scheduler.start.side_effect = KeyboardInterrupt
