@@ -2,7 +2,7 @@
 id: 5
 slug: retroactive-reclassify-vault-notes
 title: Retroactive re-classification of existing vault notes
-status: in-progress
+status: implemented
 priority: medium
 type: chore
 created: 2026-08-03
@@ -13,12 +13,12 @@ discovered_from: [4]
 adrs: []
 spec: docs/superpowers/specs/2026-08-03-retroactive-reclassify-vault-notes.md
 plan: docs/superpowers/plans/2026-08-07-retroactive-reclassify-vault-notes.md
-results:
+results: docs/results/2026-08-07-retroactive-reclassify-vault-notes-results.md
 trivial: false
 auto_groomable: false
 branch: feat/retroactive-reclassify-vault-notes
-claimed_at: 2026-08-07T01:10:00Z
-pr:
+claimed_at: 2026-08-07T01:35:13Z
+pr: https://github.com/ethanhinson/llm-research-agent/pull/6
 blocked_by:
 reconciled: true
 ---
@@ -30,6 +30,8 @@ reconciled: true
 |---|---|
 | Spec | [2026-08-03-retroactive-reclassify-vault-notes.md](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/superpowers/specs/2026-08-03-retroactive-reclassify-vault-notes.md) |
 | Plan | [2026-08-07-retroactive-reclassify-vault-notes.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/retroactive-reclassify-vault-notes/docs/superpowers/plans/2026-08-07-retroactive-reclassify-vault-notes.md) |
+| Results | [2026-08-07-retroactive-reclassify-vault-notes-results.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/retroactive-reclassify-vault-notes/docs/results/2026-08-07-retroactive-reclassify-vault-notes-results.md) |
+| PR | [#6](https://github.com/ethanhinson/llm-research-agent/pull/6) |
 <!-- docket:artifacts:end -->
 
 ## Why
