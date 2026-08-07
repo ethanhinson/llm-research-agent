@@ -1,13 +1,14 @@
 # Backlog
 
-**7 changes** — 🟡 2 proposed · 🔵 1 implemented · ✅ 4 done
+**8 changes** — 🟡 3 proposed · 🔵 1 implemented · ✅ 4 done
 
-## 🟡 Proposed (2)
+## 🟡 Proposed (3)
 
 | # | Title | Priority | Type | Readiness |
 |---|-------|----------|------|-----------|
 | [0005](active/0005-retroactive-reclassify-vault-notes.md) | Retroactive re-classification of existing vault notes | `medium` | `chore` | build-ready |
 | [0006](active/0006-llm-topic-tags.md) | LLM-generated freeform topic tags | `medium` | `feat` | build-ready |
+| [0008](active/0008-openrouter-provider-support.md) | OpenRouter provider support — full-system alternative to the Anthropic API | `medium` | `feat` | ⏳ waiting on #7 — needs your merge |
 
 ## 🔵 Implemented — awaiting merge (1)
 
@@ -20,6 +21,7 @@ graph TD
   0004 --> 0005
   0004 --> 0006
   0007
+  0007 --> 0008
   0004:::done
   classDef done fill:#d3f9d8;
 ```
