@@ -1,12 +1,6 @@
 # Backlog
 
-**16 changes** — 🟢 1 in progress · 🟡 5 proposed · ✅ 10 done
-
-## 🟢 In progress (1)
-
-| # | Title | Priority | Type | Spec | Branch |
-|---|-------|----------|------|------|--------|
-| [0011](active/0011-curated-feed-expansion.md) | Add verified curated feeds — newsletters + Lobste.rs | `medium` | `chore` | [spec](../) | `feat/curated-feed-expansion` |
+**16 changes** — 🟡 5 proposed · 🔵 1 implemented · ✅ 10 done
 
 ## 🟡 Proposed (5)
 
@@ -17,6 +11,12 @@
 | [0014](active/0014-cross-source-corroboration-ranking.md) | Cross-source corroboration + citation-velocity signals | `medium` | `feat` | needs-brainstorm |
 | [0015](active/0015-embedding-topic-prefilter.md) | Embedding-based topic pre-filter (replace/augment regex filter) | `medium` | `feat` | needs-brainstorm |
 | [0016](active/0016-hf-trending-artifacts.md) | Hugging Face trending models/datasets adapter | `medium` | `feat` | build-ready |
+
+## 🔵 Implemented — awaiting merge (1)
+
+| # | Title | Priority | Type | PR | Readiness |
+|---|-------|----------|------|----|-----------|
+| [0011](active/0011-curated-feed-expansion.md) | Add verified curated feeds — newsletters + Lobste.rs | `medium` | `chore` | [#11](https://github.com/ethanhinson/llm-research-agent/pull/11) |  |
 
 ```mermaid
 graph TD
