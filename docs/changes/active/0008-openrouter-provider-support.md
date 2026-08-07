@@ -2,7 +2,7 @@
 id: 8
 slug: openrouter-provider-support
 title: OpenRouter provider support — full-system alternative to the Anthropic API
-status: in-progress
+status: implemented
 priority: medium
 type: feat
 created: 2026-08-06
@@ -13,12 +13,12 @@ discovered_from: []
 adrs: [1]
 spec: docs/superpowers/specs/2026-08-06-openrouter-provider-support.md
 plan: docs/superpowers/plans/2026-08-06-openrouter-provider-support-plan.md
-results:
+results: docs/results/2026-08-07-openrouter-provider-support-results.md
 trivial: false
 auto_groomable: false
 branch: feat/openrouter-provider-support
-claimed_at: 2026-08-07T04:26:26Z
-pr:
+claimed_at: 2026-08-07T04:27:45Z
+pr: https://github.com/ethanhinson/llm-research-agent/pull/8
 blocked_by:
 reconciled: true
 ---
@@ -30,6 +30,8 @@ reconciled: true
 |---|---|
 | Spec | [2026-08-06-openrouter-provider-support.md](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/superpowers/specs/2026-08-06-openrouter-provider-support.md) |
 | Plan | [2026-08-06-openrouter-provider-support-plan.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/openrouter-provider-support/docs/superpowers/plans/2026-08-06-openrouter-provider-support-plan.md) |
+| Results | [2026-08-07-openrouter-provider-support-results.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/openrouter-provider-support/docs/results/2026-08-07-openrouter-provider-support-results.md) |
+| PR | [#8](https://github.com/ethanhinson/llm-research-agent/pull/8) |
 | ADRs | [ADR-0001](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/adrs/0001-llm-provider-abstraction-injected-client.md) |
 <!-- docket:artifacts:end -->
 
