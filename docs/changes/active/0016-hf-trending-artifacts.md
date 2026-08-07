@@ -19,8 +19,8 @@ auto_groomable: false
 branch: feat/hf-trending-artifacts
 pr:
 blocked_by:
-claimed_at: 2026-08-07T20:26:17Z
-reconciled: false
+claimed_at: 2026-08-07T20:27:40Z
+reconciled: true
 ---
 
 ## Artifacts
@@ -41,3 +41,37 @@ A small `HFTrendingAdapter` (source `hf-trending`) on the 0009 layer, following 
 - HF Spaces; paper linkage (dedup already collapses model-card→paper overlap by URL only).
 
 ## Reconcile log
+
+### 2026-08-07
+
+Reconciled against current `origin/main`. Dependency 0010 is merged (`done`,
+archived), and 0009's adapter layer (`agent/fetchers/base.py::build_adapters`)
+is in place. The change body remains accurate:
+
+- **Template confirmed.** `HFPapersAdapter` (`agent/fetchers/hf_papers.py`) and
+  `GitHubTrendingAdapter` (`agent/fetchers/github_trending.py`) are the closest
+  templates — `httpx.get` + `raise_for_status` + fail-soft `except Exception:
+  return []`, mapping to `RawItem(title, body, url, source, engagement,
+  timestamp)`. `github_trending`'s downloads/likes-style engagement mapping and
+  its mocked test file are the pattern to mirror.
+- **Config gating.** `sources:` block in `config.yml` gates each source on
+  `enabled`; `build_adapters` constructs only the enabled ones. `hf_trending`
+  slots in there as `{enabled, limit, min_likes}`, mirroring the existing
+  entries. New tests land in `tests/test_build_adapters.py` (enabled/disabled/
+  ordering/lookback threading) and a new `tests/test_fetcher_hf_trending.py`.
+- **Lookback threading.** `build_adapters` threads `**lb` (lookback_days) into
+  *every* new source, and `test_sweep_threads_lookback_into_new_sources`
+  asserts each adapter exposes `.lookback_days`. The HF trending endpoints have
+  no recency parameter (trendingScore already encodes recency), so the adapter
+  will **accept** `lookback_days` for interface parity but not use it to filter
+  — matching the factory contract without a spurious API param.
+- **Engagement = likes.** Per the change body, `likes` maps to
+  `RawItem.engagement`; `min_likes` is the threshold, `limit` the per-endpoint
+  top-N. `downloads` is carried informationally (not the engagement signal).
+- **Two endpoints, one adapter.** `.../api/models?sort=trendingScore&limit=N`
+  and `.../api/datasets?sort=trendingScore&limit=N` (no auth; `sort=trending`
+  returns 400 — must be `trendingScore`). One `HFTrendingAdapter.fetch()`
+  issues both requests, each fail-soft, source `"hf-trending"`.
+
+No scope change; no obsolescence. `trivial: true` stands — pattern, config
+shape, and endpoints are all established.
