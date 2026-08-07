@@ -2,7 +2,7 @@
 id: 11
 slug: curated-feed-expansion
 title: Add verified curated feeds — newsletters + Lobste.rs
-status: in-progress
+status: implemented
 priority: medium
 type: chore
 created: 2026-08-07
@@ -17,8 +17,8 @@ results:
 trivial: true
 auto_groomable: false
 branch: feat/curated-feed-expansion
-claimed_at: 2026-08-07T07:52:00Z
-pr:
+claimed_at: 2026-08-07T07:52:48Z
+pr: https://github.com/ethanhinson/llm-research-agent/pull/11
 blocked_by:
 reconciled: true
 ---
@@ -29,6 +29,7 @@ reconciled: true
 | Artifact | Link |
 |---|---|
 | Plan | [2026-08-07-curated-feed-expansion.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/curated-feed-expansion/docs/superpowers/plans/2026-08-07-curated-feed-expansion.md) |
+| PR | [#11](https://github.com/ethanhinson/llm-research-agent/pull/11) |
 <!-- docket:artifacts:end -->
 
 ## Why
