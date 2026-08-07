@@ -17,10 +17,10 @@ results:
 trivial: true
 auto_groomable: false
 branch: feat/curated-feed-expansion
-claimed_at: 2026-08-07T07:47:30Z
+claimed_at: 2026-08-07T07:52:00Z
 pr:
 blocked_by:
-reconciled: false
+reconciled: true
 ---
 
 ## Artifacts
@@ -50,3 +50,7 @@ Verify each parses through `WebFetcher` (one mocked test with a representative p
 - Extracting outbound links from digest issues as individual candidate items (future approach work; see the cross-source-corroboration stub).
 - YouTube channel RSS (needs curated channel-id selection — add later with the author registry).
 - Lobste.rs JSON endpoint with scores (an adapter, not a feed — not worth it at this volume).
+
+## Reconcile log
+
+- 2026-08-07 — Reconciled against current `main` (related change 0010 merged, e1f301e). Confirmed the scope holds unchanged: `config.yml` `sources.feeds` is a list of `{name, url, type}` objects consumed verbatim by `WebFetcher(feeds=...)` (`cli.py` reads `sources.feeds` → `run_sweep`/`run_deep` → `WebFetcher`), so the six additions are pure config with zero code. `WebFetcher.fetch()` iterates `feed["url"]`/`feed["name"]` and is fail-soft per feed. The change body lists URLs+types only; each gets a human-readable `name` on write. One mocked `WebFetcher` parse test with a representative newsletter/blog RSS payload is added per the body — feeds themselves verified externally on 2026-08-07, no live-LLM verification warranted. Suite baseline 179 (learnings finding pytest-shim-and-venv-provisioning); run via `uv run python -m pytest`. No obsolescence, no scope change.
