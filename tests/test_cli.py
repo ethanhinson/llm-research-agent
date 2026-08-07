@@ -77,6 +77,36 @@ def test_cmd_sweep_threads_lookback_and_runs_search(mocker):
     assert search_kwargs["synthesis_cfg"] == cfg["synthesis"]
 
 
+def test_load_config_surfaces_llm_section():
+    import cli
+    cfg = cli.load_config()
+    assert "llm" in cfg
+    assert cfg["llm"].get("provider") == "anthropic"
+
+
+def test_cmd_sweep_threads_llm_cfg(mocker):
+    import cli
+    from argparse import Namespace
+
+    mock_run = mocker.patch("agent.scheduler.run_sweep", return_value=[])
+    mock_search = mocker.patch("agent.scheduler.search_sweep", return_value=[])
+
+    cfg = {
+        "thresholds": {"hn_points": 50},
+        "sources": {"feeds": []},
+        "search": {"max_results_per_query": 10},
+        "synthesis": {"enabled": True, "min_score": 6, "max_chars": 8000},
+        "llm": {"provider": "openrouter", "model": "openai/gpt-4o-mini"},
+    }
+    args = Namespace(deep=False, lookback_days=None, date=None)
+    cli.cmd_sweep(args=args, cfg=cfg)
+
+    _, run_kwargs = mock_run.call_args
+    assert run_kwargs["llm_cfg"] == cfg["llm"]
+    _, search_kwargs = mock_search.call_args
+    assert search_kwargs["llm_cfg"] == cfg["llm"]
+
+
 def test_sweep_parser_accepts_lookback_days():
     import cli
     import argparse

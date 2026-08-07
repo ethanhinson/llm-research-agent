@@ -1,10 +1,10 @@
 """LLM note synthesis.
 
-Calls Claude Haiku (same model as the evaluator) to write the three body
-sections of a note — Summary, How It Works, Why It Matters — grounded in the
-enriched body text. Mirrors the evaluator's structured-plain-text + regex-
-tolerant parsing pattern. Fail-soft: any API error or unparseable output
-returns {} so the writer falls back to its template.
+Calls the configured LLM provider to write the three body sections of a note —
+Summary, How It Works, Why It Matters — grounded in the enriched body text.
+Mirrors the evaluator's structured-plain-text + regex-tolerant parsing pattern.
+Fail-soft: any API error or unparseable output returns {} so the writer falls
+back to its template.
 
 Prompt discipline (learnings/live-testing-catches-what-mocks-miss):
 LLMs read [bracket] notation as "optional". The section labels below are
@@ -13,9 +13,7 @@ required section as optional.
 """
 import re
 
-import anthropic
-
-from agent.evaluator import MODEL  # single source of the Haiku model id
+from agent.llm import get_client, LLMClient
 
 MAX_TOKENS = 900
 
@@ -78,18 +76,12 @@ _KEY_MAP = {
 
 
 class NoteSynthesizer:
-    def __init__(self, api_key: str | None = None):
-        self._client = anthropic.Anthropic(api_key=api_key)
+    def __init__(self, api_key: str | None = None, *, client: LLMClient | None = None,
+                 llm_cfg: dict | None = None):
+        self._client = client if client is not None else get_client({"llm": llm_cfg or {}})
 
     def _call(self, prompt: str) -> str:
-        message = self._client.messages.create(
-            model=MODEL,
-            max_tokens=MAX_TOKENS,
-            messages=[{"role": "user", "content": prompt}],
-        )
-        if not message.content or not hasattr(message.content[0], "text"):
-            return ""
-        return message.content[0].text
+        return self._client.complete(prompt, max_tokens=MAX_TOKENS)
 
     def synthesize(self, item) -> dict:
         prompt = SYNTHESIS_PROMPT.format(

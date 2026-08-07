@@ -102,6 +102,34 @@ def test_search_sweep_engagement_filter_admits_search_source(vault, mocker):
     assert written[0].source == "search/tavily"
 
 
+def test_search_sweep_threads_llm_cfg_to_query_generator(vault, mocker):
+    """search_sweep passes llm_cfg into SearchQueryGenerator so dynamic queries
+    use the configured provider."""
+    item = _search_item()
+    mocker.patch("agent.scheduler.MultiSearchFetcher.fetch", return_value=[item])
+
+    gen_instance = MagicMock()
+    gen_instance.queries.return_value = ["q"]
+    gen_cls = mocker.patch(
+        "agent.scheduler.SearchQueryGenerator", return_value=gen_instance
+    )
+
+    mocker.patch("agent.scheduler.Evaluator.score", side_effect=lambda items: items)
+    mocker.patch("agent.scheduler.Writer.write_note", return_value=Path("/tmp/x.md"))
+    mocker.patch("agent.scheduler.Writer.regenerate_index")
+
+    sched_module.search_sweep(
+        vault_path=vault,
+        index_path=vault.parent / ".index.json",
+        search_cfg={},
+        api_key="test",
+        llm_cfg={"provider": "openrouter"},
+    )
+
+    _, kwargs = gen_cls.call_args
+    assert kwargs["llm_cfg"] == {"provider": "openrouter"}
+
+
 def test_start_scheduler_registers_search_job_when_cfg_present(mocker, tmp_path):
     mock_scheduler = MagicMock()
     mock_scheduler.start.side_effect = KeyboardInterrupt

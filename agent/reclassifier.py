@@ -31,10 +31,11 @@ _MANAGED_KEYS = {"type", "score", "score_label", "category", "tags", "novelty"}
 
 
 class Reclassifier:
-    def __init__(self, vault_path, api_key: str | None = None):
+    def __init__(self, vault_path, api_key: str | None = None,
+                 llm_cfg: dict | None = None):
         self._vault = Path(vault_path)
         self._strategies = self._vault / "strategies"
-        self._evaluator = Evaluator(api_key=api_key)
+        self._evaluator = Evaluator(api_key=api_key, llm_cfg=llm_cfg)
         self._writer = Writer(vault_path=self._vault)
 
     def reclassify(self, date: str | None = None, all_notes: bool = False) -> dict:
