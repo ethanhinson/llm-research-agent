@@ -9,6 +9,7 @@ from agent.fetchers.multi_search import MultiSearchFetcher
 from agent.fetchers.semantic_scholar import SemanticScholarAdapter
 from agent.fetchers.web import WebFetcher
 from agent.fetchers.bluesky import BlueskyAdapter
+from agent.fetchers.hf_trending import HFTrendingAdapter
 
 
 def test_sweep_kind_returns_hn_and_arxiv_without_feeds():
@@ -279,3 +280,45 @@ def test_sweep_threads_lookback_into_bluesky():
     adapters = build_adapters(cfg, kind="sweep", feeds=[], lookback_days=30)
     bsky = [a for a in adapters if isinstance(a, BlueskyAdapter)][0]
     assert bsky.lookback_days == 30
+
+
+# --- Change 0016: HF trending models/datasets ---
+
+
+def test_sweep_adds_hf_trending_when_enabled():
+    cfg = {
+        "sources": {
+            "hf_trending": {"enabled": True, "limit": 30, "min_likes": 25}
+        }
+    }
+    adapters = build_adapters(cfg, kind="sweep", feeds=[])
+    hft = [a for a in adapters if isinstance(a, HFTrendingAdapter)]
+    assert len(hft) == 1
+    assert hft[0].limit == 30
+    assert hft[0].min_likes == 25
+    assert all(isinstance(a, SourceAdapter) for a in adapters)
+
+
+def test_sweep_hf_trending_defaults_when_missing():
+    cfg = {"sources": {"hf_trending": {"enabled": True}}}
+    adapters = build_adapters(cfg, kind="sweep", feeds=[])
+    hft = [a for a in adapters if isinstance(a, HFTrendingAdapter)][0]
+    assert hft.limit == 20
+    assert hft.min_likes == 0
+
+
+def test_sweep_omits_hf_trending_when_disabled():
+    cfg = {"sources": {"hf_trending": {"enabled": False, "limit": 5}}}
+    assert HFTrendingAdapter not in _sweep_types(cfg)
+
+
+def test_sweep_omits_hf_trending_when_absent():
+    assert HFTrendingAdapter not in _sweep_types({"sources": {"arxiv_queries": ["q"]}})
+    assert HFTrendingAdapter not in _sweep_types({"sources": {}})
+
+
+def test_sweep_threads_lookback_into_hf_trending():
+    cfg = {"sources": {"hf_trending": {"enabled": True}}}
+    adapters = build_adapters(cfg, kind="sweep", feeds=[], lookback_days=30)
+    hft = [a for a in adapters if isinstance(a, HFTrendingAdapter)][0]
+    assert hft.lookback_days == 30

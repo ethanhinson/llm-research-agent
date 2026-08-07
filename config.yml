@@ -77,6 +77,10 @@ sources:
       - srush.bsky.social
       - yoavgo.bsky.social
       - vikhyat.bsky.social
+  hf_trending:          # Change 0016: trending HF models + datasets (release-type artifacts)
+    enabled: true       # no auth; top-N by trendingScore across models + datasets
+    limit: 20           # per-endpoint top-N (models and datasets each)
+    min_likes: 10       # likes floor (engagement); below is noise-prone
   feeds:
     - name: "Simon Willison's blog"
       url: "https://simonwillison.net/atom/everything/"
