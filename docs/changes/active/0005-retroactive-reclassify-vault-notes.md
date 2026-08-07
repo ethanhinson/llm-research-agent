@@ -12,12 +12,12 @@ related: [4]
 discovered_from: [4]
 adrs: []
 spec: docs/superpowers/specs/2026-08-03-retroactive-reclassify-vault-notes.md
-plan:
+plan: docs/superpowers/plans/2026-08-07-retroactive-reclassify-vault-notes.md
 results:
 trivial: false
 auto_groomable: false
 branch: feat/retroactive-reclassify-vault-notes
-claimed_at: 2026-08-07T01:06:00Z
+claimed_at: 2026-08-07T01:10:00Z
 pr:
 blocked_by:
 reconciled: true
@@ -29,6 +29,7 @@ reconciled: true
 | Artifact | Link |
 |---|---|
 | Spec | [2026-08-03-retroactive-reclassify-vault-notes.md](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/superpowers/specs/2026-08-03-retroactive-reclassify-vault-notes.md) |
+| Plan | [2026-08-07-retroactive-reclassify-vault-notes.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/retroactive-reclassify-vault-notes/docs/superpowers/plans/2026-08-07-retroactive-reclassify-vault-notes.md) |
 <!-- docket:artifacts:end -->
 
 ## Why
