@@ -2,11 +2,11 @@
 id: 9
 slug: source-adapter-layer
 title: Unify article intake behind a SourceAdapter layer
-status: in-progress
+status: implemented
 priority: medium
 type: refactor
 created: 2026-08-07
-updated: 2026-08-07T06:29:45Z
+updated: 2026-08-07T06:47:09Z
 depends_on: []
 related: [2, 8, 10]
 discovered_from: []
@@ -17,8 +17,8 @@ results:
 trivial: false
 auto_groomable: false
 branch: feat/source-adapter-layer
-claimed_at: 2026-08-07T06:26:27Z
-pr:
+claimed_at: 2026-08-07T06:47:09Z
+pr: https://github.com/ethanhinson/llm-research-agent/pull/9
 blocked_by:
 reconciled: true
 ---
@@ -30,6 +30,7 @@ reconciled: true
 |---|---|
 | Spec | [2026-08-07-source-adapter-layer.md](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/superpowers/specs/2026-08-07-source-adapter-layer.md) |
 | Plan | [2026-08-07-source-adapter-layer.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/source-adapter-layer/docs/superpowers/plans/2026-08-07-source-adapter-layer.md) |
+| PR | [#9](https://github.com/ethanhinson/llm-research-agent/pull/9) |
 | ADRs | [ADR-0001](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/adrs/0001-llm-provider-abstraction-injected-client.md) |
 <!-- docket:artifacts:end -->
 
