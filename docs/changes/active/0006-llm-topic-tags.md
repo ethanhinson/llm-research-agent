@@ -2,7 +2,7 @@
 id: 6
 slug: llm-topic-tags
 title: LLM-generated freeform topic tags
-status: in-progress
+status: implemented
 priority: medium
 type: feat
 created: 2026-08-03
@@ -13,12 +13,12 @@ discovered_from: [4]
 adrs: []
 spec: docs/superpowers/specs/2026-08-03-llm-topic-tags.md
 plan: docs/superpowers/plans/2026-08-07-llm-topic-tags.md
-results:
+results: docs/results/2026-08-07-llm-topic-tags-results.md
 trivial: false
 auto_groomable: false
 branch: feat/llm-topic-tags
-claimed_at: 2026-08-07T01:56:40Z
-pr:
+claimed_at: 2026-08-07T02:03:45Z
+pr: https://github.com/ethanhinson/llm-research-agent/pull/7
 blocked_by:
 reconciled: true
 ---
@@ -30,6 +30,8 @@ reconciled: true
 |---|---|
 | Spec | [2026-08-03-llm-topic-tags.md](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/superpowers/specs/2026-08-03-llm-topic-tags.md) |
 | Plan | [2026-08-07-llm-topic-tags.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/llm-topic-tags/docs/superpowers/plans/2026-08-07-llm-topic-tags.md) |
+| Results | [2026-08-07-llm-topic-tags-results.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/llm-topic-tags/docs/results/2026-08-07-llm-topic-tags-results.md) |
+| PR | [#7](https://github.com/ethanhinson/llm-research-agent/pull/7) |
 <!-- docket:artifacts:end -->
 
 ## Why
