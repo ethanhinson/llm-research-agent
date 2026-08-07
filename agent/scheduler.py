@@ -3,9 +3,11 @@ from pathlib import Path
 from apscheduler.schedulers.blocking import BlockingScheduler
 
 from agent.deduplicator import Deduplicator
+from agent.enricher import ContentEnricher
 from agent.evaluator import Evaluator
 from agent.fetchers.arxiv import ArxivFetcher
 from agent.fetchers.hackernews import HNFetcher
+from agent.synthesizer import NoteSynthesizer
 
 from agent.fetchers.web import WebFetcher
 from agent.fetchers.web_search import (
@@ -21,6 +23,46 @@ from agent.topic_filter import is_relevant
 from agent.writer import Writer
 
 
+def _write_kept(
+    kept: list[RawItem],
+    writer: Writer,
+    dedup: Deduplicator,
+    api_key: str | None,
+    synthesis_cfg: dict | None,
+):
+    """Write each kept item, enriching + synthesizing above-threshold items.
+
+    Fully fail-soft: if synthesis config is absent/disabled, or an item is below
+    the score gate, or enrichment/synthesis raises, the item is written via the
+    legacy template path. A single item's failure never aborts the batch.
+    """
+    cfg = synthesis_cfg or {}
+    enabled = cfg.get("enabled", False)
+    min_score = cfg.get("min_score", 6)
+    max_chars = cfg.get("max_chars", 8000)
+
+    enricher = ContentEnricher(max_chars=max_chars) if enabled else None
+    synthesizer = NoteSynthesizer(api_key=api_key) if enabled else None
+
+    for item in kept:
+        sections = None
+        if enabled and item.score >= min_score:
+            try:
+                enricher.enrich(item)
+                sections = synthesizer.synthesize(item) or None
+            except Exception as exc:  # fail-soft per item
+                print(f"[warn] synthesis pipeline failed for {item.url}: {exc}")
+                sections = None
+        if sections:
+            writer.write_note(item, sections=sections)
+        else:
+            writer.write_note(item)
+        dedup.mark_seen(item)
+
+    if kept:
+        writer.regenerate_index()
+
+
 def run_sweep(
     vault_path: Path,
     index_path: Path,
@@ -28,6 +70,9 @@ def run_sweep(
     api_key: str | None,
     feeds: list[dict],
     deep: bool = False,
+    lookback_days: int | None = None,
+    synthesis_cfg: dict | None = None,
+    date: str | None = None,
 ) -> list[RawItem]:
     vault_path = Path(vault_path)
     index_path = Path(index_path)
@@ -41,11 +86,15 @@ def run_sweep(
             print(f"[warn] fetcher failed, skipping: {exc}")
             return []
 
+    # Thread the crawl window into each fetcher only when explicitly widened,
+    # so the default (per-fetcher LOOKBACK_DAYS) is preserved otherwise.
+    lb = {} if lookback_days is None else {"lookback_days": lookback_days}
+
     raw: list[RawItem] = []
-    raw.extend(_fetch(lambda: HNFetcher(threshold=hn_threshold).fetch()))
-    raw.extend(_fetch(lambda: ArxivFetcher().fetch()))
+    raw.extend(_fetch(lambda: HNFetcher(threshold=hn_threshold, **lb).fetch()))
+    raw.extend(_fetch(lambda: ArxivFetcher(**lb).fetch()))
     if feeds:
-        raw.extend(_fetch(lambda: WebFetcher(feeds=feeds).fetch()))
+        raw.extend(_fetch(lambda: WebFetcher(feeds=feeds, **lb).fetch()))
 
     dedup = Deduplicator(index_path)
     after_dedup = [item for item in raw if not dedup.is_duplicate(item)]
@@ -67,13 +116,8 @@ def run_sweep(
 
     kept = [item for item in scored if item.keep]
 
-    writer = Writer(vault_path=vault_path)
-    for item in kept:
-        writer.write_note(item)
-        dedup.mark_seen(item)
-
-    if kept:
-        writer.regenerate_index()
+    writer = Writer(vault_path=vault_path, date=date)
+    _write_kept(kept, writer, dedup, api_key, synthesis_cfg)
 
     return kept
 
@@ -92,6 +136,8 @@ def search_sweep(
     index_path: Path,
     search_cfg: dict,
     api_key: str | None,
+    synthesis_cfg: dict | None = None,
+    date: str | None = None,
 ) -> list[RawItem]:
     vault_path = Path(vault_path)
     index_path = Path(index_path)
@@ -140,13 +186,8 @@ def search_sweep(
 
     kept = [item for item in scored if item.keep]
 
-    writer = Writer(vault_path=vault_path)
-    for item in kept:
-        writer.write_note(item)
-        dedup.mark_seen(item)
-
-    if kept:
-        writer.regenerate_index()
+    writer = Writer(vault_path=vault_path, date=date)
+    _write_kept(kept, writer, dedup, api_key, synthesis_cfg)
 
     return kept
 

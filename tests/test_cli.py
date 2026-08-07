@@ -48,3 +48,71 @@ def test_cli_status_prints_info(tmp_path, capsys):
         import importlib, cli
         with patch("cli.VAULT_PATH", vault):
             importlib.reload(cli)
+
+
+def test_cmd_sweep_threads_lookback_and_runs_search(mocker):
+    import cli
+    from argparse import Namespace
+
+    mock_run = mocker.patch("agent.scheduler.run_sweep", return_value=[])
+    mock_search = mocker.patch("agent.scheduler.search_sweep", return_value=[])
+
+    cfg = {
+        "thresholds": {"hn_points": 50},
+        "sources": {"feeds": [{"name": "x", "url": "http://x", "type": "blog"}]},
+        "search": {"max_results_per_query": 10},
+        "synthesis": {"enabled": True, "min_score": 6, "max_chars": 8000},
+    }
+    args = Namespace(deep=False, lookback_days=21, date=None)
+    cli.cmd_sweep(args=args, cfg=cfg)
+
+    # run_sweep got the lookback window and the synthesis config
+    _, run_kwargs = mock_run.call_args
+    assert run_kwargs["lookback_days"] == 21
+    assert run_kwargs["synthesis_cfg"] == cfg["synthesis"]
+
+    # the search-backend path was exercised too (reconcile fix)
+    assert mock_search.call_count == 1
+    _, search_kwargs = mock_search.call_args
+    assert search_kwargs["synthesis_cfg"] == cfg["synthesis"]
+
+
+def test_sweep_parser_accepts_lookback_days():
+    import cli
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    sub = parser.add_subparsers(dest="command")
+    cli._build_sweep_parser(sub)
+    args = parser.parse_args(["sweep", "--lookback-days", "14"])
+    assert args.lookback_days == 14
+
+
+def test_cmd_regenerate_dispatches(mocker):
+    import cli
+    from argparse import Namespace
+
+    mock_reg = MagicMock()
+    mock_reg.regenerate_all.return_value = {
+        "regenerated": 2, "fetch_failed": 0, "skipped": 1,
+        "content_source_by_domain": {"full:example.com": 2},
+    }
+    mocker.patch("agent.regenerator.Regenerator", return_value=mock_reg)
+
+    cfg = {"synthesis": {"enabled": True, "min_score": 6, "max_chars": 8000}}
+    args = Namespace(date=None, all=True, min_score=None)
+    cli.cmd_regenerate(args=args, cfg=cfg)
+
+    assert mock_reg.regenerate_all.call_count == 1
+
+
+def test_regenerate_parser_accepts_flags():
+    import cli
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    sub = parser.add_subparsers(dest="command")
+    cli._build_regenerate_parser(sub)
+    args = parser.parse_args(["regenerate", "--all", "--min-score", "7"])
+    assert args.all is True
+    assert args.min_score == 7

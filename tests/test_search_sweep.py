@@ -182,3 +182,96 @@ def test_start_scheduler_no_search_job_when_cfg_none(mocker, tmp_path):
     ]
     assert "search_sweep" not in job_ids
     assert mock_scheduler.add_job.call_count == 2
+
+
+def test_search_sweep_synthesizes_above_threshold(vault, mocker):
+    """A kept item at/above min_score is enriched + synthesized; below is not."""
+    above = _search_item(title="Above threshold item", url="https://ex.com/above")
+    below = _search_item(title="Below threshold item", url="https://ex.com/below")
+
+    mocker.patch(
+        "agent.scheduler.MultiSearchFetcher.fetch", return_value=[above, below]
+    )
+    mocker.patch(
+        "agent.scheduler.SearchQueryGenerator.queries", return_value=["q"]
+    )
+
+    def mock_score(items):
+        for it in items:
+            it.keep = True
+            it.score = 8 if it.title.startswith("Above") else 3
+        return items
+
+    mocker.patch("agent.scheduler.Evaluator.score", side_effect=mock_score)
+
+    enrich_calls = []
+    mocker.patch(
+        "agent.scheduler.ContentEnricher.enrich",
+        side_effect=lambda item: enrich_calls.append(item) or item,
+    )
+    synth_calls = []
+
+    def fake_synth(item):
+        synth_calls.append(item)
+        return {"summary": "s", "how_it_works": "h", "why_it_matters": "w"}
+
+    mocker.patch(
+        "agent.scheduler.NoteSynthesizer.synthesize", side_effect=fake_synth
+    )
+
+    write_calls = []
+    mocker.patch(
+        "agent.scheduler.Writer.write_note",
+        side_effect=lambda i, sections=None: write_calls.append((i.title, sections)) or Path("/tmp/x.md"),
+    )
+    mocker.patch("agent.scheduler.Writer.regenerate_index")
+
+    index_path = vault.parent / ".index.json"
+    sched_module.search_sweep(
+        vault_path=vault,
+        index_path=index_path,
+        search_cfg={},
+        api_key="test",
+        synthesis_cfg={"enabled": True, "min_score": 6, "max_chars": 8000},
+    )
+
+    # only the above-threshold item was enriched + synthesized
+    assert [i.title for i in enrich_calls] == ["Above threshold item"]
+    assert [i.title for i in synth_calls] == ["Above threshold item"]
+    # above got sections; below got the legacy path (sections is None)
+    calls = dict(write_calls)
+    assert calls["Above threshold item"] is not None
+    assert calls["Below threshold item"] is None
+
+
+def test_search_sweep_synthesis_disabled_uses_legacy(vault, mocker):
+    item = _search_item(title="Any item", url="https://ex.com/any")
+    mocker.patch("agent.scheduler.MultiSearchFetcher.fetch", return_value=[item])
+    mocker.patch("agent.scheduler.SearchQueryGenerator.queries", return_value=["q"])
+
+    def mock_score(items):
+        for it in items:
+            it.keep = True
+            it.score = 9
+        return items
+
+    mocker.patch("agent.scheduler.Evaluator.score", side_effect=mock_score)
+    spy_enrich = mocker.patch("agent.scheduler.ContentEnricher.enrich")
+
+    write_calls = []
+    mocker.patch(
+        "agent.scheduler.Writer.write_note",
+        side_effect=lambda i, sections=None: write_calls.append(sections) or Path("/tmp/x.md"),
+    )
+    mocker.patch("agent.scheduler.Writer.regenerate_index")
+
+    sched_module.search_sweep(
+        vault_path=vault,
+        index_path=vault.parent / ".index.json",
+        search_cfg={},
+        api_key="test",
+        synthesis_cfg={"enabled": False, "min_score": 6, "max_chars": 8000},
+    )
+
+    spy_enrich.assert_not_called()
+    assert write_calls == [None]

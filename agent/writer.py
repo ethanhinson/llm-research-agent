@@ -34,6 +34,7 @@ score_label: {score_label}
 {category_line}tags: [{tags}]
 validated: {validated}
 sources_count: {sources_count}
+content_source: {content_source}
 status: new
 ---
 
@@ -43,10 +44,10 @@ status: new
 {summary}
 
 ## How It Works
-{body}
+{how_it_works}
 
-## Why It's Gaining Traction
-Engagement: {engagement} signals. Cross-source validated: {validated}.
+## Why It Matters
+{why_it_matters}
 
 ## Sources
 - [{source_label}]({url}) — {source} · {engagement}
@@ -64,16 +65,29 @@ class Writer:
         for subdir in TYPE_DIRS.values():
             (self._strategies_dir / subdir).mkdir(parents=True, exist_ok=True)
 
-    def write_note(self, item: RawItem) -> Path:
+    def write_note(self, item: RawItem, sections: dict | None = None) -> Path:
         slug = _slugify(item.title)
         filename = f"{self._date}-{slug}.md"
         subdir = TYPE_DIRS.get(item.content_type, item.content_type)
         path = self._strategies_dir / subdir / filename
 
         tags_str = ", ".join(item.tags) if item.tags else item.content_type
+
+        # Legacy template fill-ins (used when no synthesized section is present).
         body = item.body[:500]
         first_sentence_end = body.find(". ")
-        summary = body[:first_sentence_end + 1] if first_sentence_end != -1 else body[:150]
+        legacy_summary = (
+            body[:first_sentence_end + 1] if first_sentence_end != -1 else body[:150]
+        ) or body
+        legacy_why = (
+            f"Engagement: {item.engagement} signals. "
+            f"Cross-source validated: {str(item.validated).lower()}."
+        )
+
+        sections = sections or {}
+        summary = sections.get("summary") or legacy_summary
+        how_it_works = sections.get("how_it_works") or body
+        why_it_matters = sections.get("why_it_matters") or legacy_why
 
         category_line = (
             f"category: {item.category}\n"
@@ -91,8 +105,10 @@ class Writer:
             tags=tags_str,
             validated=str(item.validated).lower(),
             sources_count=item.sources_count,
-            summary=summary or body,
-            body=body,
+            content_source=item.content_source,
+            summary=summary,
+            how_it_works=how_it_works,
+            why_it_matters=why_it_matters,
             engagement=item.engagement,
             source_label=item.title,
             url=item.url,

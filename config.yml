@@ -1,6 +1,11 @@
 thresholds:
   hn_points: 50
 
+synthesis:
+  enabled: true
+  min_score: 6
+  max_chars: 8000
+
 search:
   interval_hours: 6
   max_results_per_query: 10
