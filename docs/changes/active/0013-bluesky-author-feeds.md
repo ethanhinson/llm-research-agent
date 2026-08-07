@@ -2,7 +2,7 @@
 id: 13
 slug: bluesky-author-feeds
 title: Bluesky author-feed adapter with researcher registry
-status: proposed
+status: in-progress
 priority: medium
 type: feat
 created: 2026-08-07
@@ -16,10 +16,11 @@ plan:
 results:
 trivial: false
 auto_groomable: false
-branch:
+branch: feat/bluesky-author-feeds
 pr:
 blocked_by:
 reconciled: false
+claimed_at: 2026-08-07T19:46:37Z
 ---
 
 ## Artifacts
