@@ -2,7 +2,7 @@
 id: 16
 slug: hf-trending-artifacts
 title: Hugging Face trending models/datasets adapter
-status: proposed
+status: in-progress
 priority: medium
 type: feat
 created: 2026-08-07
@@ -16,9 +16,10 @@ plan:
 results:
 trivial: true
 auto_groomable: false
-branch:
+branch: feat/hf-trending-artifacts
 pr:
 blocked_by:
+claimed_at: 2026-08-07T20:26:17Z
 reconciled: false
 ---
 
