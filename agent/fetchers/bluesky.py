@@ -58,7 +58,29 @@ def _normalize_arxiv(url: str) -> str | None:
     m = _ARXIV_RE.search(url)
     if not m:
         return None
-    return f"https://arxiv.org/abs/{m.group(1)}"
+    return f"https://arxiv.org/abs/{m.group(1).rstrip('/')}"
+
+
+def _resolve_external(embed: dict) -> dict | None:
+    """Return the ``external`` dict from an embed, resolving recordWithMedia nesting.
+
+    Handles two shapes:
+    - ``app.bsky.embed.external#view``:   ``embed["external"]``
+    - ``app.bsky.embed.recordWithMedia#view``: ``embed["media"]["external"]``
+      (the ``media`` sub-object has the ``embed.external#view`` shape)
+    """
+    if not isinstance(embed, dict):
+        return None
+    etype = embed.get("$type") or ""
+    if etype.endswith("embed.external#view"):
+        external = embed.get("external")
+        return external if isinstance(external, dict) else None
+    if etype.endswith("embed.recordWithMedia#view"):
+        media = embed.get("media")
+        if isinstance(media, dict):
+            external = media.get("external")
+            return external if isinstance(external, dict) else None
+    return None
 
 
 def _extract_outbound_urls(post: dict) -> list[str]:
@@ -83,11 +105,9 @@ def _extract_outbound_urls(post: dict) -> list[str]:
                         if uri:
                             urls.append(uri)
     embed = post.get("embed")
-    if isinstance(embed, dict) and (embed.get("$type") or "").endswith(
-        "embed.external#view"
-    ):
-        external = embed.get("external")
-        if isinstance(external, dict):
+    if isinstance(embed, dict):
+        external = _resolve_external(embed)
+        if external is not None:
             uri = external.get("uri")
             if uri:
                 urls.append(uri)
@@ -103,11 +123,9 @@ def _extract_outbound_urls(post: dict) -> list[str]:
 
 def _external_embed_title(post: dict) -> str:
     embed = post.get("embed")
-    if isinstance(embed, dict) and (embed.get("$type") or "").endswith(
-        "embed.external#view"
-    ):
-        external = embed.get("external")
-        if isinstance(external, dict):
+    if isinstance(embed, dict):
+        external = _resolve_external(embed)
+        if external is not None:
             return external.get("title") or ""
     return ""
 

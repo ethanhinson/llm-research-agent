@@ -282,3 +282,68 @@ def test_is_source_adapter():
     adapter = BlueskyAdapter(authors=["a.bsky.social"])
     assert isinstance(adapter, SourceAdapter)
     assert adapter.name == "bluesky"
+
+
+# --- recordWithMedia#view embed tests ---
+
+
+def _record_with_media_embed(uri, title="Media Embed Title"):
+    """Build a recordWithMedia#view embed where the media is an external link card."""
+    return {
+        "$type": "app.bsky.embed.recordWithMedia#view",
+        "record": {
+            "$type": "app.bsky.embed.record#view",
+            "record": {"$type": "app.bsky.embed.record#viewRecord"},
+        },
+        "media": {
+            "$type": "app.bsky.embed.external#view",
+            "external": {"uri": uri, "title": title},
+        },
+    }
+
+
+def test_record_with_media_plain_link_extracted(mocker):
+    """recordWithMedia#view with a plain link -> URL extracted and used as item url."""
+    post = _post(
+        text="Check out this post with a quote and link",
+        embed=_record_with_media_embed("https://blog.example.com/article"),
+    )
+    _mock_get(mocker, payload=_feed(_item(post)))
+    items = BlueskyAdapter(authors=["a.bsky.social"]).fetch()
+    assert len(items) == 1
+    assert items[0].url == "https://blog.example.com/article"
+
+
+def test_record_with_media_arxiv_link_normalized_and_preferred(mocker):
+    """recordWithMedia#view with an arXiv URI -> normalized to abs URL and preferred."""
+    post = _post(
+        text="Interesting paper + quote",
+        embed=_record_with_media_embed("https://arxiv.org/pdf/2401.01234v2"),
+    )
+    _mock_get(mocker, payload=_feed(_item(post)))
+    items = BlueskyAdapter(authors=["a.bsky.social"]).fetch()
+    assert len(items) == 1
+    assert items[0].url == "https://arxiv.org/abs/2401.01234"
+
+
+def test_record_with_media_empty_text_falls_back_to_media_title(mocker):
+    """recordWithMedia#view with empty text -> title comes from media.external.title."""
+    post = _post(
+        text="",
+        embed=_record_with_media_embed("https://blog.example.com/article", title="The Linked Article"),
+    )
+    _mock_get(mocker, payload=_feed(_item(post)))
+    items = BlueskyAdapter(authors=["a.bsky.social"]).fetch()
+    assert len(items) == 1
+    assert items[0].title == "The Linked Article"
+
+
+# --- arXiv trailing slash test ---
+
+
+def test_arxiv_trailing_slash_stripped(mocker):
+    """arXiv URLs with a trailing slash should normalize cleanly (no trailing slash)."""
+    post = _post(facets=[_facet_link("https://arxiv.org/abs/2401.01234/")])
+    _mock_get(mocker, payload=_feed(_item(post)))
+    items = BlueskyAdapter(authors=["a.bsky.social"]).fetch()
+    assert items[0].url == "https://arxiv.org/abs/2401.01234"
