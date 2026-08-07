@@ -1,5 +1,5 @@
 <!-- docket:backlink:start (generated — do not hand-edit) -->
-> ↩ **[Change 0006 — LLM-generated freeform topic tags](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/changes/active/0006-llm-topic-tags.md)**
+> ↩ **[Change 0006 — LLM-generated freeform topic tags](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/changes/archive/2026-08-07-0006-llm-topic-tags.md)**
 <!-- docket:backlink:end -->
 
 # LLM-Generated Topic Tags — Design Spec
