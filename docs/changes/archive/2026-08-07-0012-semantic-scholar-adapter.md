@@ -2,7 +2,7 @@
 id: 12
 slug: semantic-scholar-adapter
 title: Semantic Scholar keyword-search adapter
-status: implemented
+status: done
 priority: medium
 type: feat
 created: 2026-08-07
@@ -18,7 +18,7 @@ trivial: false
 auto_groomable: false
 branch: feat/semantic-scholar-adapter
 pr: https://github.com/ethanhinson/llm-research-agent/pull/12
-claimed_at: 2026-08-07T19:38:54Z
+claimed_at: 
 blocked_by:
 reconciled: true
 ---
