@@ -72,6 +72,14 @@ class OpenRouterClient:
         return content or ""
 
 
+def provider_key_present(cfg: dict) -> bool:
+    llm_cfg = (cfg or {}).get("llm", {}) or {}
+    provider = llm_cfg.get("provider", "anthropic")
+    if provider not in _ENV_KEYS:
+        return False
+    return bool(os.getenv(_ENV_KEYS[provider]))
+
+
 def get_client(cfg: dict) -> LLMClient:
     llm_cfg = (cfg or {}).get("llm", {}) or {}
     provider = llm_cfg.get("provider", "anthropic")

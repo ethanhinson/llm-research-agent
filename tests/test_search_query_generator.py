@@ -1,5 +1,3 @@
-from unittest.mock import MagicMock
-
 from agent.tools.search_query_generator import SearchQueryGenerator
 
 
@@ -8,6 +6,17 @@ FIXED = [
     "agentic AI patterns",
     "multimodal language models",
 ]
+
+
+class FakeLLM:
+    def __init__(self, text="", *, error=None):
+        self.text = text
+        self.error = error
+
+    def complete(self, prompt, max_tokens):
+        if self.error is not None:
+            raise self.error
+        return self.text
 
 
 def _cfg(**overrides):
@@ -21,31 +30,25 @@ def _cfg(**overrides):
 
 
 def test_dynamic_disabled_returns_fixed_anchors():
-    gen = SearchQueryGenerator(_cfg(dynamic_queries_enabled=False), api_key="test-key")
+    gen = SearchQueryGenerator(
+        _cfg(dynamic_queries_enabled=False), client=FakeLLM("ignored")
+    )
     assert gen.queries(["some title"]) == FIXED
 
 
-def test_dynamic_enabled_merges_dedupes_and_truncates(mocker):
+def test_dynamic_enabled_merges_dedupes_and_truncates():
     # Dynamic response: one duplicate of a fixed anchor (dedup proof) + two new.
     canned = (
         "- agentic AI patterns\n"
         "- retrieval augmented generation benchmarks\n"
         "* LLM eval harnesses 2026\n"
     )
-    mock_message = MagicMock()
-    mock_message.content = [MagicMock(text=canned)]
-    mock_client = MagicMock()
-    mock_client.messages.create.return_value = mock_message
-    ctor = mocker.patch(
-        "agent.tools.search_query_generator.anthropic.Anthropic",
-        return_value=mock_client,
-    )
+    fake = FakeLLM(canned)
 
     # max_queries=4 forces truncation: 3 fixed + 2 unique dynamic = 5, capped to 4.
-    gen = SearchQueryGenerator(_cfg(max_queries=4), api_key="test-key")
+    gen = SearchQueryGenerator(_cfg(max_queries=4), client=fake)
     result = gen.queries(["Flash Attention 3", "Chain of Draft"])
 
-    ctor.assert_called_once_with(api_key="test-key")
     expected = FIXED + [
         "retrieval augmented generation benchmarks",
         "LLM eval harnesses 2026",
@@ -55,21 +58,31 @@ def test_dynamic_enabled_merges_dedupes_and_truncates(mocker):
     assert len(result) == 4
 
 
-def test_anthropic_error_is_nonfatal(mocker):
-    mock_client = MagicMock()
-    mock_client.messages.create.side_effect = Exception("boom")
-    mocker.patch(
-        "agent.tools.search_query_generator.anthropic.Anthropic",
-        return_value=mock_client,
-    )
-
-    gen = SearchQueryGenerator(_cfg(), api_key="test-key")
+def test_llm_error_is_nonfatal():
+    fake = FakeLLM(error=Exception("boom"))
+    gen = SearchQueryGenerator(_cfg(), client=fake)
     assert gen.queries(["title a", "title b"]) == FIXED
 
 
-def test_no_api_key_skips_dynamic(mocker):
-    ctor = mocker.patch("agent.tools.search_query_generator.anthropic.Anthropic")
+def test_no_provider_key_skips_dynamic(monkeypatch):
+    # No injected client and no provider key present -> dynamic step is skipped.
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
 
-    gen = SearchQueryGenerator(_cfg(), api_key=None)
+    gen = SearchQueryGenerator(_cfg())
     assert gen.queries(["title"]) == FIXED
-    ctor.assert_not_called()
+
+
+def test_provider_key_present_enables_dynamic(monkeypatch, mocker):
+    # No injected client, but the configured provider's key is present -> the
+    # generator builds a client via the factory and merges dynamic queries.
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant")
+    fake = FakeLLM("agentic eval harnesses\nlong context retrieval\n")
+    mocker.patch(
+        "agent.tools.search_query_generator.get_client", return_value=fake
+    )
+
+    gen = SearchQueryGenerator(_cfg())
+    out = gen.queries(recent_titles=["X"])
+    assert "agentic eval harnesses" in out
+    assert "long context retrieval" in out

@@ -1,8 +1,6 @@
 import logging
 
-import anthropic
-
-MODEL = "claude-haiku-4-5-20251001"
+from agent.llm import get_client, provider_key_present, LLMClient
 
 logger = logging.getLogger(__name__)
 
@@ -19,9 +17,11 @@ LLM/AI topics. Output one query per line, no numbering, no extra prose.
 
 
 class SearchQueryGenerator:
-    def __init__(self, cfg: dict, api_key: str | None = None):
+    def __init__(self, cfg: dict, api_key: str | None = None, *,
+                 client: LLMClient | None = None, llm_cfg: dict | None = None):
         self._cfg = cfg or {}
-        self._api_key = api_key
+        self._llm_cfg = {"llm": llm_cfg or {}}
+        self._client = client
 
     def queries(self, recent_titles: list[str]) -> list[str]:
         search = self._cfg.get("search", {})
@@ -30,7 +30,7 @@ class SearchQueryGenerator:
         max_queries = search.get("max_queries", 10)
 
         dynamic: list[str] = []
-        if dynamic_enabled and self._api_key:
+        if dynamic_enabled and (self._client is not None or provider_key_present(self._llm_cfg)):
             dynamic = self._dynamic_queries(recent_titles)
 
         merged = fixed + dynamic
@@ -46,13 +46,8 @@ class SearchQueryGenerator:
         try:
             titles_text = "\n".join(f"- {t}" for t in recent_titles) or "(none yet)"
             prompt = DYNAMIC_PROMPT.format(recent_titles=titles_text)
-            client = anthropic.Anthropic(api_key=self._api_key)
-            message = client.messages.create(
-                model=MODEL,
-                max_tokens=256,
-                messages=[{"role": "user", "content": prompt}],
-            )
-            text = message.content[0].text
+            client = self._client if self._client is not None else get_client(self._llm_cfg)
+            text = client.complete(prompt, max_tokens=256)
             queries = []
             for line in text.splitlines():
                 line = line.strip().lstrip("-•* ").strip()

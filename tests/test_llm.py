@@ -108,3 +108,11 @@ def test_openrouter_client_http_error_propagates(mocker):
     mocker.patch("agent.llm.httpx.post", return_value=resp)
     with pytest.raises(httpx.HTTPStatusError):
         client.complete("p", max_tokens=8)
+
+
+def test_provider_key_present(monkeypatch):
+    from agent.llm import provider_key_present
+    monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
+    assert provider_key_present({"llm": {"provider": "openrouter"}}) is False
+    monkeypatch.setenv("OPENROUTER_API_KEY", "sk-or")
+    assert provider_key_present({"llm": {"provider": "openrouter"}}) is True
