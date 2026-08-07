@@ -12,7 +12,7 @@ related: [9, 10, 12]
 discovered_from: []
 adrs: []
 spec: docs/superpowers/specs/2026-08-07-bluesky-author-feeds.md
-plan:
+plan: docs/superpowers/plans/2026-08-07-bluesky-author-feeds-plan.md
 results:
 trivial: false
 auto_groomable: false
@@ -20,7 +20,7 @@ branch: feat/bluesky-author-feeds
 pr:
 blocked_by:
 reconciled: true
-claimed_at: 2026-08-07T19:46:37Z
+claimed_at: 2026-08-07T19:55:29Z
 ---
 
 ## Artifacts
@@ -29,6 +29,7 @@ claimed_at: 2026-08-07T19:46:37Z
 | Artifact | Link |
 |---|---|
 | Spec | [2026-08-07-bluesky-author-feeds.md](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/superpowers/specs/2026-08-07-bluesky-author-feeds.md) |
+| Plan | [2026-08-07-bluesky-author-feeds-plan.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/bluesky-author-feeds/docs/superpowers/plans/2026-08-07-bluesky-author-feeds-plan.md) |
 <!-- docket:artifacts:end -->
 
 ## Why
