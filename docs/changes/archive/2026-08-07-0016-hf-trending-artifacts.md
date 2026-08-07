@@ -28,8 +28,8 @@ reconciled: true
 <!-- docket:artifacts:start (generated — do not hand-edit) -->
 | Artifact | Link |
 |---|---|
-| Plan | [2026-08-07-hf-trending-artifacts.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/hf-trending-artifacts/docs/superpowers/plans/2026-08-07-hf-trending-artifacts.md) |
-| Results | [2026-08-07-hf-trending-artifacts-results.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/hf-trending-artifacts/docs/results/2026-08-07-hf-trending-artifacts-results.md) |
+| Plan | [2026-08-07-hf-trending-artifacts.md](https://github.com/ethanhinson/llm-research-agent/blob/main/docs/superpowers/plans/2026-08-07-hf-trending-artifacts.md) |
+| Results | [2026-08-07-hf-trending-artifacts-results.md](https://github.com/ethanhinson/llm-research-agent/blob/main/docs/results/2026-08-07-hf-trending-artifacts-results.md) |
 | PR | [#14](https://github.com/ethanhinson/llm-research-agent/pull/14) |
 <!-- docket:artifacts:end -->
 
