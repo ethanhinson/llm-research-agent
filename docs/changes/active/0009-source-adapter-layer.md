@@ -6,13 +6,13 @@ status: in-progress
 priority: medium
 type: refactor
 created: 2026-08-07
-updated: 2026-08-07T06:26:27Z
+updated: 2026-08-07T06:29:45Z
 depends_on: []
 related: [2, 8, 10]
 discovered_from: []
 adrs: [1]
 spec: docs/superpowers/specs/2026-08-07-source-adapter-layer.md
-plan:
+plan: docs/superpowers/plans/2026-08-07-source-adapter-layer.md
 results:
 trivial: false
 auto_groomable: false
@@ -29,6 +29,7 @@ reconciled: true
 | Artifact | Link |
 |---|---|
 | Spec | [2026-08-07-source-adapter-layer.md](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/superpowers/specs/2026-08-07-source-adapter-layer.md) |
+| Plan | [2026-08-07-source-adapter-layer.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/source-adapter-layer/docs/superpowers/plans/2026-08-07-source-adapter-layer.md) |
 | ADRs | [ADR-0001](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/adrs/0001-llm-provider-abstraction-injected-client.md) |
 <!-- docket:artifacts:end -->
 
