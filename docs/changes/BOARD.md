@@ -1,18 +1,13 @@
 # Backlog
 
-**8 changes** — 🟢 1 in progress · 🔵 1 implemented · ✅ 6 done
+**8 changes** — 🔵 2 implemented · ✅ 6 done
 
-## 🟢 In progress (1)
-
-| # | Title | Priority | Type | Spec | Branch |
-|---|-------|----------|------|------|--------|
-| [0008](active/0008-openrouter-provider-support.md) | OpenRouter provider support — full-system alternative to the Anthropic API | `medium` | `feat` | [spec](../superpowers/specs/2026-08-06-openrouter-provider-support.md) | `feat/openrouter-provider-support` |
-
-## 🔵 Implemented — awaiting merge (1)
+## 🔵 Implemented — awaiting merge (2)
 
 | # | Title | Priority | Type | PR | Readiness |
 |---|-------|----------|------|----|-----------|
 | [0006](active/0006-llm-topic-tags.md) | LLM-generated freeform topic tags | `medium` | `feat` | [#7](https://github.com/ethanhinson/llm-research-agent/pull/7) |  |
+| [0008](active/0008-openrouter-provider-support.md) | OpenRouter provider support — full-system alternative to the Anthropic API | `medium` | `feat` | [#8](https://github.com/ethanhinson/llm-research-agent/pull/8) |  |
 
 ```mermaid
 graph TD
