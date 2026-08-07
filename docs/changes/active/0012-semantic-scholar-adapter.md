@@ -18,9 +18,9 @@ trivial: false
 auto_groomable: false
 branch: feat/semantic-scholar-adapter
 pr:
-claimed_at: 2026-08-07T19:26:56Z
+claimed_at: 2026-08-07T19:28:06Z
 blocked_by:
-reconciled: false
+reconciled: true
 ---
 
 ## Artifacts
@@ -44,3 +44,5 @@ One `SemanticScholarAdapter` (source `s2`) on the 0009 layer: config-driven quer
 - S2 Recommendations loop, SPECTER2 embeddings, OpenAlex (separate changes/stubs).
 
 ## Reconcile log
+
+- 2026-08-07 — Reconciled against current `main`. Dependency 0010 (expand-article-sources) is merged/done (archived alongside 0009); the 0009 `SourceAdapter` protocol + `build_adapters` factory (`agent/fetchers/base.py`) and the 0010 templates (`agent/fetchers/hf_papers.py`, `github_trending.py`) are landed exactly as the spec assumes. Config already carries `sources.arxiv_queries` (used as the default query list) and no `sources.semantic_scholar` / `sources.s2_queries` block yet — this change adds both, config-gated. `RawItem` shape (title/body/url/source/engagement/timestamp) matches the spec's mapping. `.env.example` lists provider/search keys but no `S2_API_KEY` — to be added optionally. No scope drift: spec is buildable as written. Test baseline is 180 (learnings finding `pytest-shim-and-venv-provisioning`); suite runs via `uv run python -m pytest` after `uv sync --extra dev`. No follow-up work surfaced (auto-capture disabled regardless).
