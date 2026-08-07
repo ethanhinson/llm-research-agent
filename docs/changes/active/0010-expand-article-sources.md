@@ -12,7 +12,7 @@ related: [2, 9]
 discovered_from: []
 adrs: []
 spec: docs/superpowers/specs/2026-08-07-expand-article-sources.md
-plan:
+plan: docs/superpowers/plans/2026-08-07-expand-article-sources.md
 results:
 trivial: false
 auto_groomable: false
@@ -29,6 +29,7 @@ reconciled: true
 | Artifact | Link |
 |---|---|
 | Spec | [2026-08-07-expand-article-sources.md](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/superpowers/specs/2026-08-07-expand-article-sources.md) |
+| Plan | [2026-08-07-expand-article-sources.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/expand-article-sources/docs/superpowers/plans/2026-08-07-expand-article-sources.md) |
 <!-- docket:artifacts:end -->
 
 ## Why
