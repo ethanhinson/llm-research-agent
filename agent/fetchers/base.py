@@ -57,8 +57,10 @@ def build_adapters(
     """
     # Imported here to avoid an import cycle (the fetcher modules import RawItem
     # from agent.models, and scheduler imports these classes for test patching).
-    from agent.fetchers.arxiv import ArxivFetcher
+    from agent.fetchers.arxiv import ArxivFetcher, ArxivSearchAdapter
+    from agent.fetchers.github_trending import GitHubTrendingAdapter
     from agent.fetchers.hackernews import HNFetcher
+    from agent.fetchers.hf_papers import HFPapersAdapter
     from agent.fetchers.multi_search import MultiSearchFetcher
     from agent.fetchers.web import WebFetcher
 
@@ -71,6 +73,32 @@ def build_adapters(
         ]
         if feeds:
             adapters.append(WebFetcher(feeds=feeds, **lb))
+
+        # Change 0010: three config-gated sources under the `sources:` block.
+        # Each is fail-soft at fetch time; here only the enabled ones are
+        # constructed. `lb` threads a widened crawl window into them too.
+        sources = cfg.get("sources") or {}
+
+        hf_cfg = sources.get("hf_papers") or {}
+        if hf_cfg.get("enabled"):
+            adapters.append(
+                HFPapersAdapter(min_upvotes=hf_cfg.get("min_upvotes", 0), **lb)
+            )
+
+        arxiv_queries = sources.get("arxiv_queries") or []
+        if arxiv_queries:
+            adapters.append(ArxivSearchAdapter(queries=list(arxiv_queries), **lb))
+
+        gh_cfg = sources.get("github_trending") or {}
+        if gh_cfg.get("enabled"):
+            adapters.append(
+                GitHubTrendingAdapter(
+                    topics=list(gh_cfg.get("topics") or []),
+                    min_stars=gh_cfg.get("min_stars", 100),
+                    **lb,
+                )
+            )
+
         return adapters
 
     if kind == "search":

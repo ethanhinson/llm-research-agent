@@ -77,6 +77,68 @@ def test_cmd_sweep_threads_lookback_and_runs_search(mocker):
     assert search_kwargs["synthesis_cfg"] == cfg["synthesis"]
 
 
+def test_cmd_sweep_threads_sources_cfg(mocker):
+    import cli
+    from argparse import Namespace
+
+    mock_run = mocker.patch("agent.scheduler.run_sweep", return_value=[])
+    mocker.patch("agent.scheduler.search_sweep", return_value=[])
+
+    cfg = {
+        "thresholds": {"hn_points": 50},
+        "sources": {
+            "feeds": [],
+            "hf_papers": {"enabled": True, "min_upvotes": 3},
+            "arxiv_queries": ["LLM agents"],
+            "github_trending": {"enabled": True, "topics": ["llm"], "min_stars": 100},
+        },
+        "search": {},
+        "synthesis": {},
+    }
+    args = Namespace(deep=False, lookback_days=None, date=None)
+    cli.cmd_sweep(args=args, cfg=cfg)
+
+    _, run_kwargs = mock_run.call_args
+    assert run_kwargs["sources_cfg"] == cfg["sources"]
+
+
+def test_cmd_discover_sources_appends(mocker, tmp_path):
+    import cli
+    from argparse import Namespace
+
+    # Point the CLI's vault at a temp dir with a sources file.
+    vault = tmp_path / "vault"
+    (vault / "strategies").mkdir(parents=True)
+    (vault / "sources.md").write_text("# Sources\n")
+    mocker.patch.object(cli, "VAULT_PATH", vault)
+
+    class FakeSD:
+        def __init__(self, *a, **k):
+            pass
+
+        def suggest(self, recent_titles):
+            return ["r/LLMPrompting — techniques"]
+
+    mocker.patch("agent.tools.source_discovery.SourceDiscovery", FakeSD)
+    mocker.patch("agent.scheduler.SourceDiscovery", FakeSD)
+
+    cfg = {"llm": {"provider": "openrouter"}}
+    cli.cmd_discover_sources(args=Namespace(), cfg=cfg)
+
+    text = (vault / "sources.md").read_text()
+    assert "Suggested (pending review)" in text
+    assert "r/LLMPrompting" in text
+
+
+def test_main_dispatches_discover_sources(mocker):
+    import cli
+
+    mock_cmd = mocker.patch.object(cli, "cmd_discover_sources")
+    with patch("sys.argv", ["cli.py", "discover-sources"]):
+        cli.main()
+    assert mock_cmd.call_count == 1
+
+
 def test_load_config_surfaces_llm_section():
     import cli
     cfg = cli.load_config()

@@ -1,8 +1,10 @@
 import pytest
 
 from agent.fetchers.base import SourceAdapter, build_adapters
-from agent.fetchers.arxiv import ArxivFetcher
+from agent.fetchers.arxiv import ArxivFetcher, ArxivSearchAdapter
+from agent.fetchers.github_trending import GitHubTrendingAdapter
 from agent.fetchers.hackernews import HNFetcher
+from agent.fetchers.hf_papers import HFPapersAdapter
 from agent.fetchers.multi_search import MultiSearchFetcher
 from agent.fetchers.web import WebFetcher
 
@@ -76,3 +78,95 @@ def test_search_kind_returns_multi_search_adapter():
 def test_unknown_kind_raises():
     with pytest.raises(ValueError, match="unknown adapter kind"):
         build_adapters({}, kind="bogus")
+
+
+# --- New sources config block (change 0010) ---------------------------------
+
+
+def _sweep_types(cfg, **kw):
+    return [type(a) for a in build_adapters(cfg, kind="sweep", feeds=[], **kw)]
+
+
+def test_sweep_omits_new_sources_when_sources_block_absent():
+    # A config with no `sources` block behaves exactly as before.
+    types = _sweep_types({"thresholds": {"hn_points": 50}})
+    assert types == [HNFetcher, ArxivFetcher]
+
+
+def test_sweep_adds_hf_papers_when_enabled():
+    cfg = {"thresholds": {}, "sources": {"hf_papers": {"enabled": True, "min_upvotes": 5}}}
+    adapters = build_adapters(cfg, kind="sweep", feeds=[])
+    hf = [a for a in adapters if isinstance(a, HFPapersAdapter)]
+    assert len(hf) == 1
+    assert hf[0].min_upvotes == 5
+    assert all(isinstance(a, SourceAdapter) for a in adapters)
+
+
+def test_sweep_omits_hf_papers_when_disabled():
+    cfg = {"sources": {"hf_papers": {"enabled": False}}}
+    assert HFPapersAdapter not in _sweep_types(cfg)
+
+
+def test_sweep_adds_arxiv_search_when_queries_present():
+    cfg = {"sources": {"arxiv_queries": ["LLM agents", "prompt optimization"]}}
+    adapters = build_adapters(cfg, kind="sweep", feeds=[])
+    srch = [a for a in adapters if isinstance(a, ArxivSearchAdapter)]
+    assert len(srch) == 1
+    assert srch[0].queries == ["LLM agents", "prompt optimization"]
+
+
+def test_sweep_omits_arxiv_search_when_queries_absent_or_empty():
+    assert ArxivSearchAdapter not in _sweep_types({"sources": {"arxiv_queries": []}})
+    assert ArxivSearchAdapter not in _sweep_types({"sources": {}})
+
+
+def test_sweep_adds_github_trending_when_enabled():
+    cfg = {
+        "sources": {
+            "github_trending": {"enabled": True, "topics": ["llm", "rag"], "min_stars": 250}
+        }
+    }
+    adapters = build_adapters(cfg, kind="sweep", feeds=[])
+    gh = [a for a in adapters if isinstance(a, GitHubTrendingAdapter)]
+    assert len(gh) == 1
+    assert gh[0].topics == ["llm", "rag"]
+    assert gh[0].min_stars == 250
+
+
+def test_sweep_omits_github_trending_when_disabled():
+    cfg = {"sources": {"github_trending": {"enabled": False, "topics": ["llm"]}}}
+    assert GitHubTrendingAdapter not in _sweep_types(cfg)
+
+
+def test_sweep_threads_lookback_into_new_sources():
+    cfg = {
+        "sources": {
+            "hf_papers": {"enabled": True},
+            "arxiv_queries": ["q"],
+            "github_trending": {"enabled": True, "topics": ["llm"]},
+        }
+    }
+    adapters = build_adapters(cfg, kind="sweep", feeds=[], lookback_days=30)
+    for a in adapters:
+        assert a.lookback_days == 30
+
+
+def test_sweep_all_new_sources_registered_in_order():
+    cfg = {
+        "thresholds": {"hn_points": 50},
+        "sources": {
+            "hf_papers": {"enabled": True},
+            "arxiv_queries": ["q"],
+            "github_trending": {"enabled": True, "topics": ["llm"]},
+        },
+    }
+    feeds = [{"name": "b", "url": "u"}]
+    types = [type(a) for a in build_adapters(cfg, kind="sweep", feeds=feeds)]
+    assert types == [
+        HNFetcher,
+        ArxivFetcher,
+        WebFetcher,
+        HFPapersAdapter,
+        ArxivSearchAdapter,
+        GitHubTrendingAdapter,
+    ]
