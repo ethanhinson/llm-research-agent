@@ -143,3 +143,142 @@ def test_source_is_per_handle(mocker):
     )
     items = BlueskyAdapter(authors=["simonwillison.net"]).fetch()
     assert items[0].source == "bluesky/simonwillison.net"
+
+
+def test_external_embed_link_and_title_extraction(mocker):
+    # text present -> title is the text; url is the embed uri (single outbound)
+    post = _post(
+        text="Check this out",
+        embed=_external_embed("https://blog.example/post", title="Embed Title"),
+        facets=None,
+    )
+    _mock_get(mocker, payload=_feed(_item(post)))
+    items = BlueskyAdapter(authors=["a.bsky.social"]).fetch()
+    assert items[0].url == "https://blog.example/post"
+    assert items[0].title == "Check this out"
+
+
+def test_embed_title_used_when_text_empty(mocker):
+    post = _post(
+        text="",
+        embed=_external_embed("https://blog.example/post", title="The Embed Title"),
+    )
+    _mock_get(mocker, payload=_feed(_item(post)))
+    items = BlueskyAdapter(authors=["a.bsky.social"]).fetch()
+    assert items[0].title == "The Embed Title"
+    assert items[0].body == ""
+
+
+def test_arxiv_id_detected_and_normalized_from_facet(mocker):
+    post = _post(facets=[_facet_link("https://arxiv.org/pdf/2401.01234v2")])
+    _mock_get(mocker, payload=_feed(_item(post)))
+    items = BlueskyAdapter(authors=["a.bsky.social"]).fetch()
+    assert items[0].url == "https://arxiv.org/abs/2401.01234"
+
+
+def test_arxiv_id_detected_from_embed(mocker):
+    post = _post(text="paper", embed=_external_embed("https://arxiv.org/abs/2405.09999"))
+    _mock_get(mocker, payload=_feed(_item(post)))
+    items = BlueskyAdapter(authors=["a.bsky.social"]).fetch()
+    assert items[0].url == "https://arxiv.org/abs/2405.09999"
+
+
+def test_arxiv_preferred_when_also_other_links(mocker):
+    post = _post(
+        facets=[
+            _facet_link("https://twitter.com/x/status/1"),
+            _facet_link("https://arxiv.org/abs/2401.05555"),
+        ]
+    )
+    _mock_get(mocker, payload=_feed(_item(post)))
+    items = BlueskyAdapter(authors=["a.bsky.social"]).fetch()
+    assert items[0].url == "https://arxiv.org/abs/2401.05555"
+
+
+def test_repost_skipped(mocker):
+    # top-level `reason` marks a repost
+    _mock_get(
+        mocker,
+        payload=_feed(_item(_post(facets=[_facet_link("https://ex.com/x")]), reason=True)),
+    )
+    assert BlueskyAdapter(authors=["a.bsky.social"]).fetch() == []
+
+
+def test_reply_skipped(mocker):
+    post = _post(facets=[_facet_link("https://ex.com/x")], reply=True)
+    _mock_get(mocker, payload=_feed(_item(post)))
+    assert BlueskyAdapter(authors=["a.bsky.social"]).fetch() == []
+
+
+def test_pure_commentary_dropped(mocker):
+    # no facets, no embed -> no outbound link, no arxiv -> dropped
+    post = _post(text="just my thoughts, no link", facets=None, embed=None)
+    _mock_get(mocker, payload=_feed(_item(post)))
+    assert BlueskyAdapter(authors=["a.bsky.social"]).fetch() == []
+
+
+def test_engagement_floor_drops_below_min(mocker):
+    low = _post(like_count=2, repost_count=1, facets=[_facet_link("https://ex.com/x")])
+    high = _post(like_count=4, repost_count=4, facets=[_facet_link("https://ex.com/y")])
+    _mock_get(mocker, payload=_feed(_item(low), _item(high)))
+    items = BlueskyAdapter(authors=["a.bsky.social"], min_engagement=5).fetch()
+    urls = [i.url for i in items]
+    assert "https://ex.com/x" not in urls  # engagement 3 < 5
+    assert "https://ex.com/y" in urls      # engagement 8 >= 5
+
+
+def test_engagement_is_like_plus_repost_sum(mocker):
+    post = _post(like_count=7, repost_count=6, facets=[_facet_link("https://ex.com/x")])
+    _mock_get(mocker, payload=_feed(_item(post)))
+    items = BlueskyAdapter(authors=["a.bsky.social"], min_engagement=0).fetch()
+    assert items[0].engagement == 13
+
+
+def test_per_handle_fail_soft_one_bad_does_not_sink_others(mocker):
+    good = _resp(
+        mocker,
+        payload=_feed(_item(_post(text="good", facets=[_facet_link("https://ex.com/g")]))),
+    )
+    mocker.patch("httpx.get", side_effect=[httpx.ConnectError("dead"), good])
+    items = BlueskyAdapter(authors=["bad.bsky.social", "good.bsky.social"]).fetch()
+    assert [i.body for i in items] == ["good"]
+
+
+def test_fail_soft_on_status_error(mocker):
+    _mock_get(mocker, raise_status=True)
+    assert BlueskyAdapter(authors=["a.bsky.social"]).fetch() == []
+
+
+def test_lookback_bounding_drops_old_keeps_recent_and_undated(mocker):
+    payload = _feed(
+        _item(_post(text="old", indexed_at=_old_iso(), facets=[_facet_link("https://ex.com/o")])),
+        _item(_post(text="recent", indexed_at=_recent_iso(), facets=[_facet_link("https://ex.com/r")])),
+        _item(_post(text="undated", indexed_at="", facets=[_facet_link("https://ex.com/u")])),
+    )
+    _mock_get(mocker, payload=payload)
+    items = BlueskyAdapter(authors=["a.bsky.social"], lookback_days=7).fetch()
+    bodies = [i.body for i in items]
+    assert "old" not in bodies
+    assert "recent" in bodies
+    assert "undated" in bodies
+
+
+def test_post_own_url_fallback_when_multiple_outbound(mocker):
+    post = _post(
+        uri="at://did:plc:xyz/app.bsky.feed.post/rkeyABC",
+        facets=[
+            _facet_link("https://ex.com/one"),
+            _facet_link("https://ex.com/two"),
+        ],
+    )
+    _mock_get(mocker, payload=_feed(_item(post)))
+    items = BlueskyAdapter(authors=["someone.bsky.social"]).fetch()
+    assert items[0].url == "https://bsky.app/profile/someone.bsky.social/post/rkeyABC"
+
+
+def test_is_source_adapter():
+    from agent.fetchers.base import SourceAdapter
+
+    adapter = BlueskyAdapter(authors=["a.bsky.social"])
+    assert isinstance(adapter, SourceAdapter)
+    assert adapter.name == "bluesky"
