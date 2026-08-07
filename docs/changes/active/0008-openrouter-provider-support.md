@@ -2,11 +2,11 @@
 id: 8
 slug: openrouter-provider-support
 title: OpenRouter provider support — full-system alternative to the Anthropic API
-status: proposed
+status: in-progress
 priority: medium
 type: feat
 created: 2026-08-06
-updated: 2026-08-06
+updated: 2026-08-07
 depends_on: [7]
 related: [7]
 discovered_from: []
@@ -16,7 +16,8 @@ plan:
 results:
 trivial: false
 auto_groomable: false
-branch:
+branch: feat/openrouter-provider-support
+claimed_at: 2026-08-07T02:37:04Z
 pr:
 blocked_by:
 reconciled: false
