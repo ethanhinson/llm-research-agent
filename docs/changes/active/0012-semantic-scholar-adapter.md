@@ -2,7 +2,7 @@
 id: 12
 slug: semantic-scholar-adapter
 title: Semantic Scholar keyword-search adapter
-status: proposed
+status: in-progress
 priority: medium
 type: feat
 created: 2026-08-07
@@ -16,8 +16,9 @@ plan:
 results:
 trivial: false
 auto_groomable: false
-branch:
+branch: feat/semantic-scholar-adapter
 pr:
+claimed_at: 2026-08-07T19:26:56Z
 blocked_by:
 reconciled: false
 ---
