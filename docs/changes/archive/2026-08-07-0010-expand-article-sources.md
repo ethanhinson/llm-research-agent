@@ -2,7 +2,7 @@
 id: 10
 slug: expand-article-sources
 title: Expand article sources — HF daily papers, arXiv keyword search, GitHub trending, wired SourceDiscovery
-status: implemented
+status: done
 priority: medium
 type: feat
 created: 2026-08-07
@@ -17,7 +17,7 @@ results: docs/results/2026-08-07-expand-article-sources-results.md
 trivial: false
 auto_groomable: false
 branch: feat/expand-article-sources
-claimed_at: 2026-08-07T07:39:42Z
+claimed_at: 
 pr: https://github.com/ethanhinson/llm-research-agent/pull/10
 blocked_by:
 reconciled: true
