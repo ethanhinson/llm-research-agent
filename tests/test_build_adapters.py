@@ -8,6 +8,7 @@ from agent.fetchers.hf_papers import HFPapersAdapter
 from agent.fetchers.multi_search import MultiSearchFetcher
 from agent.fetchers.semantic_scholar import SemanticScholarAdapter
 from agent.fetchers.web import WebFetcher
+from agent.fetchers.bluesky import BlueskyAdapter
 
 
 def test_sweep_kind_returns_hn_and_arxiv_without_feeds():
@@ -225,3 +226,56 @@ def test_sweep_threads_lookback_into_semantic_scholar():
     adapters = build_adapters(cfg, kind="sweep", feeds=[], lookback_days=30)
     s2 = [a for a in adapters if isinstance(a, SemanticScholarAdapter)][0]
     assert s2.lookback_days == 30
+
+
+# --- Bluesky (change 0013) --------------------------------------------------
+
+
+def test_sweep_adds_bluesky_when_enabled():
+    cfg = {
+        "sources": {
+            "bluesky": {
+                "enabled": True,
+                "min_engagement": 8,
+                "authors": ["simonwillison.net", "karpathy.bsky.social"],
+            }
+        }
+    }
+    adapters = build_adapters(cfg, kind="sweep", feeds=[])
+    bsky = [a for a in adapters if isinstance(a, BlueskyAdapter)]
+    assert len(bsky) == 1
+    assert bsky[0].authors == ["simonwillison.net", "karpathy.bsky.social"]
+    assert bsky[0].min_engagement == 8
+    assert all(isinstance(a, SourceAdapter) for a in adapters)
+
+
+def test_sweep_bluesky_defaults_min_engagement():
+    cfg = {"sources": {"bluesky": {"enabled": True, "authors": ["a.bsky.social"]}}}
+    adapters = build_adapters(cfg, kind="sweep", feeds=[])
+    bsky = [a for a in adapters if isinstance(a, BlueskyAdapter)][0]
+    assert bsky.min_engagement == 5
+    assert bsky.authors == ["a.bsky.social"]
+
+
+def test_sweep_omits_bluesky_when_disabled():
+    cfg = {"sources": {"bluesky": {"enabled": False, "authors": ["a.bsky.social"]}}}
+    assert BlueskyAdapter not in _sweep_types(cfg)
+
+
+def test_sweep_omits_bluesky_when_absent():
+    assert BlueskyAdapter not in _sweep_types({"sources": {"arxiv_queries": ["q"]}})
+    assert BlueskyAdapter not in _sweep_types({"sources": {}})
+
+
+def test_sweep_bluesky_empty_authors_when_missing():
+    cfg = {"sources": {"bluesky": {"enabled": True}}}
+    adapters = build_adapters(cfg, kind="sweep", feeds=[])
+    bsky = [a for a in adapters if isinstance(a, BlueskyAdapter)][0]
+    assert bsky.authors == []
+
+
+def test_sweep_threads_lookback_into_bluesky():
+    cfg = {"sources": {"bluesky": {"enabled": True, "authors": ["a.bsky.social"]}}}
+    adapters = build_adapters(cfg, kind="sweep", feeds=[], lookback_days=30)
+    bsky = [a for a in adapters if isinstance(a, BlueskyAdapter)][0]
+    assert bsky.lookback_days == 30

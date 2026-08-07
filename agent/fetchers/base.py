@@ -64,6 +64,7 @@ def build_adapters(
     from agent.fetchers.multi_search import MultiSearchFetcher
     from agent.fetchers.semantic_scholar import SemanticScholarAdapter
     from agent.fetchers.web import WebFetcher
+    from agent.fetchers.bluesky import BlueskyAdapter
 
     if kind == "sweep":
         lb = {} if lookback_days is None else {"lookback_days": lookback_days}
@@ -109,6 +110,18 @@ def build_adapters(
                 SemanticScholarAdapter(
                     queries=list(s2_queries),
                     max_per_query=s2_cfg.get("max_per_query", 10),
+                    **lb,
+                )
+            )
+
+        # Change 0013: Bluesky author feeds. `authors` is a config registry of
+        # researcher handles; each is polled fail-soft at fetch time.
+        bsky_cfg = sources.get("bluesky") or {}
+        if bsky_cfg.get("enabled"):
+            adapters.append(
+                BlueskyAdapter(
+                    authors=list(bsky_cfg.get("authors") or []),
+                    min_engagement=bsky_cfg.get("min_engagement", 5),
                     **lb,
                 )
             )
