@@ -60,6 +60,28 @@ Example output for a mixed batch:
 Items (with pre-classified types):
 {items}"""
 
+TAG_PROMPT = """\
+You are tagging LLM/AI content items with topic tags for an Obsidian research vault.
+
+For each item, output exactly one line:
+<n>. tag1 tag2 tag3
+
+Rules:
+- 2 to 4 tags per item
+- Lowercase, hyphenated (rag, chain-of-thought, fine-tuning)
+- Tags describe the topic, NOT the content type (no "research", "news", "release")
+- Be specific: prefer "speculative-decoding" over "inference", "rlhf" over "training"
+- Non-redundant: don't emit both "reasoning" and "chain-of-thought" for the same item
+
+Common topics (not exhaustive — coin new ones when needed):
+rag fine-tuning inference-efficiency chain-of-thought reasoning multimodal
+safety-alignment tool-use agent-frameworks context-window embeddings
+instruction-following code-generation vision long-context speculative-decoding
+memory rlhf synthetic-data evaluation
+
+Items:
+{items}"""
+
 VALIDATE_PROMPT = """\
 You are reviewing LLM/AI content items for inclusion in a research vault.
 Each item has been classified by type and scored on a type-appropriate axis.
@@ -87,7 +109,8 @@ class Evaluator:
             self._classify_batch(batch)
             self._score_batch(batch)
             self._validate_batch(batch)
-            self._set_tags(batch)
+            self._set_tags(batch)    # structural tags first
+            self._tag_batch(batch)   # topic tags appended
         return items
 
     def _set_tags(self, batch: list[RawItem]):
@@ -96,6 +119,31 @@ class Evaluator:
             if item.content_type == "research" and item.category:
                 tags.append(item.category)
             item.tags = tags
+
+    def _tag_batch(self, batch: list[RawItem]):
+        item_lines = "\n".join(
+            f"{i+1}. [{item.content_type}] {item.title} — {item.body[:150]}"
+            for i, item in enumerate(batch)
+        )
+        text = self._call(TAG_PROMPT.format(items=item_lines))
+        pattern = re.compile(r"^\s*(\d+)\.\s+(.+)$", re.MULTILINE)
+        for match in pattern.finditer(text):
+            idx = int(match.group(1)) - 1
+            if 0 <= idx < len(batch):
+                raw_tags = match.group(2).strip()
+                # Split on commas first so a comma-delimited multi-word tag
+                # ("Fine Tuning") hyphenates rather than fragmenting; when no
+                # commas are present, fall back to whitespace-delimited tokens.
+                if "," in raw_tags:
+                    parts = [p for p in raw_tags.split(",")]
+                else:
+                    parts = re.split(r"\s+", raw_tags)
+                topic_tags = [
+                    p.strip().lower().replace(" ", "-")
+                    for p in parts
+                    if p.strip()
+                ]
+                batch[idx].tags = batch[idx].tags + topic_tags[:4]
 
     def _call(self, prompt: str) -> str:
         message = self._client.messages.create(
