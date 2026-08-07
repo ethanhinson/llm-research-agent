@@ -40,6 +40,12 @@ sources:
     enabled: true
     topics: [llm, ai-agents, rag]
     min_stars: 100      # engagement threshold; GITHUB_TOKEN honored from env if set
+  semantic_scholar:     # Change 0012: Semantic Scholar Graph API keyword search
+    enabled: true       # cross-venue papers with abstracts, tldr, citation counts
+    max_per_query: 10   # per-query result cap
+  # s2_queries defaults to arxiv_queries above when unset; uncomment to override:
+  # s2_queries:
+  #   - "LLM agents"
   feeds:
     - name: "Simon Willison's blog"
       url: "https://simonwillison.net/atom/everything/"
