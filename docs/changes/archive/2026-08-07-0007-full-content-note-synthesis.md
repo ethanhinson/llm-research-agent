@@ -2,12 +2,12 @@
 id: 7
 slug: full-content-note-synthesis
 title: Full-content retrieval + LLM note synthesis
-status: implemented
+status: done
 priority: high
 type: feat
 created: 2026-08-06
-updated: 2026-08-06
-claimed_at: 2026-08-06T21:31:38Z
+updated: 2026-08-07
+claimed_at: 
 depends_on: []
 related: [4, 5, 6]
 discovered_from: []
