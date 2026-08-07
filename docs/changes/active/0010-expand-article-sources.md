@@ -2,7 +2,7 @@
 id: 10
 slug: expand-article-sources
 title: Expand article sources — HF daily papers, arXiv keyword search, GitHub trending, wired SourceDiscovery
-status: proposed
+status: in-progress
 priority: medium
 type: feat
 created: 2026-08-07
@@ -16,7 +16,8 @@ plan:
 results:
 trivial: false
 auto_groomable: false
-branch:
+branch: feat/expand-article-sources
+claimed_at: 2026-08-07T07:09:49Z
 pr:
 blocked_by:
 reconciled: false
