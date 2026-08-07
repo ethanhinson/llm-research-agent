@@ -2,7 +2,7 @@
 id: 13
 slug: bluesky-author-feeds
 title: Bluesky author-feed adapter with researcher registry
-status: in-progress
+status: implemented
 priority: medium
 type: feat
 created: 2026-08-07
@@ -13,14 +13,14 @@ discovered_from: []
 adrs: []
 spec: docs/superpowers/specs/2026-08-07-bluesky-author-feeds.md
 plan: docs/superpowers/plans/2026-08-07-bluesky-author-feeds-plan.md
-results:
+results: docs/results/2026-08-07-bluesky-author-feeds-results.md
 trivial: false
 auto_groomable: false
 branch: feat/bluesky-author-feeds
-pr:
+pr: https://github.com/ethanhinson/llm-research-agent/pull/13
 blocked_by:
 reconciled: true
-claimed_at: 2026-08-07T19:55:29Z
+claimed_at: 2026-08-07T20:18:32Z
 ---
 
 ## Artifacts
@@ -30,6 +30,8 @@ claimed_at: 2026-08-07T19:55:29Z
 |---|---|
 | Spec | [2026-08-07-bluesky-author-feeds.md](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/superpowers/specs/2026-08-07-bluesky-author-feeds.md) |
 | Plan | [2026-08-07-bluesky-author-feeds-plan.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/bluesky-author-feeds/docs/superpowers/plans/2026-08-07-bluesky-author-feeds-plan.md) |
+| Results | [2026-08-07-bluesky-author-feeds-results.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/bluesky-author-feeds/docs/results/2026-08-07-bluesky-author-feeds-results.md) |
+| PR | [#13](https://github.com/ethanhinson/llm-research-agent/pull/13) |
 <!-- docket:artifacts:end -->
 
 ## Why
