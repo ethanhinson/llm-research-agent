@@ -1,24 +1,16 @@
 # Backlog
 
-**8 changes** — 🔵 1 implemented · ✅ 7 done
-
-## 🔵 Implemented — awaiting merge (1)
-
-| # | Title | Priority | Type | PR | Readiness |
-|---|-------|----------|------|----|-----------|
-| [0008](active/0008-openrouter-provider-support.md) | OpenRouter provider support — full-system alternative to the Anthropic API | `medium` | `feat` | [#8](https://github.com/ethanhinson/llm-research-agent/pull/8) |  |
+**8 changes** — ✅ 8 done
 
 ```mermaid
 graph TD
-  0007 --> 0008
-  0007:::done
-  classDef done fill:#d3f9d8;
 ```
 
-<details><summary>✅ Archive — done (7)</summary>
+<details><summary>✅ Archive — done (8)</summary>
 
 | # | Title | Merged |
 |---|-------|--------|
+| [0008](archive/2026-08-07-0008-openrouter-provider-support.md) | OpenRouter provider support — full-system alternative to the Anthropic API | 2026-08-07 |
 | [0007](archive/2026-08-07-0007-full-content-note-synthesis.md) | Full-content retrieval + LLM note synthesis | 2026-08-07 |
 | [0006](archive/2026-08-07-0006-llm-topic-tags.md) | LLM-generated freeform topic tags | 2026-08-07 |
 | [0005](archive/2026-08-07-0005-retroactive-reclassify-vault-notes.md) | Retroactive re-classification of existing vault notes | 2026-08-07 |
