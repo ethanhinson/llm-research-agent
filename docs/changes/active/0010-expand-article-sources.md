@@ -2,7 +2,7 @@
 id: 10
 slug: expand-article-sources
 title: Expand article sources — HF daily papers, arXiv keyword search, GitHub trending, wired SourceDiscovery
-status: in-progress
+status: implemented
 priority: medium
 type: feat
 created: 2026-08-07
@@ -13,12 +13,12 @@ discovered_from: []
 adrs: []
 spec: docs/superpowers/specs/2026-08-07-expand-article-sources.md
 plan: docs/superpowers/plans/2026-08-07-expand-article-sources.md
-results:
+results: docs/results/2026-08-07-expand-article-sources-results.md
 trivial: false
 auto_groomable: false
 branch: feat/expand-article-sources
-claimed_at: 2026-08-07T07:11:20Z
-pr:
+claimed_at: 2026-08-07T07:39:42Z
+pr: https://github.com/ethanhinson/llm-research-agent/pull/10
 blocked_by:
 reconciled: true
 ---
@@ -30,6 +30,8 @@ reconciled: true
 |---|---|
 | Spec | [2026-08-07-expand-article-sources.md](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/superpowers/specs/2026-08-07-expand-article-sources.md) |
 | Plan | [2026-08-07-expand-article-sources.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/expand-article-sources/docs/superpowers/plans/2026-08-07-expand-article-sources.md) |
+| Results | [2026-08-07-expand-article-sources-results.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/expand-article-sources/docs/results/2026-08-07-expand-article-sources-results.md) |
+| PR | [#10](https://github.com/ethanhinson/llm-research-agent/pull/10) |
 <!-- docket:artifacts:end -->
 
 ## Why
