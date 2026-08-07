@@ -119,6 +119,16 @@ def score(self, items: list[RawItem]) -> list[RawItem]:
 - `test_tag_batch_normalizes_commas`: handles comma-separated output like `"rag, fine-tuning, reasoning"`.
 - `test_score_includes_topic_tags`: end-to-end mock of `score()` verifying topic tags present on items.
 
+### Existing test updates (reconcile 2026-08-07)
+
+Adding `_tag_batch` makes `score()` issue a **fourth** `_call` per batch. The three existing full-`score()` tests seed `messages.create` `side_effect` with exactly 3 responses and will `StopIteration` on the 4th call. Add a 4th tag-pass mock response to each:
+
+- `test_evaluator_three_passes_sets_fields` — append e.g. `_mock_message("1. rag\n2. gpt\n")`; existing assertions on content_type/score/keep stay, plus the structural tags remain the leading entries.
+- `test_evaluator_missing_classify_line_keeps_default` — append a 4th `_mock_message("1. reasoning\n")`.
+- `test_evaluator_subcategory_only_set_for_research` — append a 4th `_mock_message("1. fine-tuning\n")`.
+
+Run the suite via `uv run python -m pytest` after `uv sync --extra dev` (learnings: pytest-shim-and-venv-provisioning).
+
 ---
 
 ## Token Budget
@@ -127,6 +137,6 @@ Each batch of 20 items × 150 chars ≈ 3000 input tokens per batch. The tag res
 
 ---
 
-## Future: Reclassify Integration
+## Reclassify Integration (resolved — reconcile 2026-08-07)
 
-Once change 0005 lands, the `cmd_reclassify` function should also call `_tag_batch()` so that retroactively reclassified notes also receive topic tags. This is noted as a follow-up scope extension in change 0005.
+Change 0005 has landed (`done`). `agent/reclassifier.py:Reclassifier.reclassify()` routes every collected note through `self._evaluator.score(...)`. Because `_tag_batch` runs inside the `score()` per-batch loop, retroactively reclassified notes receive topic tags **automatically** — no change to `reclassifier.py` or `cli.py` is needed. The earlier "future follow-up" is closed by placement, not by additional code.
