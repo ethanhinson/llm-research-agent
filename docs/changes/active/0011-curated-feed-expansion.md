@@ -12,7 +12,7 @@ related: [10]
 discovered_from: []
 adrs: []
 spec:
-plan:
+plan: docs/superpowers/plans/2026-08-07-curated-feed-expansion.md
 results:
 trivial: true
 auto_groomable: false
@@ -26,6 +26,9 @@ reconciled: true
 ## Artifacts
 
 <!-- docket:artifacts:start (generated — do not hand-edit) -->
+| Artifact | Link |
+|---|---|
+| Plan | [2026-08-07-curated-feed-expansion.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/curated-feed-expansion/docs/superpowers/plans/2026-08-07-curated-feed-expansion.md) |
 <!-- docket:artifacts:end -->
 
 ## Why
