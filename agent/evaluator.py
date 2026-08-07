@@ -1,10 +1,8 @@
 import re
 
-import anthropic
-
+from agent.llm import get_client, LLMClient
 from agent.models import RawItem
 
-MODEL = "claude-haiku-4-5-20251001"
 BATCH_SIZE = 20
 
 CONTENT_TYPES = {"research", "release", "news", "benchmark", "tutorial"}
@@ -98,8 +96,9 @@ Items (with type and score):
 
 
 class Evaluator:
-    def __init__(self, api_key: str | None = None):
-        self._client = anthropic.Anthropic(api_key=api_key)
+    def __init__(self, api_key: str | None = None, *, client: LLMClient | None = None,
+                 llm_cfg: dict | None = None):
+        self._client = client if client is not None else get_client({"llm": llm_cfg or {}})
 
     def score(self, items: list[RawItem]) -> list[RawItem]:
         if not items:
@@ -146,14 +145,7 @@ class Evaluator:
                 batch[idx].tags = batch[idx].tags + topic_tags[:4]
 
     def _call(self, prompt: str) -> str:
-        message = self._client.messages.create(
-            model=MODEL,
-            max_tokens=512,
-            messages=[{"role": "user", "content": prompt}],
-        )
-        if not message.content or not hasattr(message.content[0], "text"):
-            return ""
-        return message.content[0].text
+        return self._client.complete(prompt, max_tokens=512)
 
     def _classify_batch(self, batch: list[RawItem]):
         item_lines = "\n".join(
