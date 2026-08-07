@@ -2,7 +2,7 @@
 id: 16
 slug: hf-trending-artifacts
 title: Hugging Face trending models/datasets adapter
-status: in-progress
+status: implemented
 priority: medium
 type: feat
 created: 2026-08-07
@@ -13,13 +13,13 @@ discovered_from: []
 adrs: []
 spec:
 plan: docs/superpowers/plans/2026-08-07-hf-trending-artifacts.md
-results:
+results: docs/results/2026-08-07-hf-trending-artifacts-results.md
 trivial: true
 auto_groomable: false
 branch: feat/hf-trending-artifacts
-pr:
+pr: https://github.com/ethanhinson/llm-research-agent/pull/14
 blocked_by:
-claimed_at: 2026-08-07T20:27:40Z
+claimed_at: 2026-08-07T20:35:14Z
 reconciled: true
 ---
 
@@ -29,6 +29,8 @@ reconciled: true
 | Artifact | Link |
 |---|---|
 | Plan | [2026-08-07-hf-trending-artifacts.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/hf-trending-artifacts/docs/superpowers/plans/2026-08-07-hf-trending-artifacts.md) |
+| Results | [2026-08-07-hf-trending-artifacts-results.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/hf-trending-artifacts/docs/results/2026-08-07-hf-trending-artifacts-results.md) |
+| PR | [#14](https://github.com/ethanhinson/llm-research-agent/pull/14) |
 <!-- docket:artifacts:end -->
 
 ## Why
