@@ -1,6 +1,6 @@
 # Backlog
 
-**16 changes** — 🟡 2 proposed · 🔵 1 implemented · ✅ 13 done
+**16 changes** — 🟡 2 proposed · ✅ 14 done
 
 ## 🟡 Proposed (2)
 
@@ -9,25 +9,17 @@
 | [0014](active/0014-cross-source-corroboration-ranking.md) | Cross-source corroboration + citation-velocity signals | `medium` | `feat` | needs-brainstorm |
 | [0015](active/0015-embedding-topic-prefilter.md) | Embedding-based topic pre-filter (replace/augment regex filter) | `medium` | `feat` | needs-brainstorm |
 
-## 🔵 Implemented — awaiting merge (1)
-
-| # | Title | Priority | Type | PR | Readiness |
-|---|-------|----------|------|----|-----------|
-| [0016](active/0016-hf-trending-artifacts.md) | Hugging Face trending models/datasets adapter | `medium` | `feat` | [#14](https://github.com/ethanhinson/llm-research-agent/pull/14) |  |
-
 ```mermaid
 graph TD
   0014
   0015
-  0010 --> 0016
-  0010:::done
-  classDef done fill:#d3f9d8;
 ```
 
-<details><summary>✅ Archive — done (13)</summary>
+<details><summary>✅ Archive — done (14)</summary>
 
 | # | Title | Merged |
 |---|-------|--------|
+| [0016](archive/2026-08-07-0016-hf-trending-artifacts.md) | Hugging Face trending models/datasets adapter | 2026-08-07 |
 | [0013](archive/2026-08-07-0013-bluesky-author-feeds.md) | Bluesky author-feed adapter with researcher registry | 2026-08-07 |
 | [0012](archive/2026-08-07-0012-semantic-scholar-adapter.md) | Semantic Scholar keyword-search adapter | 2026-08-07 |
 | [0011](archive/2026-08-07-0011-curated-feed-expansion.md) | Add verified curated feeds — newsletters + Lobste.rs | 2026-08-07 |
