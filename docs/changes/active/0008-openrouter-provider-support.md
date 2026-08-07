@@ -12,12 +12,12 @@ related: [7]
 discovered_from: []
 adrs: []
 spec: docs/superpowers/specs/2026-08-06-openrouter-provider-support.md
-plan:
+plan: docs/superpowers/plans/2026-08-06-openrouter-provider-support-plan.md
 results:
 trivial: false
 auto_groomable: false
 branch: feat/openrouter-provider-support
-claimed_at: 2026-08-07T02:47:36Z
+claimed_at: 2026-08-07T02:52:47Z
 pr:
 blocked_by:
 reconciled: true
@@ -29,6 +29,7 @@ reconciled: true
 | Artifact | Link |
 |---|---|
 | Spec | [2026-08-06-openrouter-provider-support.md](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/superpowers/specs/2026-08-06-openrouter-provider-support.md) |
+| Plan | [2026-08-06-openrouter-provider-support-plan.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/openrouter-provider-support/docs/superpowers/plans/2026-08-06-openrouter-provider-support-plan.md) |
 <!-- docket:artifacts:end -->
 
 ## Why
