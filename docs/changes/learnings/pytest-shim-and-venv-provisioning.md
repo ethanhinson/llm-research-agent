@@ -2,9 +2,9 @@
 slug: pytest-shim-and-venv-provisioning
 hook: "Run the suite as `uv run python -m pytest` after `uv sync --extra dev` — a bare `pytest` resolves to a pyenv shim that loads a crashing global deepeval plugin."
 topics: [testing, environment, tooling]
-changes: [5, 6, 8, 9]
+changes: [5, 6, 8, 9, 10]
 created: 2026-08-07
-updated: 2026-08-07T07:04:39Z
+updated: 2026-08-07T07:42:28Z
 promotion_state: candidate
 promoted_to:
 ---
@@ -25,3 +25,4 @@ Before running this repo's suite, provision the project venv and run pytest **th
 - 2026-08-07 (#6, PR #7) — Finalize gate for change 0006 followed this finding's canonical form directly: `uv sync --extra dev` then `uv run python -m pytest` in the feature worktree, yielding a clean **102 passed** with **no** `deepeval`/`TracerProvider` crash and **no** `trafilatura` ImportError. The venv module form sidestepped the polluting global shim entirely — first confirmation the recorded command works as prescribed with zero re-diagnosis, reinforcing the `candidate` promotion case.
 - 2026-08-07 (#8, PR #8) — Finalize gate for change 0008 (post-rebase onto a merged 0006) ran `uv sync --extra dev` then `uv run python -m pytest` in the feature worktree: a clean **118 passed** (0006's 4 tag tests + 0008's provider-abstraction tests) with no `deepeval`/`TracerProvider` crash and no `trafilatura` ImportError. Third consecutive gate where the recorded command worked as prescribed with zero re-diagnosis — the promotion case is now well-established.
 - 2026-08-07 (#9, PR #9) — Finalize gate for change 0009 (source-adapter-layer). Rebase onto `origin/main` was a no-op (branch already based on the tip), and `uv sync --extra dev` then `uv run python -m pytest` in the feature worktree gave a clean **133 passed** with no `deepeval`/`TracerProvider` crash and no `trafilatura` ImportError. Fourth consecutive gate where the recorded command worked as prescribed with zero re-diagnosis — the `candidate` promotion case continues to strengthen.
+- 2026-08-07 (#10, PR #10) — Finalize gate for change 0010 (expand-article-sources, built on the just-merged 0009). Rebase onto `origin/main` was again a no-op (branch already at the tip), and `uv sync --extra dev` then `uv run python -m pytest` in the feature worktree gave a clean **179 passed** (0009's adapter layer + 0010's three new adapters `test_fetcher_hf_papers`/`test_fetcher_arxiv`/`test_fetcher_github_trending` + `test_source_discovery` wiring) with no `deepeval`/`TracerProvider` crash and no `trafilatura` ImportError. Fifth consecutive gate where the recorded command worked as prescribed with zero re-diagnosis — the `candidate` promotion case is now strongly established across five changes.

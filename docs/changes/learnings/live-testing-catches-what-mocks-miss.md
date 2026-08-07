@@ -4,7 +4,7 @@ description: Unit tests with mocked fetchers/APIs missed three real integration 
 metadata:
   type: feedback
   promotion_state: candidate
-  changes: [1, 2, 4, 7, 8]
+  changes: [1, 2, 4, 7, 8, 10]
   updated: 2026-08-07
 ---
 
@@ -51,3 +51,13 @@ Lessons reinforced and added:
 1. **A live run is what proves a provider swap actually works** — the mocked backend tests (injected `FakeLLM`) passed clean and validated logic paths, but only the real OpenRouter sweep proved the OpenAI-compatible request shape, the model id, and the end-to-end note pipeline all hold against a *different* real API. Mocks can't validate a second provider's contract any more than they could validate the first's.
 2. **The #7 credit-balance blocker had a cheaper unblock than "top up the account": run the acceptance sweep through an alternate provider.** When a paid-API acceptance run is blocked on account state (billing/quota) rather than a code defect, a config-swappable provider abstraction lets the live verification run on whichever backend has credit — the deferral from #7 was cleared not by fixing Anthropic billing but by pointing the same pipeline at OpenRouter.
 3. **Non-fatal enrichment/search warnings are expected and provider-orthogonal.** The run logged `enrich failed 403/404` on paywalled sources and `BING_SEARCH_API_KEY/SERPAPI_KEY not set` self-skips — all fail-soft, none an LLM/provider error. Reading the sweep log, separate provider errors (there were none) from these expected soft-degradations before concluding a live run failed.
+
+## War story — 2026-08-07 (#10, PR #10)
+
+Change 0010 (three new source adapters — HF daily papers, arXiv keyword search, GitHub trending — plus wired `SourceDiscovery`) completed its live sweep verification at build time **via OpenRouter** (`llm.provider: openrouter`, `anthropic/claude-haiku-4.5`), because the Anthropic key still has no credit — the #7/#8 credit-balance-`400` pattern, unblocked by the provider swap exactly as this finding prescribes, not by topping up billing. The live run is what the mocked adapter tests could not do: it validated each new adapter's **real API contract and data volume**, not just its logic path.
+
+What only the live run proved:
+
+1. **The mocked-payload shape assumptions held against the real APIs.** The worker had flagged the `HFPapersAdapter` daily-papers JSON shape as an assumption; against the real endpoint 46 items mapped cleanly (title, summary, `upvotes`→engagement, `publishedAt`→timestamp). Per-source raw fetch counts confirmed real volume: HF papers 46, arXiv keyword search 10 (2 queries × cap 5), GitHub trending 100 — none of which a mock could have surfaced.
+2. **Every new source reached the funnel and the vault write path end-to-end.** The full minimal-scope sweep kept **134 items** through fetch → dedup → topic filter → cross-validate → OpenRouter evaluation → write (`hackernews` 20, `arxiv` 29, `hf-papers` 8, `github` 77), 128 notes written, and the `discover-sources` path appended its dated `## Suggested (pending review)` section to `sources.md`. Only expected fail-soft soft-degradations (paywalled enrich, missing search-backend keys) appeared — no LLM/provider errors — reinforcing lesson #3 above about reading the sweep log.
+3. **Reinforced #2's unblock-via-provider-swap rule for a second change in a row.** The provider abstraction from #8 is now the standing mechanism for running paid-API acceptance sweeps while Anthropic billing is blocked — 0010's verification never touched Anthropic. (Adjacent, unminted: `agent/evaluator.py`'s Anthropic path is still non-fail-soft, so a credit-balance `400` there would hard-abort a sweep before the new fail-soft sources are reached — orthogonal here because the live run used OpenRouter, but the same latent fail-hard trunk flagged in the #7 war story.)
