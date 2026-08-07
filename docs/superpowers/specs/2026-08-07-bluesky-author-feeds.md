@@ -1,5 +1,5 @@
 <!-- docket:backlink:start (generated — do not hand-edit) -->
-> ↩ **[Change 0013 — Bluesky author-feed adapter with researcher registry](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/changes/active/0013-bluesky-author-feeds.md)**
+> ↩ **[Change 0013 — Bluesky author-feed adapter with researcher registry](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/changes/archive/2026-08-07-0013-bluesky-author-feeds.md)**
 <!-- docket:backlink:end -->
 
 # Bluesky Author-Feed Adapter — Design Spec

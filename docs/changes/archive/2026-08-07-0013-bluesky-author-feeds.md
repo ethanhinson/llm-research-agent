@@ -29,8 +29,8 @@ claimed_at:
 | Artifact | Link |
 |---|---|
 | Spec | [2026-08-07-bluesky-author-feeds.md](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/superpowers/specs/2026-08-07-bluesky-author-feeds.md) |
-| Plan | [2026-08-07-bluesky-author-feeds-plan.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/bluesky-author-feeds/docs/superpowers/plans/2026-08-07-bluesky-author-feeds-plan.md) |
-| Results | [2026-08-07-bluesky-author-feeds-results.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/bluesky-author-feeds/docs/results/2026-08-07-bluesky-author-feeds-results.md) |
+| Plan | [2026-08-07-bluesky-author-feeds-plan.md](https://github.com/ethanhinson/llm-research-agent/blob/main/docs/superpowers/plans/2026-08-07-bluesky-author-feeds-plan.md) |
+| Results | [2026-08-07-bluesky-author-feeds-results.md](https://github.com/ethanhinson/llm-research-agent/blob/main/docs/results/2026-08-07-bluesky-author-feeds-results.md) |
 | PR | [#13](https://github.com/ethanhinson/llm-research-agent/pull/13) |
 <!-- docket:artifacts:end -->
 
