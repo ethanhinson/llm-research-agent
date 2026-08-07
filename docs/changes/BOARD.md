@@ -1,29 +1,25 @@
 # Backlog
 
-**10 changes** — 🟡 1 proposed · 🔵 1 implemented · ✅ 8 done
+**10 changes** — 🟡 1 proposed · ✅ 9 done
 
 ## 🟡 Proposed (1)
 
 | # | Title | Priority | Type | Readiness |
 |---|-------|----------|------|-----------|
-| [0010](active/0010-expand-article-sources.md) | Expand article sources — HF daily papers, arXiv keyword search, GitHub trending, wired SourceDiscovery | `medium` | `feat` | ⏳ waiting on #9 — needs your merge |
-
-## 🔵 Implemented — awaiting merge (1)
-
-| # | Title | Priority | Type | PR | Readiness |
-|---|-------|----------|------|----|-----------|
-| [0009](active/0009-source-adapter-layer.md) | Unify article intake behind a SourceAdapter layer | `medium` | `refactor` | [#9](https://github.com/ethanhinson/llm-research-agent/pull/9) |  |
+| [0010](active/0010-expand-article-sources.md) | Expand article sources — HF daily papers, arXiv keyword search, GitHub trending, wired SourceDiscovery | `medium` | `feat` | build-ready |
 
 ```mermaid
 graph TD
-  0009
   0009 --> 0010
+  0009:::done
+  classDef done fill:#d3f9d8;
 ```
 
-<details><summary>✅ Archive — done (8)</summary>
+<details><summary>✅ Archive — done (9)</summary>
 
 | # | Title | Merged |
 |---|-------|--------|
+| [0009](archive/2026-08-07-0009-source-adapter-layer.md) | Unify article intake behind a SourceAdapter layer | 2026-08-07 |
 | [0008](archive/2026-08-07-0008-openrouter-provider-support.md) | OpenRouter provider support — full-system alternative to the Anthropic API | 2026-08-07 |
 | [0007](archive/2026-08-07-0007-full-content-note-synthesis.md) | Full-content retrieval + LLM note synthesis | 2026-08-07 |
 | [0006](archive/2026-08-07-0006-llm-topic-tags.md) | LLM-generated freeform topic tags | 2026-08-07 |
