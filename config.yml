@@ -46,6 +46,37 @@ sources:
   # s2_queries defaults to arxiv_queries above when unset; uncomment to override:
   # s2_queries:
   #   - "LLM agents"
+  bluesky:              # Change 0013: curated AI-researcher author feeds
+    enabled: true       # public getAuthorFeed, no auth; posts as candidate items
+    min_engagement: 5   # likes+reposts floor; posts below are noise-prone
+    authors:            # human-curated registry of active AI researchers
+      - simonwillison.net
+      - karpathy.bsky.social
+      - soumith.bsky.social
+      - emollick.bsky.social
+      - jeremyphoward.bsky.social
+      - rasbt.bsky.social
+      - giffmana.ai
+      - natolambert.bsky.social
+      - tomgoldstein.bsky.social
+      - jbhuang0604.bsky.social
+      - sedielem.bsky.social
+      - chelseafinn.bsky.social
+      - merve.bsky.social
+      - andrewwhite.bsky.social
+      - gm8xx8.bsky.social
+      - hardmaru.bsky.social
+      - tunguz.bsky.social
+      - osanseviero.bsky.social
+      - danielvanstrien.bsky.social
+      - arankomatsuzaki.bsky.social
+      - johnowhitaker.bsky.social
+      - lateinteraction.bsky.social
+      - neelnanda.bsky.social
+      - jxmnop.bsky.social
+      - srush.bsky.social
+      - yoavgo.bsky.social
+      - vikhyat.bsky.social
   feeds:
     - name: "Simon Willison's blog"
       url: "https://simonwillison.net/atom/everything/"
