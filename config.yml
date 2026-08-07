@@ -27,6 +27,19 @@ schedule:
   weekly_deep: "sunday 08:00"
 
 sources:
+  # Change 0010: config-gated article sources on the 0009 adapter layer.
+  # Each is fail-soft — an adapter error skips that source, never aborts the sweep.
+  hf_papers:
+    enabled: true       # Hugging Face daily papers (curated, high signal)
+    min_upvotes: 0      # 0 = curation is the filter; raise to require upvotes
+  arxiv_queries:        # keyword searches alongside the cs.AI/cs.CL/cs.LG firehose
+    - "LLM agents"
+    - "prompt optimization"
+    - "retrieval augmented generation"
+  github_trending:
+    enabled: true
+    topics: [llm, ai-agents, rag]
+    min_stars: 100      # engagement threshold; GITHUB_TOKEN honored from env if set
   feeds:
     - name: "Simon Willison's blog"
       url: "https://simonwillison.net/atom/everything/"

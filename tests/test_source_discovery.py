@@ -1,4 +1,4 @@
-from agent.tools.source_discovery import SourceDiscovery
+from agent.tools.source_discovery import SourceDiscovery, append_suggestions
 
 
 MOCK_SUGGESTIONS_RESPONSE = """\
@@ -36,3 +36,70 @@ def test_source_discovery_empty_when_no_new(tmp_path):
 
     suggestions = sd.suggest(recent_titles=[])
     assert suggestions == []
+
+
+# --- append_suggestions (change 0010) ---------------------------------------
+
+
+def test_append_suggestions_adds_dated_section(tmp_path):
+    sources_file = tmp_path / "sources.md"
+    sources_file.write_text("# Sources\n\n## Validated\n- r/LocalLLaMA\n")
+
+    added = append_suggestions(
+        sources_file,
+        ["r/LLMPrompting — prompting techniques", "https://ex.com/feed | AI Weekly | newsletter"],
+        date="2026-08-07",
+    )
+
+    text = sources_file.read_text()
+    assert "## Suggested (pending review)" in text
+    assert "2026-08-07" in text
+    assert "r/LLMPrompting" in text
+    assert added == 2
+
+
+def test_append_suggestions_dedups_against_existing_feeds(tmp_path):
+    sources_file = tmp_path / "sources.md"
+    sources_file.write_text(
+        "# Sources\n\n## Validated\n"
+        "- Simon Willison's blog (https://simonwillison.net/atom/everything/)\n"
+    )
+
+    # A suggestion pointing at an already-tracked URL is dropped.
+    added = append_suggestions(
+        sources_file,
+        ["https://simonwillison.net/atom/everything/ | Simon | blog", "r/NewOne — fresh"],
+        date="2026-08-07",
+    )
+    text = sources_file.read_text()
+    assert added == 1
+    assert "r/NewOne" in text
+    # Not appended a second time under Suggested.
+    assert text.count("simonwillison.net/atom/everything/") == 1
+
+
+def test_append_suggestions_is_idempotent(tmp_path):
+    sources_file = tmp_path / "sources.md"
+    sources_file.write_text("# Sources\n")
+
+    append_suggestions(sources_file, ["r/LLMPrompting — techniques"], date="2026-08-07")
+    first = sources_file.read_text()
+    added_again = append_suggestions(
+        sources_file, ["r/LLMPrompting — techniques"], date="2026-08-08"
+    )
+    second = sources_file.read_text()
+
+    assert added_again == 0
+    assert second.count("r/LLMPrompting") == 1
+    # The already-present suggestion is not re-appended.
+    assert first.count("r/LLMPrompting") == second.count("r/LLMPrompting")
+
+
+def test_append_suggestions_empty_list_is_noop(tmp_path):
+    sources_file = tmp_path / "sources.md"
+    sources_file.write_text("# Sources\n")
+    original = sources_file.read_text()
+
+    added = append_suggestions(sources_file, [], date="2026-08-07")
+    assert added == 0
+    assert sources_file.read_text() == original

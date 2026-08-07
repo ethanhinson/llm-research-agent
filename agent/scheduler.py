@@ -19,12 +19,15 @@ from agent.models import RawItem
 # this module so the sweep tests can patch them at the `agent.scheduler.*` seam
 # (e.g. `mocker.patch("agent.scheduler.HNFetcher.fetch")`). Re-exported, not
 # constructed here directly.
-from agent.fetchers.arxiv import ArxivFetcher  # noqa: F401  (test patch seam)
+from agent.fetchers.arxiv import ArxivFetcher, ArxivSearchAdapter  # noqa: F401  (patch seam)
+from agent.fetchers.github_trending import GitHubTrendingAdapter  # noqa: F401  (patch seam)
 from agent.fetchers.hackernews import HNFetcher  # noqa: F401  (test patch seam)
+from agent.fetchers.hf_papers import HFPapersAdapter  # noqa: F401  (test patch seam)
 from agent.fetchers.multi_search import MultiSearchFetcher  # noqa: F401  (patch seam)
 from agent.fetchers.web import WebFetcher  # noqa: F401  (test patch seam)
 from agent.tools.cross_validate import cross_validate
 from agent.tools.search_query_generator import SearchQueryGenerator
+from agent.tools.source_discovery import SourceDiscovery, append_suggestions
 from agent.topic_filter import is_relevant
 from agent.writer import Writer
 
@@ -83,6 +86,7 @@ def run_sweep(
     synthesis_cfg: dict | None = None,
     date: str | None = None,
     llm_cfg: dict | None = None,
+    sources_cfg: dict | None = None,
 ) -> list[RawItem]:
     vault_path = Path(vault_path)
     index_path = Path(index_path)
@@ -98,9 +102,10 @@ def run_sweep(
     # items, so there is no sweep-level engagement allowlist (removing the old
     # reddit_threshold NameError with it). The crawl window is threaded only
     # when explicitly widened; build_adapters preserves each fetcher's own
-    # LOOKBACK_DAYS default otherwise.
+    # LOOKBACK_DAYS default otherwise. `sources_cfg` gates the change-0010
+    # sources (HF papers, arXiv keyword search, GitHub trending).
     adapters = build_adapters(
-        {"thresholds": thresholds},
+        {"thresholds": thresholds, "sources": sources_cfg or {}},
         kind="sweep",
         feeds=feeds,
         lookback_days=lookback_days,
@@ -125,7 +130,33 @@ def run_sweep(
     writer = Writer(vault_path=vault_path, date=date)
     _write_kept(kept, writer, dedup, api_key, synthesis_cfg, llm_cfg=llm_cfg)
 
+    # Close the SourceDiscovery loop on the weekly deep sweep: propose new
+    # sources for human review (append to vault/sources.md), never edit config.
+    # Fail-soft — a discovery error must never abort the sweep.
+    if deep:
+        _run_source_discovery(vault_path, api_key, llm_cfg=llm_cfg, date=date)
+
     return kept
+
+
+def _run_source_discovery(
+    vault_path: Path,
+    api_key: str | None,
+    *,
+    llm_cfg: dict | None = None,
+    date: str | None = None,
+) -> int:
+    """Suggest new sources via the LLM and append them to vault/sources.md for
+    human review. Returns the count appended (0 on any soft failure)."""
+    try:
+        sources_path = Path(vault_path) / "sources.md"
+        recent = _recent_strategy_titles(vault_path)
+        sd = SourceDiscovery(sources_path=sources_path, api_key=api_key, llm_cfg=llm_cfg)
+        suggestions = sd.suggest(recent)
+        return append_suggestions(sources_path, suggestions, date=date)
+    except Exception as exc:  # fail-soft: discovery never aborts the sweep
+        print(f"[warn] source discovery failed, skipping: {exc}")
+        return 0
 
 
 def _recent_strategy_titles(vault_path: Path, limit: int = 20) -> list[str]:
@@ -201,6 +232,7 @@ def start_scheduler(
     weekly_day: str = "sunday",
     search_cfg: dict | None = None,
     llm_cfg: dict | None = None,
+    sources_cfg: dict | None = None,
 ):
     weekly_day = weekly_day[:3].lower()
     parts = daily_time.split(":")
@@ -223,6 +255,7 @@ def start_scheduler(
             "feeds": feeds,
             "deep": False,
             "llm_cfg": llm_cfg,
+            "sources_cfg": sources_cfg,
         },
         id="daily_sweep",
         name="Daily LLM research sweep",
@@ -242,6 +275,7 @@ def start_scheduler(
             "feeds": feeds,
             "deep": True,
             "llm_cfg": llm_cfg,
+            "sources_cfg": sources_cfg,
         },
         id="weekly_deep_sweep",
         name="Weekly deep LLM research sweep",

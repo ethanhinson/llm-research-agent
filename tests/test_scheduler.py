@@ -147,6 +147,82 @@ def test_run_sweep_unknown_source_flows_through_no_silent_drop(config, mocker):
     assert written[0].source == "reddit"
 
 
+def test_run_sweep_threads_sources_cfg_into_build_adapters(config, mocker):
+    """run_sweep passes its sources_cfg through to build_adapters as cfg['sources']
+    so the new config-gated adapters (change 0010) are constructed."""
+    captured = {}
+
+    def fake_build_adapters(cfg, *, kind, **kw):
+        captured["cfg"] = cfg
+        captured["kind"] = kind
+        return []  # no adapters -> empty sweep, exercised purely for the cfg
+
+    mocker.patch("agent.scheduler.build_adapters", side_effect=fake_build_adapters)
+    mocker.patch("agent.scheduler.Evaluator.score", side_effect=lambda items: items)
+
+    sources_cfg = {
+        "hf_papers": {"enabled": True},
+        "arxiv_queries": ["LLM agents"],
+        "github_trending": {"enabled": True, "topics": ["llm"]},
+    }
+    sched_module.run_sweep(
+        vault_path=config["vault_path"],
+        index_path=config["index_path"],
+        thresholds=config["thresholds"],
+        api_key="test",
+        feeds=[],
+        sources_cfg=sources_cfg,
+    )
+
+    assert captured["kind"] == "sweep"
+    assert captured["cfg"]["sources"] == sources_cfg
+    assert captured["cfg"]["thresholds"] == config["thresholds"]
+
+
+def test_run_sweep_deep_triggers_source_discovery(config, mocker):
+    """A deep sweep runs SourceDiscovery and appends suggestions to sources.md;
+    a shallow sweep does not."""
+    mocker.patch("agent.scheduler.build_adapters", return_value=[])
+    mocker.patch("agent.scheduler.Evaluator.score", side_effect=lambda items: items)
+
+    called = {"suggest": 0}
+
+    class FakeSD:
+        def __init__(self, *a, **k):
+            pass
+
+        def suggest(self, recent_titles):
+            called["suggest"] += 1
+            return ["r/LocalLLaMA — new subreddit"]
+
+    mocker.patch("agent.scheduler.SourceDiscovery", FakeSD)
+
+    # Shallow: no discovery.
+    sched_module.run_sweep(
+        vault_path=config["vault_path"],
+        index_path=config["index_path"],
+        thresholds=config["thresholds"],
+        api_key="test",
+        feeds=[],
+        deep=False,
+    )
+    assert called["suggest"] == 0
+
+    # Deep: discovery runs and appends the section.
+    sched_module.run_sweep(
+        vault_path=config["vault_path"],
+        index_path=config["index_path"],
+        thresholds=config["thresholds"],
+        api_key="test",
+        feeds=[],
+        deep=True,
+    )
+    assert called["suggest"] == 1
+    sources_text = (config["vault_path"] / "sources.md").read_text()
+    assert "Suggested (pending review)" in sources_text
+    assert "r/LocalLLaMA" in sources_text
+
+
 def test_start_scheduler_registers_two_jobs(config, mocker):
     mock_scheduler = MagicMock()
     mock_scheduler.start.side_effect = KeyboardInterrupt

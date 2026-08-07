@@ -26,7 +26,8 @@ def cmd_sweep(args, cfg):
     lookback_days = getattr(args, "lookback_days", None)
     date = getattr(args, "date", None)
     thresholds = cfg.get("thresholds", {})
-    feeds = cfg.get("sources", {}).get("feeds", [])
+    sources_cfg = cfg.get("sources", {})
+    feeds = sources_cfg.get("feeds", [])
     search_cfg = cfg.get("search", {})
     synthesis_cfg = cfg.get("synthesis", {})
     llm_cfg = cfg.get("llm", {})
@@ -44,6 +45,7 @@ def cmd_sweep(args, cfg):
         synthesis_cfg=synthesis_cfg,
         date=date,
         llm_cfg=llm_cfg,
+        sources_cfg=sources_cfg,
     )
 
     # Search-backend path (Tavily/Bing/SerpAPI) — each client self-skips
@@ -160,7 +162,8 @@ def _build_reclassify_parser(subparsers):
 def cmd_start(args, cfg):
     from agent.scheduler import start_scheduler
     thresholds = cfg.get("thresholds", {})
-    feeds = cfg.get("sources", {}).get("feeds", [])
+    sources_cfg = cfg.get("sources", {})
+    feeds = sources_cfg.get("feeds", [])
     schedule = cfg.get("schedule", {})
     search_cfg = cfg.get("search", {})
     llm_cfg = cfg.get("llm", {})
@@ -176,7 +179,19 @@ def cmd_start(args, cfg):
         weekly_day=schedule.get("weekly_deep", "sunday 08:00").split()[0],
         search_cfg=search_cfg,
         llm_cfg=llm_cfg,
+        sources_cfg=sources_cfg,
     )
+
+
+def cmd_discover_sources(args, cfg):
+    """Run SourceDiscovery once on demand and append suggestions to
+    vault/sources.md for human review. LLM routed through the configured
+    provider (works on OpenRouter)."""
+    from agent.scheduler import _run_source_discovery
+    llm_cfg = cfg.get("llm", {})
+    api_key = os.getenv("ANTHROPIC_API_KEY")
+    added = _run_source_discovery(VAULT_PATH, api_key, llm_cfg=llm_cfg)
+    print(f"Source discovery complete. {added} new suggestion(s) appended for review.")
 
 
 def cmd_sources(args, cfg):
@@ -225,6 +240,10 @@ def main():
 
     sub.add_parser("start", help="Start the scheduler (runs in foreground)")
     sub.add_parser("sources", help="List known sources")
+    sub.add_parser(
+        "discover-sources",
+        help="Suggest new sources (appended to vault/sources.md for review)",
+    )
     sub.add_parser("status", help="Show agent status and stats")
 
     args = parser.parse_args()
@@ -238,6 +257,8 @@ def main():
         cmd_start(args, cfg)
     elif args.command == "sources":
         cmd_sources(args, cfg)
+    elif args.command == "discover-sources":
+        cmd_discover_sources(args, cfg)
     elif args.command == "status":
         cmd_status(args, cfg)
     else:
