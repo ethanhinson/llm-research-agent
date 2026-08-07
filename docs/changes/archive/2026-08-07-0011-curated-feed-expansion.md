@@ -28,7 +28,7 @@ reconciled: true
 <!-- docket:artifacts:start (generated — do not hand-edit) -->
 | Artifact | Link |
 |---|---|
-| Plan | [2026-08-07-curated-feed-expansion.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/curated-feed-expansion/docs/superpowers/plans/2026-08-07-curated-feed-expansion.md) |
+| Plan | [2026-08-07-curated-feed-expansion.md](https://github.com/ethanhinson/llm-research-agent/blob/main/docs/superpowers/plans/2026-08-07-curated-feed-expansion.md) |
 | PR | [#11](https://github.com/ethanhinson/llm-research-agent/pull/11) |
 <!-- docket:artifacts:end -->
 
