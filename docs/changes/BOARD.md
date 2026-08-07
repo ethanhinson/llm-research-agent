@@ -1,12 +1,17 @@
 # Backlog
 
-**8 changes** — 🟡 3 proposed · ✅ 5 done
+**8 changes** — 🟢 1 in progress · 🟡 2 proposed · ✅ 5 done
 
-## 🟡 Proposed (3)
+## 🟢 In progress (1)
+
+| # | Title | Priority | Type | Spec | Branch |
+|---|-------|----------|------|------|--------|
+| [0005](active/0005-retroactive-reclassify-vault-notes.md) | Retroactive re-classification of existing vault notes | `medium` | `chore` | [spec](../superpowers/specs/2026-08-03-retroactive-reclassify-vault-notes.md) | `feat/retroactive-reclassify-vault-notes` |
+
+## 🟡 Proposed (2)
 
 | # | Title | Priority | Type | Readiness |
 |---|-------|----------|------|-----------|
-| [0005](active/0005-retroactive-reclassify-vault-notes.md) | Retroactive re-classification of existing vault notes | `medium` | `chore` | build-ready |
 | [0006](active/0006-llm-topic-tags.md) | LLM-generated freeform topic tags | `medium` | `feat` | build-ready |
 | [0008](active/0008-openrouter-provider-support.md) | OpenRouter provider support — full-system alternative to the Anthropic API | `medium` | `feat` | build-ready |
 
