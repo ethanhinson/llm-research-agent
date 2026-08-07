@@ -95,6 +95,17 @@ def test_append_suggestions_is_idempotent(tmp_path):
     assert first.count("r/LLMPrompting") == second.count("r/LLMPrompting")
 
 
+def test_append_suggestions_whole_line_dedup_not_substring(tmp_path):
+    # A short non-URL suggestion that is a *substring* of an existing line must
+    # NOT be dropped — dedup is whole-line, not a substring scan.
+    sources_file = tmp_path / "sources.md"
+    sources_file.write_text("# Sources\n\n## Validated\n- r/LLMPrompting — techniques\n")
+
+    added = append_suggestions(sources_file, ["r/LLM — general LLM subreddit"], date="2026-08-07")
+    assert added == 1
+    assert "r/LLM — general LLM subreddit" in sources_file.read_text()
+
+
 def test_append_suggestions_empty_list_is_noop(tmp_path):
     sources_file = tmp_path / "sources.md"
     sources_file.write_text("# Sources\n")

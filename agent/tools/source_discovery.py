@@ -33,7 +33,15 @@ def append_suggestions(
     sources_path = Path(sources_path)
     existing = sources_path.read_text() if sources_path.exists() else ""
     existing_urls = _urls_in(existing)
-    existing_lower = existing.lower()
+    # Whole-line dedup for non-URL suggestions: compare against the set of
+    # existing stripped lines (list-item bullets normalized), NOT a substring
+    # scan of the whole file — a substring test would over-drop a short
+    # suggestion that merely appears inside a longer existing line.
+    existing_lines = {
+        ln.strip().lstrip("-•* ").strip().lower()
+        for ln in existing.splitlines()
+        if ln.strip()
+    }
 
     date = date or datetime.date.today().isoformat()
 
@@ -45,14 +53,14 @@ def append_suggestions(
         if not line:
             continue
         urls = _urls_in(line)
-        # Dedup by URL when present, else by the normalized line text.
+        # Dedup by URL when present, else by the normalized whole-line text.
         if urls:
             if urls & existing_urls or urls & seen_this_call_urls:
                 continue
             seen_this_call_urls |= urls
         else:
             key = line.lower()
-            if key in existing_lower or key in seen_this_call_text:
+            if key in existing_lines or key in seen_this_call_text:
                 continue
             seen_this_call_text.add(key)
         fresh.append(line)
@@ -60,15 +68,15 @@ def append_suggestions(
     if not fresh:
         return 0
 
-    block = [f"\n{SUGGESTED_HEADING}\n", f"### {date}\n"]
-    block += [f"- {s}\n" for s in fresh]
-
     text = existing
     if text and not text.endswith("\n"):
         text += "\n"
     if SUGGESTED_HEADING in text:
         # Section already exists — append a fresh dated subsection under it.
         block = [f"\n### {date}\n"] + [f"- {s}\n" for s in fresh]
+    else:
+        block = [f"\n{SUGGESTED_HEADING}\n", f"### {date}\n"]
+        block += [f"- {s}\n" for s in fresh]
     text += "".join(block)
     sources_path.write_text(text)
     return len(fresh)
