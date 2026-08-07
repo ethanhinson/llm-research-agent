@@ -1,6 +1,6 @@
 # Backlog
 
-**10 changes** — 🟢 1 in progress · ✅ 9 done
+**16 changes** — 🟢 1 in progress · 🟡 6 proposed · ✅ 9 done
 
 ## 🟢 In progress (1)
 
@@ -8,9 +8,26 @@
 |---|-------|----------|------|------|--------|
 | [0010](active/0010-expand-article-sources.md) | Expand article sources — HF daily papers, arXiv keyword search, GitHub trending, wired SourceDiscovery | `medium` | `feat` | [spec](../superpowers/specs/2026-08-07-expand-article-sources.md) | `feat/expand-article-sources` |
 
+## 🟡 Proposed (6)
+
+| # | Title | Priority | Type | Readiness |
+|---|-------|----------|------|-----------|
+| [0011](active/0011-curated-feed-expansion.md) | Add verified curated feeds — newsletters + Lobste.rs | `medium` | `chore` | build-ready |
+| [0012](active/0012-semantic-scholar-adapter.md) | Semantic Scholar keyword-search adapter | `medium` | `feat` | ⏳ waiting on #10 — not yet built |
+| [0013](active/0013-bluesky-author-feeds.md) | Bluesky author-feed adapter with researcher registry | `medium` | `feat` | ⏳ waiting on #10 — not yet built |
+| [0014](active/0014-cross-source-corroboration-ranking.md) | Cross-source corroboration + citation-velocity signals | `medium` | `feat` | needs-brainstorm |
+| [0015](active/0015-embedding-topic-prefilter.md) | Embedding-based topic pre-filter (replace/augment regex filter) | `medium` | `feat` | needs-brainstorm |
+| [0016](active/0016-hf-trending-artifacts.md) | Hugging Face trending models/datasets adapter | `medium` | `feat` | ⏳ waiting on #10 — not yet built |
+
 ```mermaid
 graph TD
   0009 --> 0010
+  0011
+  0010 --> 0012
+  0010 --> 0013
+  0014
+  0015
+  0010 --> 0016
   0009:::done
   classDef done fill:#d3f9d8;
 ```
