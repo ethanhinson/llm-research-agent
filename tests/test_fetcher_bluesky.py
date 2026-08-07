@@ -1,0 +1,145 @@
+import datetime
+
+import httpx
+import pytest
+
+from agent.fetchers.bluesky import (
+    GET_AUTHOR_FEED_API,
+    BlueskyAdapter,
+)
+
+
+def _recent_iso():
+    return (
+        datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=1)
+    ).isoformat().replace("+00:00", "Z")
+
+
+def _old_iso():
+    return (
+        datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=365)
+    ).isoformat().replace("+00:00", "Z")
+
+
+def _facet_link(uri):
+    return {
+        "features": [
+            {"$type": "app.bsky.richtext.facet#link", "uri": uri}
+        ]
+    }
+
+
+def _external_embed(uri, title="Embed Title"):
+    return {
+        "$type": "app.bsky.embed.external#view",
+        "external": {"uri": uri, "title": title},
+    }
+
+
+def _post(
+    *,
+    text="A short post with a link",
+    like_count=10,
+    repost_count=5,
+    indexed_at=None,
+    uri="at://did:plc:abc123/app.bsky.feed.post/rkey123",
+    facets=None,
+    embed=None,
+    reply=False,
+):
+    record = {"text": text}
+    if facets is not None:
+        record["facets"] = facets
+    if reply:
+        record["reply"] = {"parent": {"uri": "at://x/y/z"}, "root": {"uri": "at://x/y/z"}}
+    post = {
+        "uri": uri,
+        "likeCount": like_count,
+        "repostCount": repost_count,
+        "indexedAt": indexed_at or _recent_iso(),
+        "record": record,
+    }
+    if embed is not None:
+        post["embed"] = embed
+    return post
+
+
+def _item(post=None, *, reason=False):
+    """One feed item. reason=True marks a repost (top-level `reason` key)."""
+    item = {"post": post or _post()}
+    if reason:
+        item["reason"] = {"$type": "app.bsky.feed.defs#reasonRepost"}
+    return item
+
+
+def _feed(*items):
+    return {"feed": list(items)}
+
+
+def _resp(mocker, payload=None, status_code=200, raise_status=False):
+    if payload is None:
+        payload = _feed(_item())
+    resp = mocker.MagicMock()
+    resp.status_code = status_code
+    resp.json.return_value = payload
+    if raise_status:
+        resp.raise_for_status.side_effect = httpx.HTTPStatusError(
+            "boom", request=mocker.MagicMock(), response=mocker.MagicMock()
+        )
+    else:
+        resp.raise_for_status.return_value = None
+    return resp
+
+
+def _mock_get(mocker, resp=None, **kw):
+    if resp is None:
+        resp = _resp(mocker, **kw)
+    return mocker.patch("httpx.get", return_value=resp)
+
+
+def test_request_shape_one_per_handle(mocker):
+    mock_get = _mock_get(mocker, payload=_feed())
+    BlueskyAdapter(authors=["a.bsky.social", "b.bsky.social"]).fetch()
+    assert mock_get.call_count == 2
+    call = mock_get.call_args_list[0]
+    assert call.args[0] == GET_AUTHOR_FEED_API
+    params = call.kwargs["params"]
+    assert params["actor"] == "a.bsky.social"
+    assert params["limit"] == 25
+    # unauthenticated: no auth header sent
+    headers = call.kwargs.get("headers") or {}
+    assert not any(k.lower() == "authorization" for k in headers)
+
+
+def test_empty_authors_returns_empty_no_http(mocker):
+    mock_get = mocker.patch("httpx.get")
+    assert BlueskyAdapter(authors=[]).fetch() == []
+    assert mock_get.call_count == 0
+
+
+def test_maps_post_with_facet_link_to_rawitem(mocker):
+    post = _post(
+        text="Great new paper",
+        like_count=8,
+        repost_count=4,
+        facets=[_facet_link("https://example.com/thing")],
+    )
+    _mock_get(mocker, payload=_feed(_item(post)))
+    items = BlueskyAdapter(authors=["a.bsky.social"]).fetch()
+    assert len(items) == 1
+    it = items[0]
+    assert it.title == "Great new paper"
+    assert it.body == "Great new paper"
+    assert it.url == "https://example.com/thing"
+    assert it.source == "bluesky/a.bsky.social"
+    assert it.engagement == 12  # 8 + 4
+    assert it.timestamp == post["indexedAt"]
+
+
+def test_source_is_per_handle(mocker):
+    _mock_get(
+        mocker,
+        payload=_feed(_item(_post(facets=[_facet_link("https://ex.com/x")]))),
+    )
+    items = BlueskyAdapter(authors=["simonwillison.net"]).fetch()
+    assert items[0].source == "bluesky/simonwillison.net"
