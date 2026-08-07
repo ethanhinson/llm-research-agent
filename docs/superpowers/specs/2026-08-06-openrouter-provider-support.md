@@ -1,5 +1,5 @@
 <!-- docket:backlink:start (generated — do not hand-edit) -->
-> ↩ **[Change 0008 — OpenRouter provider support — full-system alternative to the Anthropic API](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/changes/active/0008-openrouter-provider-support.md)**
+> ↩ **[Change 0008 — OpenRouter provider support — full-system alternative to the Anthropic API](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/changes/archive/2026-08-07-0008-openrouter-provider-support.md)**
 <!-- docket:backlink:end -->
 
 # OpenRouter Provider Support — Design Spec

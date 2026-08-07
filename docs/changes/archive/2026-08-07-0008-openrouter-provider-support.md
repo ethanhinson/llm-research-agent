@@ -29,8 +29,8 @@ reconciled: true
 | Artifact | Link |
 |---|---|
 | Spec | [2026-08-06-openrouter-provider-support.md](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/superpowers/specs/2026-08-06-openrouter-provider-support.md) |
-| Plan | [2026-08-06-openrouter-provider-support-plan.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/openrouter-provider-support/docs/superpowers/plans/2026-08-06-openrouter-provider-support-plan.md) |
-| Results | [2026-08-07-openrouter-provider-support-results.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/openrouter-provider-support/docs/results/2026-08-07-openrouter-provider-support-results.md) |
+| Plan | [2026-08-06-openrouter-provider-support-plan.md](https://github.com/ethanhinson/llm-research-agent/blob/main/docs/superpowers/plans/2026-08-06-openrouter-provider-support-plan.md) |
+| Results | [2026-08-07-openrouter-provider-support-results.md](https://github.com/ethanhinson/llm-research-agent/blob/main/docs/results/2026-08-07-openrouter-provider-support-results.md) |
 | PR | [#8](https://github.com/ethanhinson/llm-research-agent/pull/8) |
 | ADRs | [ADR-0001](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/adrs/0001-llm-provider-abstraction-injected-client.md) |
 <!-- docket:artifacts:end -->
