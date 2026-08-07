@@ -25,13 +25,32 @@ def config(tmp_path):
     }
 
 
-def test_run_sweep_filters_and_writes(config, mocker):
-    above = make_item("Flash Attention 3: faster LLM inference", engagement=200)
-    below = make_item("Low quality post about elevators", engagement=10)
+def _hn_hit(title, points):
+    return {
+        "title": title,
+        "story_text": "body",
+        "url": f"https://example.com/{title}",
+        "objectID": title,
+        "points": points,
+        "created_at": "2026-08-01",
+    }
 
-    mocker.patch("agent.scheduler.HNFetcher.fetch", return_value=[above, below])
+
+def test_run_sweep_filters_and_writes(config, mocker):
+    # Engagement policy now lives in the HN *adapter* (its points>=threshold
+    # post-filter), not in a sweep-level allowlist. Mock the HN API so the real
+    # HNFetcher.fetch runs and drops the below-threshold hit; the above-threshold
+    # one flows through the funnel to the writer.
+    hn_resp = MagicMock()
+    hn_resp.json.return_value = {
+        "hits": [
+            _hn_hit("Flash Attention 3: faster LLM inference", 200),
+            _hn_hit("Low quality post about elevators", 10),
+        ]
+    }
+    hn_resp.raise_for_status.return_value = None
+    mocker.patch("agent.fetchers.hackernews.httpx.get", return_value=hn_resp)
     mocker.patch("agent.scheduler.ArxivFetcher.fetch", return_value=[])
-    mocker.patch("agent.scheduler.WebFetcher.fetch", return_value=[])
 
     def mock_score(items):
         for item in items:
@@ -82,6 +101,50 @@ def test_run_sweep_threads_llm_cfg_to_evaluator(config, mocker):
 
     assert spy.call_args_list, "get_client was never called for the evaluator"
     assert spy.call_args_list[0].args[0] == {"llm": {"provider": "openrouter"}}
+
+
+def test_run_sweep_unknown_source_flows_through_no_silent_drop(config, mocker):
+    """The trap this refactor removes: an item whose source matched no old
+    engagement-allowlist substring (e.g. "reddit") must flow all the way through
+    the funnel — no NameError, no silent drop. Previously "reddit" hit an
+    undefined reddit_threshold (NameError) and any other unknown source was
+    silently dropped by the allowlist."""
+    unknown = RawItem(
+        title="A relevant LLM inference agent framework post",
+        body="A new LLM agent framework for inference.",
+        url="https://example.com/unknown-source",
+        source="reddit",  # the exact string that used to raise NameError
+        engagement=0,
+        timestamp="2026-08-01",
+    )
+    # An adapter (arbitrary) yields the unknown-source item.
+    mocker.patch("agent.scheduler.HNFetcher.fetch", return_value=[unknown])
+    mocker.patch("agent.scheduler.ArxivFetcher.fetch", return_value=[])
+
+    def mock_score(items):
+        for item in items:
+            item.keep = True
+        return items
+
+    mocker.patch("agent.scheduler.Evaluator.score", side_effect=mock_score)
+
+    written = []
+    mocker.patch(
+        "agent.scheduler.Writer.write_note",
+        side_effect=lambda i: written.append(i) or Path("/tmp/x.md"),
+    )
+    mocker.patch("agent.scheduler.Writer.regenerate_index")
+
+    sched_module.run_sweep(
+        vault_path=config["vault_path"],
+        index_path=config["index_path"],
+        thresholds=config["thresholds"],
+        api_key="test",
+        feeds=[],
+    )
+
+    assert len(written) == 1
+    assert written[0].source == "reddit"
 
 
 def test_start_scheduler_registers_two_jobs(config, mocker):

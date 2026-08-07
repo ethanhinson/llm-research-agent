@@ -9,6 +9,8 @@ LOOKBACK_DAYS = 7
 
 
 class ArxivFetcher:
+    name = "arxiv"
+
     def __init__(self, max_results: int = MAX_RESULTS, lookback_days: int = LOOKBACK_DAYS):
         self.max_results = max_results
         self.lookback_days = lookback_days

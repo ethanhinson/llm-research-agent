@@ -5,18 +5,24 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 from agent.deduplicator import Deduplicator
 from agent.enricher import ContentEnricher
 from agent.evaluator import Evaluator
-from agent.fetchers.arxiv import ArxivFetcher
-from agent.fetchers.hackernews import HNFetcher
+from agent.fetchers.base import build_adapters
 from agent.synthesizer import NoteSynthesizer
 
-from agent.fetchers.web import WebFetcher
 from agent.fetchers.web_search import (
     BingSearchClient,
     SerpAPISearchClient,
     TavilySearchClient,
 )
-from agent.fetchers.multi_search import MultiSearchFetcher
 from agent.models import RawItem
+
+# Fetcher classes are constructed by `build_adapters`, but stay imported into
+# this module so the sweep tests can patch them at the `agent.scheduler.*` seam
+# (e.g. `mocker.patch("agent.scheduler.HNFetcher.fetch")`). Re-exported, not
+# constructed here directly.
+from agent.fetchers.arxiv import ArxivFetcher  # noqa: F401  (test patch seam)
+from agent.fetchers.hackernews import HNFetcher  # noqa: F401  (test patch seam)
+from agent.fetchers.multi_search import MultiSearchFetcher  # noqa: F401  (patch seam)
+from agent.fetchers.web import WebFetcher  # noqa: F401  (test patch seam)
 from agent.tools.cross_validate import cross_validate
 from agent.tools.search_query_generator import SearchQueryGenerator
 from agent.topic_filter import is_relevant
@@ -81,37 +87,33 @@ def run_sweep(
     vault_path = Path(vault_path)
     index_path = Path(index_path)
 
-    hn_threshold = thresholds.get("hn_points", 50)
-
-    def _fetch(fetcher_fn):
+    def _fetch(adapter):
         try:
-            return fetcher_fn()
+            return adapter.fetch()
         except Exception as exc:
             print(f"[warn] fetcher failed, skipping: {exc}")
             return []
 
-    # Thread the crawl window into each fetcher only when explicitly widened,
-    # so the default (per-fetcher LOOKBACK_DAYS) is preserved otherwise.
-    lb = {} if lookback_days is None else {"lookback_days": lookback_days}
+    # Each adapter owns its own engagement policy and returns already-filtered
+    # items, so there is no sweep-level engagement allowlist (removing the old
+    # reddit_threshold NameError with it). The crawl window is threaded only
+    # when explicitly widened; build_adapters preserves each fetcher's own
+    # LOOKBACK_DAYS default otherwise.
+    adapters = build_adapters(
+        {"thresholds": thresholds},
+        kind="sweep",
+        feeds=feeds,
+        lookback_days=lookback_days,
+    )
 
     raw: list[RawItem] = []
-    raw.extend(_fetch(lambda: HNFetcher(threshold=hn_threshold, **lb).fetch()))
-    raw.extend(_fetch(lambda: ArxivFetcher(**lb).fetch()))
-    if feeds:
-        raw.extend(_fetch(lambda: WebFetcher(feeds=feeds, **lb).fetch()))
+    for adapter in adapters:
+        raw.extend(_fetch(adapter))
 
     dedup = Deduplicator(index_path)
     after_dedup = [item for item in raw if not dedup.is_duplicate(item)]
 
-    after_engagement = [
-        item for item in after_dedup
-        if item.source == "arxiv"
-        or ("hackernews" in item.source and item.engagement >= hn_threshold)
-        or ("reddit" in item.source and item.engagement >= reddit_threshold)
-        or ("web/" in item.source)
-    ]
-
-    after_topic = [item for item in after_engagement if is_relevant(item)]
+    after_topic = [item for item in after_dedup if is_relevant(item)]
 
     after_cv = cross_validate(after_topic)
 
@@ -160,9 +162,11 @@ def search_sweep(
         cfg={"search": search_cfg}, api_key=api_key, llm_cfg=llm_cfg
     ).queries(recent_titles=recent_titles)
 
-    fetcher = MultiSearchFetcher(
-        clients,
-        queries,
+    (fetcher,) = build_adapters(
+        search_cfg,
+        kind="search",
+        clients=clients,
+        queries=queries,
         max_results_per_query=search_cfg.get("max_results_per_query", 10),
     )
     raw = fetcher.fetch()
@@ -170,19 +174,9 @@ def search_sweep(
     dedup = Deduplicator(index_path)
     after_dedup = [item for item in raw if not dedup.is_duplicate(item)]
 
-    # search/* sources pass the engagement filter unconditionally, exactly
-    # like web/. This is a clean filter for search_sweep only (run_sweep's
-    # reddit_threshold bug is out of scope and left untouched).
-    hn_threshold = search_cfg.get("hn_points", 50)
-    after_engagement = [
-        item for item in after_dedup
-        if item.source == "arxiv"
-        or ("hackernews" in item.source and item.engagement >= hn_threshold)
-        or ("web/" in item.source)
-        or ("search/" in item.source)
-    ]
-
-    after_topic = [item for item in after_engagement if is_relevant(item)]
+    # The search adapter owns its own engagement policy, so there is no
+    # sweep-level engagement allowlist here either.
+    after_topic = [item for item in after_dedup if is_relevant(item)]
 
     after_cv = cross_validate(after_topic)
 

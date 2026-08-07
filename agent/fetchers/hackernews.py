@@ -8,6 +8,8 @@ LOOKBACK_DAYS = 7
 
 
 class HNFetcher:
+    name = "hackernews"
+
     def __init__(self, threshold: int = 50, lookback_days: int = LOOKBACK_DAYS):
         self.threshold = threshold
         self.lookback_days = lookback_days

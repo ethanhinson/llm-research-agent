@@ -59,7 +59,8 @@ def test_search_sweep_drives_pipeline_and_writes(vault, mocker):
         api_key="test",
     )
 
-    # The search/* item survived the engagement filter and reached Writer.
+    # The search/* item flows through the funnel to the Writer (no sweep-level
+    # engagement allowlist; the search adapter owns its own policy).
     assert len(written) == 1
     assert written[0].source == "search/tavily"
     assert result == written
