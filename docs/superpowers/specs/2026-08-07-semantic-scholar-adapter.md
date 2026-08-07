@@ -1,5 +1,5 @@
 <!-- docket:backlink:start (generated — do not hand-edit) -->
-> ↩ **[Change 0012 — Semantic Scholar keyword-search adapter](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/changes/active/0012-semantic-scholar-adapter.md)**
+> ↩ **[Change 0012 — Semantic Scholar keyword-search adapter](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/changes/archive/2026-08-07-0012-semantic-scholar-adapter.md)**
 <!-- docket:backlink:end -->
 
 # Semantic Scholar Adapter — Design Spec
