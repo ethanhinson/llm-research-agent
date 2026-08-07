@@ -52,6 +52,40 @@ def test_web_fetcher_filters_old_entries():
     assert items == []
 
 
+CURATED_NEWSLETTER_RSS = """<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>TLDR AI</title>
+    <item>
+      <title>Anthropic ships a new agentic coding model</title>
+      <link>https://tldr.tech/ai/2026-08-07</link>
+      <description>Today's roundup of AI research and tooling.</description>
+      <pubDate>Wed, 05 Aug 2026 09:00:00 +0000</pubDate>
+    </item>
+  </channel>
+</rss>"""
+
+
+def test_web_fetcher_parses_curated_newsletter_feed():
+    # Change 0011: representative payload for the six newly-added curated feeds,
+    # all consumed verbatim by WebFetcher via config.yml sources.feeds.
+    feeds = [
+        {"name": "TLDR AI", "url": "https://tldr.tech/api/rss/ai", "type": "newsletter"}
+    ]
+    fetcher = WebFetcher(feeds=feeds)
+    with patch("httpx.get") as mock_get:
+        mock_resp = MagicMock()
+        mock_resp.content = CURATED_NEWSLETTER_RSS.encode()
+        mock_get.return_value = mock_resp
+        items = fetcher.fetch()
+
+    assert len(items) == 1
+    assert items[0].title == "Anthropic ships a new agentic coding model"
+    assert items[0].url == "https://tldr.tech/ai/2026-08-07"
+    assert items[0].source == "web/TLDR AI"
+    assert items[0].engagement == 0
+
+
 def test_web_fetcher_truncates_body():
     long_desc = "x" * 3000
     rss = f"""<?xml version="1.0"?>
