@@ -1,5 +1,5 @@
 <!-- docket:backlink:start (generated — do not hand-edit) -->
-> ↩ **[Change 0007 — Full-content retrieval + LLM note synthesis](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/changes/active/0007-full-content-note-synthesis.md)**
+> ↩ **[Change 0007 — Full-content retrieval + LLM note synthesis](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/changes/archive/2026-08-07-0007-full-content-note-synthesis.md)**
 <!-- docket:backlink:end -->
 
 # Full-content retrieval + LLM note synthesis
