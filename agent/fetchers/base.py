@@ -62,6 +62,7 @@ def build_adapters(
     from agent.fetchers.hackernews import HNFetcher
     from agent.fetchers.hf_papers import HFPapersAdapter
     from agent.fetchers.multi_search import MultiSearchFetcher
+    from agent.fetchers.semantic_scholar import SemanticScholarAdapter
     from agent.fetchers.web import WebFetcher
 
     if kind == "sweep":
@@ -95,6 +96,19 @@ def build_adapters(
                 GitHubTrendingAdapter(
                     topics=list(gh_cfg.get("topics") or []),
                     min_stars=gh_cfg.get("min_stars", 100),
+                    **lb,
+                )
+            )
+
+        # Change 0012: Semantic Scholar keyword search. `s2_queries` defaults to
+        # the arXiv keyword list (`arxiv_queries`) when unset.
+        s2_cfg = sources.get("semantic_scholar") or {}
+        if s2_cfg.get("enabled"):
+            s2_queries = sources.get("s2_queries") or sources.get("arxiv_queries") or []
+            adapters.append(
+                SemanticScholarAdapter(
+                    queries=list(s2_queries),
+                    max_per_query=s2_cfg.get("max_per_query", 10),
                     **lb,
                 )
             )

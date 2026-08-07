@@ -6,6 +6,7 @@ from agent.fetchers.github_trending import GitHubTrendingAdapter
 from agent.fetchers.hackernews import HNFetcher
 from agent.fetchers.hf_papers import HFPapersAdapter
 from agent.fetchers.multi_search import MultiSearchFetcher
+from agent.fetchers.semantic_scholar import SemanticScholarAdapter
 from agent.fetchers.web import WebFetcher
 
 
@@ -170,3 +171,57 @@ def test_sweep_all_new_sources_registered_in_order():
         ArxivSearchAdapter,
         GitHubTrendingAdapter,
     ]
+
+
+# --- Semantic Scholar (change 0012) -----------------------------------------
+
+
+def test_sweep_adds_semantic_scholar_when_enabled():
+    cfg = {
+        "sources": {
+            "semantic_scholar": {"enabled": True, "max_per_query": 15},
+            "arxiv_queries": ["LLM agents", "RAG"],
+        }
+    }
+    adapters = build_adapters(cfg, kind="sweep", feeds=[])
+    s2 = [a for a in adapters if isinstance(a, SemanticScholarAdapter)]
+    assert len(s2) == 1
+    # defaults its queries to arxiv_queries when s2_queries is unset
+    assert s2[0].queries == ["LLM agents", "RAG"]
+    assert s2[0].max_per_query == 15
+    assert all(isinstance(a, SourceAdapter) for a in adapters)
+
+
+def test_sweep_s2_uses_explicit_s2_queries_over_arxiv():
+    cfg = {
+        "sources": {
+            "semantic_scholar": {"enabled": True},
+            "arxiv_queries": ["arxiv-only"],
+            "s2_queries": ["s2-specific"],
+        }
+    }
+    adapters = build_adapters(cfg, kind="sweep", feeds=[])
+    s2 = [a for a in adapters if isinstance(a, SemanticScholarAdapter)][0]
+    assert s2.queries == ["s2-specific"]
+
+
+def test_sweep_omits_semantic_scholar_when_disabled():
+    cfg = {"sources": {"semantic_scholar": {"enabled": False}, "arxiv_queries": ["q"]}}
+    assert SemanticScholarAdapter not in _sweep_types(cfg)
+
+
+def test_sweep_omits_semantic_scholar_when_absent():
+    assert SemanticScholarAdapter not in _sweep_types({"sources": {"arxiv_queries": ["q"]}})
+    assert SemanticScholarAdapter not in _sweep_types({"sources": {}})
+
+
+def test_sweep_threads_lookback_into_semantic_scholar():
+    cfg = {
+        "sources": {
+            "semantic_scholar": {"enabled": True},
+            "arxiv_queries": ["q"],
+        }
+    }
+    adapters = build_adapters(cfg, kind="sweep", feeds=[], lookback_days=30)
+    s2 = [a for a in adapters if isinstance(a, SemanticScholarAdapter)][0]
+    assert s2.lookback_days == 30
