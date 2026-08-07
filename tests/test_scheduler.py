@@ -103,6 +103,50 @@ def test_run_sweep_threads_llm_cfg_to_evaluator(config, mocker):
     assert spy.call_args_list[0].args[0] == {"llm": {"provider": "openrouter"}}
 
 
+def test_run_sweep_unknown_source_flows_through_no_silent_drop(config, mocker):
+    """The trap this refactor removes: an item whose source matched no old
+    engagement-allowlist substring (e.g. "reddit") must flow all the way through
+    the funnel — no NameError, no silent drop. Previously "reddit" hit an
+    undefined reddit_threshold (NameError) and any other unknown source was
+    silently dropped by the allowlist."""
+    unknown = RawItem(
+        title="A relevant LLM inference agent framework post",
+        body="A new LLM agent framework for inference.",
+        url="https://example.com/unknown-source",
+        source="reddit",  # the exact string that used to raise NameError
+        engagement=0,
+        timestamp="2026-08-01",
+    )
+    # An adapter (arbitrary) yields the unknown-source item.
+    mocker.patch("agent.scheduler.HNFetcher.fetch", return_value=[unknown])
+    mocker.patch("agent.scheduler.ArxivFetcher.fetch", return_value=[])
+
+    def mock_score(items):
+        for item in items:
+            item.keep = True
+        return items
+
+    mocker.patch("agent.scheduler.Evaluator.score", side_effect=mock_score)
+
+    written = []
+    mocker.patch(
+        "agent.scheduler.Writer.write_note",
+        side_effect=lambda i: written.append(i) or Path("/tmp/x.md"),
+    )
+    mocker.patch("agent.scheduler.Writer.regenerate_index")
+
+    sched_module.run_sweep(
+        vault_path=config["vault_path"],
+        index_path=config["index_path"],
+        thresholds=config["thresholds"],
+        api_key="test",
+        feeds=[],
+    )
+
+    assert len(written) == 1
+    assert written[0].source == "reddit"
+
+
 def test_start_scheduler_registers_two_jobs(config, mocker):
     mock_scheduler = MagicMock()
     mock_scheduler.start.side_effect = KeyboardInterrupt
