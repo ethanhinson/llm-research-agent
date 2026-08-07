@@ -1,0 +1,24 @@
+---
+slug: pytest-shim-and-venv-provisioning
+hook: "Run the suite as `uv run python -m pytest` after `uv sync --extra dev` — a bare `pytest` resolves to a pyenv shim that loads a crashing global deepeval plugin."
+topics: [testing, environment, tooling]
+changes: [5]
+created: 2026-08-07
+updated: 2026-08-07
+promotion_state: candidate
+promoted_to:
+---
+
+## Apply
+
+Before running this repo's suite, provision the project venv and run pytest **through the module, inside the venv** — never a bare `pytest`:
+
+1. `uv sync --extra dev` (or `pip install -e ".[dev]"`) first — a fresh checkout's venv has neither the project's own runtime deps (`trafilatura`, etc.) nor pytest, so a bare run ImportErrors at collection.
+2. Invoke as **`uv run python -m pytest`**. A bare `pytest` resolves to the global pyenv shim (`~/.pyenv/shims/pytest`), which autoloads a stray global `deepeval` pytest plugin. That plugin crashes at **startup** (before collection) on an `opentelemetry` version mismatch: `TypeError: TracerProvider.get_tracer() takes from 2 to 4 positional arguments but 5 were given`. It is pure global-environment pollution, unrelated to this repo's code.
+3. If you are stuck on the global `pytest` shim and cannot use the venv module form, disabling the plugin with `-p no:plugins` also gets a clean run — but the venv `python -m pytest` form is the canonical, reliable command.
+
+**Diagnostic tell:** a `TracerProvider.get_tracer()` TypeError or a `ModuleNotFoundError: No module named 'trafilatura'` at pytest startup is an environment/provisioning problem, **not** a red suite from the change under test. Do not dispatch integration-repair for it; provision the venv and re-run.
+
+## War story
+
+- 2026-08-07 (#5, PR #6) — At the finalize merge gate for change 0005, a bare `pytest -q` in a fresh feature worktree crashed at startup with the `TracerProvider.get_tracer()` TypeError (global `deepeval` plugin) and, once that was disabled, `ModuleNotFoundError: trafilatura` (project deps never installed in the shared pyenv). Neither was a code failure. Installing deps (`pip install -e ".[dev]"`) and disabling the polluting plugin (`-p no:plugins`) yielded a clean **98 passed**, confirming the gate green. The change's own results file had already flagged the canonical command as `uv run python -m pytest` after `uv sync --extra dev` — harvested here so a future gate run recognizes the tell immediately instead of re-diagnosing it.
