@@ -10,6 +10,8 @@ LOOKBACK_DAYS = 7
 
 
 class WebFetcher:
+    name = "web"
+
     def __init__(self, feeds: list[dict], lookback_days: int = LOOKBACK_DAYS):
         self.feeds = feeds
         self.lookback_days = lookback_days

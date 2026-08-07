@@ -5,6 +5,8 @@ from agent.models import RawItem
 
 
 class MultiSearchFetcher:
+    name = "search"
+
     def __init__(
         self,
         clients: list[SearchClient],
