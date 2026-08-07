@@ -2,7 +2,7 @@
 id: 5
 slug: retroactive-reclassify-vault-notes
 title: Retroactive re-classification of existing vault notes
-status: implemented
+status: done
 priority: medium
 type: chore
 created: 2026-08-03
@@ -17,7 +17,7 @@ results: docs/results/2026-08-07-retroactive-reclassify-vault-notes-results.md
 trivial: false
 auto_groomable: false
 branch: feat/retroactive-reclassify-vault-notes
-claimed_at: 2026-08-07T01:35:13Z
+claimed_at: 
 pr: https://github.com/ethanhinson/llm-research-agent/pull/6
 blocked_by:
 reconciled: true
