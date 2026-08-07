@@ -1,6 +1,6 @@
 # Backlog
 
-**16 changes** — 🟡 5 proposed · 🔵 1 implemented · ✅ 10 done
+**16 changes** — 🟡 5 proposed · ✅ 11 done
 
 ## 🟡 Proposed (5)
 
@@ -12,15 +12,8 @@
 | [0015](active/0015-embedding-topic-prefilter.md) | Embedding-based topic pre-filter (replace/augment regex filter) | `medium` | `feat` | needs-brainstorm |
 | [0016](active/0016-hf-trending-artifacts.md) | Hugging Face trending models/datasets adapter | `medium` | `feat` | build-ready |
 
-## 🔵 Implemented — awaiting merge (1)
-
-| # | Title | Priority | Type | PR | Readiness |
-|---|-------|----------|------|----|-----------|
-| [0011](active/0011-curated-feed-expansion.md) | Add verified curated feeds — newsletters + Lobste.rs | `medium` | `chore` | [#11](https://github.com/ethanhinson/llm-research-agent/pull/11) |  |
-
 ```mermaid
 graph TD
-  0011
   0010 --> 0012
   0010 --> 0013
   0014
@@ -30,10 +23,11 @@ graph TD
   classDef done fill:#d3f9d8;
 ```
 
-<details><summary>✅ Archive — done (10)</summary>
+<details><summary>✅ Archive — done (11)</summary>
 
 | # | Title | Merged |
 |---|-------|--------|
+| [0011](archive/2026-08-07-0011-curated-feed-expansion.md) | Add verified curated feeds — newsletters + Lobste.rs | 2026-08-07 |
 | [0010](archive/2026-08-07-0010-expand-article-sources.md) | Expand article sources — HF daily papers, arXiv keyword search, GitHub trending, wired SourceDiscovery | 2026-08-07 |
 | [0009](archive/2026-08-07-0009-source-adapter-layer.md) | Unify article intake behind a SourceAdapter layer | 2026-08-07 |
 | [0008](archive/2026-08-07-0008-openrouter-provider-support.md) | OpenRouter provider support — full-system alternative to the Anthropic API | 2026-08-07 |
