@@ -25,13 +25,32 @@ def config(tmp_path):
     }
 
 
-def test_run_sweep_filters_and_writes(config, mocker):
-    above = make_item("Flash Attention 3: faster LLM inference", engagement=200)
-    below = make_item("Low quality post about elevators", engagement=10)
+def _hn_hit(title, points):
+    return {
+        "title": title,
+        "story_text": "body",
+        "url": f"https://example.com/{title}",
+        "objectID": title,
+        "points": points,
+        "created_at": "2026-08-01",
+    }
 
-    mocker.patch("agent.scheduler.HNFetcher.fetch", return_value=[above, below])
+
+def test_run_sweep_filters_and_writes(config, mocker):
+    # Engagement policy now lives in the HN *adapter* (its points>=threshold
+    # post-filter), not in a sweep-level allowlist. Mock the HN API so the real
+    # HNFetcher.fetch runs and drops the below-threshold hit; the above-threshold
+    # one flows through the funnel to the writer.
+    hn_resp = MagicMock()
+    hn_resp.json.return_value = {
+        "hits": [
+            _hn_hit("Flash Attention 3: faster LLM inference", 200),
+            _hn_hit("Low quality post about elevators", 10),
+        ]
+    }
+    hn_resp.raise_for_status.return_value = None
+    mocker.patch("agent.fetchers.hackernews.httpx.get", return_value=hn_resp)
     mocker.patch("agent.scheduler.ArxivFetcher.fetch", return_value=[])
-    mocker.patch("agent.scheduler.WebFetcher.fetch", return_value=[])
 
     def mock_score(items):
         for item in items:
