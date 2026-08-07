@@ -10,14 +10,14 @@ updated: 2026-08-07
 depends_on: [7]
 related: [7]
 discovered_from: []
-adrs: []
+adrs: [1]
 spec: docs/superpowers/specs/2026-08-06-openrouter-provider-support.md
 plan: docs/superpowers/plans/2026-08-06-openrouter-provider-support-plan.md
 results:
 trivial: false
 auto_groomable: false
 branch: feat/openrouter-provider-support
-claimed_at: 2026-08-07T02:52:47Z
+claimed_at: 2026-08-07T04:26:26Z
 pr:
 blocked_by:
 reconciled: true
@@ -30,6 +30,7 @@ reconciled: true
 |---|---|
 | Spec | [2026-08-06-openrouter-provider-support.md](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/superpowers/specs/2026-08-06-openrouter-provider-support.md) |
 | Plan | [2026-08-06-openrouter-provider-support-plan.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/openrouter-provider-support/docs/superpowers/plans/2026-08-06-openrouter-provider-support-plan.md) |
+| ADRs | [ADR-0001](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/adrs/0001-llm-provider-abstraction-injected-client.md) |
 <!-- docket:artifacts:end -->
 
 ## Why
