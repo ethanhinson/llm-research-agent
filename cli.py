@@ -127,6 +127,30 @@ def _build_regenerate_parser(subparsers):
     return p
 
 
+def cmd_reclassify(args, cfg):
+    from agent.reclassifier import Reclassifier
+    api_key = os.getenv("ANTHROPIC_API_KEY")
+    rec = Reclassifier(vault_path=VAULT_PATH, api_key=api_key)
+    date = getattr(args, "date", None)
+    all_notes = getattr(args, "all", False)
+    report = rec.reclassify(date=date, all_notes=all_notes)
+    print(
+        f"Reclassify complete. "
+        f"reclassified={report.get('reclassified', 0)} "
+        f"moved={report.get('moved', 0)} "
+        f"errored={report.get('errored', 0)}"
+    )
+
+
+def _build_reclassify_parser(subparsers):
+    p = subparsers.add_parser(
+        "reclassify", help="Re-classify existing vault notes"
+    )
+    p.add_argument("--date", default=None, help="Only notes from this date (YYYY-MM-DD)")
+    p.add_argument("--all", action="store_true", help="Re-classify all notes")
+    return p
+
+
 def cmd_start(args, cfg):
     from agent.scheduler import start_scheduler
     thresholds = cfg.get("thresholds", {})
@@ -189,6 +213,7 @@ def main():
 
     _build_sweep_parser(sub)
     _build_regenerate_parser(sub)
+    _build_reclassify_parser(sub)
 
     sub.add_parser("start", help="Start the scheduler (runs in foreground)")
     sub.add_parser("sources", help="List known sources")
@@ -199,6 +224,8 @@ def main():
         cmd_sweep(args, cfg)
     elif args.command == "regenerate":
         cmd_regenerate(args, cfg)
+    elif args.command == "reclassify":
+        cmd_reclassify(args, cfg)
     elif args.command == "start":
         cmd_start(args, cfg)
     elif args.command == "sources":

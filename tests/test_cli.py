@@ -116,3 +116,33 @@ def test_regenerate_parser_accepts_flags():
     args = parser.parse_args(["regenerate", "--all", "--min-score", "7"])
     assert args.all is True
     assert args.min_score == 7
+
+
+def test_cmd_reclassify_dispatches(mocker):
+    import cli
+    from argparse import Namespace
+
+    mock_rec = MagicMock()
+    mock_rec.reclassify.return_value = {"reclassified": 3, "moved": 2, "errored": 0}
+    mocker.patch("agent.reclassifier.Reclassifier", return_value=mock_rec)
+
+    cfg = {}
+    args = Namespace(date="2026-08-03", all=False)
+    cli.cmd_reclassify(args=args, cfg=cfg)
+
+    assert mock_rec.reclassify.call_count == 1
+    _, kwargs = mock_rec.reclassify.call_args
+    assert kwargs["date"] == "2026-08-03"
+    assert kwargs["all_notes"] is False
+
+
+def test_reclassify_parser_accepts_flags():
+    import cli
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    sub = parser.add_subparsers(dest="command")
+    cli._build_reclassify_parser(sub)
+    args = parser.parse_args(["reclassify", "--date", "2026-08-04", "--all"])
+    assert args.date == "2026-08-04"
+    assert args.all is True
