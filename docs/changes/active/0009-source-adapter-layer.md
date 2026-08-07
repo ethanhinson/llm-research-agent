@@ -2,7 +2,7 @@
 id: 9
 slug: source-adapter-layer
 title: Unify article intake behind a SourceAdapter layer
-status: proposed
+status: in-progress
 priority: medium
 type: refactor
 created: 2026-08-07
@@ -16,7 +16,8 @@ plan:
 results:
 trivial: false
 auto_groomable: false
-branch:
+branch: feat/source-adapter-layer
+claimed_at: 2026-08-07T06:24:49Z
 pr:
 blocked_by:
 reconciled: false
