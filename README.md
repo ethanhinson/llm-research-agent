@@ -19,6 +19,8 @@ cp .env.example .env
 python cli.py sweep          # one-shot sweep now
 python cli.py sweep --deep   # deep sweep (broader arXiv, source discovery)
 python cli.py start          # start scheduler (daily + weekly + a web-search sweep every search.interval_hours; runs in foreground)
+python cli.py reclassify --all           # re-classify existing vault notes into correct type subdirs
+python cli.py reclassify --date 2026-08-05  # re-classify only that date's notes
 python cli.py sources        # list known sources
 python cli.py status         # stats: strategies documented, last run, source count
 ```
