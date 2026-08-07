@@ -1,12 +1,12 @@
 # Backlog
 
-**8 changes** — 🟡 1 proposed · 🔵 1 implemented · ✅ 6 done
+**8 changes** — 🟢 1 in progress · 🔵 1 implemented · ✅ 6 done
 
-## 🟡 Proposed (1)
+## 🟢 In progress (1)
 
-| # | Title | Priority | Type | Readiness |
-|---|-------|----------|------|-----------|
-| [0008](active/0008-openrouter-provider-support.md) | OpenRouter provider support — full-system alternative to the Anthropic API | `medium` | `feat` | build-ready |
+| # | Title | Priority | Type | Spec | Branch |
+|---|-------|----------|------|------|--------|
+| [0008](active/0008-openrouter-provider-support.md) | OpenRouter provider support — full-system alternative to the Anthropic API | `medium` | `feat` | [spec](../superpowers/specs/2026-08-06-openrouter-provider-support.md) | `feat/openrouter-provider-support` |
 
 ## 🔵 Implemented — awaiting merge (1)
 
