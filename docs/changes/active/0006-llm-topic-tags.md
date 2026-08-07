@@ -2,11 +2,11 @@
 id: 6
 slug: llm-topic-tags
 title: LLM-generated freeform topic tags
-status: proposed
+status: in-progress
 priority: medium
 type: feat
 created: 2026-08-03
-updated: 2026-08-03
+updated: 2026-08-07
 depends_on: [4]
 related: [4, 5]
 discovered_from: [4]
@@ -16,7 +16,8 @@ plan:
 results:
 trivial: false
 auto_groomable: false
-branch:
+branch: feat/llm-topic-tags
+claimed_at: 2026-08-07T01:55:30Z
 pr:
 blocked_by:
 reconciled: false
