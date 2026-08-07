@@ -1,5 +1,5 @@
 <!-- docket:backlink:start (generated — do not hand-edit) -->
-> ↩ **[Change 0010 — Expand article sources — HF daily papers, arXiv keyword search, GitHub trending, wired SourceDiscovery](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/changes/active/0010-expand-article-sources.md)**
+> ↩ **[Change 0010 — Expand article sources — HF daily papers, arXiv keyword search, GitHub trending, wired SourceDiscovery](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/changes/archive/2026-08-07-0010-expand-article-sources.md)**
 <!-- docket:backlink:end -->
 
 # Expand Article Sources — Design Spec

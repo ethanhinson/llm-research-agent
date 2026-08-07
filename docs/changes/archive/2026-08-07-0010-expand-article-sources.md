@@ -29,8 +29,8 @@ reconciled: true
 | Artifact | Link |
 |---|---|
 | Spec | [2026-08-07-expand-article-sources.md](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/superpowers/specs/2026-08-07-expand-article-sources.md) |
-| Plan | [2026-08-07-expand-article-sources.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/expand-article-sources/docs/superpowers/plans/2026-08-07-expand-article-sources.md) |
-| Results | [2026-08-07-expand-article-sources-results.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/expand-article-sources/docs/results/2026-08-07-expand-article-sources-results.md) |
+| Plan | [2026-08-07-expand-article-sources.md](https://github.com/ethanhinson/llm-research-agent/blob/main/docs/superpowers/plans/2026-08-07-expand-article-sources.md) |
+| Results | [2026-08-07-expand-article-sources-results.md](https://github.com/ethanhinson/llm-research-agent/blob/main/docs/results/2026-08-07-expand-article-sources-results.md) |
 | PR | [#10](https://github.com/ethanhinson/llm-research-agent/pull/10) |
 <!-- docket:artifacts:end -->
 
