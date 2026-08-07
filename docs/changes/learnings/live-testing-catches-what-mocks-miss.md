@@ -4,7 +4,7 @@ description: Unit tests with mocked fetchers/APIs missed three real integration 
 metadata:
   type: feedback
   promotion_state: candidate
-  changes: [1, 2, 4, 7, 8, 10]
+  changes: [1, 2, 4, 7, 8, 10, 12]
   updated: 2026-08-07
 ---
 
@@ -61,3 +61,13 @@ What only the live run proved:
 1. **The mocked-payload shape assumptions held against the real APIs.** The worker had flagged the `HFPapersAdapter` daily-papers JSON shape as an assumption; against the real endpoint 46 items mapped cleanly (title, summary, `upvotes`→engagement, `publishedAt`→timestamp). Per-source raw fetch counts confirmed real volume: HF papers 46, arXiv keyword search 10 (2 queries × cap 5), GitHub trending 100 — none of which a mock could have surfaced.
 2. **Every new source reached the funnel and the vault write path end-to-end.** The full minimal-scope sweep kept **134 items** through fetch → dedup → topic filter → cross-validate → OpenRouter evaluation → write (`hackernews` 20, `arxiv` 29, `hf-papers` 8, `github` 77), 128 notes written, and the `discover-sources` path appended its dated `## Suggested (pending review)` section to `sources.md`. Only expected fail-soft soft-degradations (paywalled enrich, missing search-backend keys) appeared — no LLM/provider errors — reinforcing lesson #3 above about reading the sweep log.
 3. **Reinforced #2's unblock-via-provider-swap rule for a second change in a row.** The provider abstraction from #8 is now the standing mechanism for running paid-API acceptance sweeps while Anthropic billing is blocked — 0010's verification never touched Anthropic. (Adjacent, unminted: `agent/evaluator.py`'s Anthropic path is still non-fail-soft, so a credit-balance `400` there would hard-abort a sweep before the new fail-soft sources are reached — orthogonal here because the live run used OpenRouter, but the same latent fail-hard trunk flagged in the #7 war story.)
+
+## War story — 2026-08-07 (#12, PR #12)
+
+Change 0012 (Semantic Scholar keyword-search adapter) is the mirror-image case in this family: the live build-time query hit **HTTP 429 on every attempt** from the unkeyed, aggressively-throttled shared pool (two queries, three retries with 8s backoff) — no `S2_API_KEY` was available — so the run served **zero** 200 responses during the build window. Critically, this was **not** a blocked verification: the 429 *is exactly the fail-soft path the adapter must handle*, so the live run **exercised and confirmed the contract** rather than being deferred by it (contrast #7, where a `400` billing error blocked the run and forced a deferral). The adapter backed off, retried, then skipped the query and returned `[]` — never aborting the sweep — and the live `{"message": "...", "code": "429"}` body shape matched the adapter's `status_code == 429` handling. The 200-path mapping (tldr-over-abstract body, arXiv-URL preference, citationCount engagement) stayed covered by mocked tests only.
+
+Lessons:
+
+1. **A live run that returns only errors can still be a successful verification — if the error path is the one under test.** For a fail-soft adapter, hitting the throttle/outage response live is not a deferral; it is the acceptance criterion firing. Distinguish "the live run couldn't validate the happy path" (a real gap, note it for the human) from "the live run validated the *degradation* path" (a pass). Here the results file did both: recorded the 429 fail-soft as verified, and left the 200-path mapping on the human verify-checklist (run one query with a real key).
+2. **Throttle-state, like billing-state (#7) and quota, is an account/infra condition — not a code defect.** A well-formed 429 from a shared unkeyed pool is expected; the mitigation is a free `S2_API_KEY` (sent as `x-api-key`), documented as optional in `.env.example`. Absent the key the adapter fail-soft-skips under load by design.
+3. **The `pytest-shim-and-venv-provisioning` learning held again** — `uv sync --extra dev` then `uv run python -m pytest` ran clean at **209 passed** (180 baseline + 24 adapter + 5 `build_adapters` factory cases), no `deepeval`/`TracerProvider` crash, no `trafilatura` ImportError. Whole-branch review was clean; two nice-to-have coverage gaps (polite-sleep gating, `externalIds` non-dict/missing-url fallback) were folded in before merge.
