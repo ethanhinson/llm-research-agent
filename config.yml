@@ -65,3 +65,22 @@ sources:
     - name: "Interconnects (Nathan Lambert)"
       url: "https://www.interconnects.ai/feed"
       type: newsletter
+    # Change 0011: six externally-verified curated feeds (2026-08-07).
+    - name: "AlphaSignal"
+      url: "https://alphasignal.ai/feed.xml"
+      type: newsletter
+    - name: "TLDR AI"
+      url: "https://tldr.tech/api/rss/ai"
+      type: newsletter
+    - name: "Latent Space"
+      url: "https://www.latent.space/feed"
+      type: newsletter
+    - name: "Ahead of AI (Sebastian Raschka)"
+      url: "https://magazine.sebastianraschka.com/feed"
+      type: newsletter
+    - name: "Import AI (Jack Clark)"
+      url: "https://importai.substack.com/feed"
+      type: newsletter
+    - name: "Lobste.rs AI tag"
+      url: "https://lobste.rs/t/ai.rss"
+      type: blog
