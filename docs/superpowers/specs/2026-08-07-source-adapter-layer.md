@@ -1,5 +1,5 @@
 <!-- docket:backlink:start (generated — do not hand-edit) -->
-> ↩ **[Change 0009 — Unify article intake behind a SourceAdapter layer](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/changes/active/0009-source-adapter-layer.md)**
+> ↩ **[Change 0009 — Unify article intake behind a SourceAdapter layer](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/changes/archive/2026-08-07-0009-source-adapter-layer.md)**
 <!-- docket:backlink:end -->
 
 # Source Adapter Layer — Design Spec

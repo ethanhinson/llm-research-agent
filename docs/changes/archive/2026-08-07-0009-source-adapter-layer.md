@@ -29,7 +29,7 @@ reconciled: true
 | Artifact | Link |
 |---|---|
 | Spec | [2026-08-07-source-adapter-layer.md](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/superpowers/specs/2026-08-07-source-adapter-layer.md) |
-| Plan | [2026-08-07-source-adapter-layer.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/source-adapter-layer/docs/superpowers/plans/2026-08-07-source-adapter-layer.md) |
+| Plan | [2026-08-07-source-adapter-layer.md](https://github.com/ethanhinson/llm-research-agent/blob/main/docs/superpowers/plans/2026-08-07-source-adapter-layer.md) |
 | PR | [#9](https://github.com/ethanhinson/llm-research-agent/pull/9) |
 | ADRs | [ADR-0001](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/adrs/0001-llm-provider-abstraction-injected-client.md) |
 <!-- docket:artifacts:end -->
