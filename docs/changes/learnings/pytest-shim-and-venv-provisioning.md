@@ -2,7 +2,7 @@
 slug: pytest-shim-and-venv-provisioning
 hook: "Run the suite as `uv run python -m pytest` after `uv sync --extra dev` — a bare `pytest` resolves to a pyenv shim that loads a crashing global deepeval plugin."
 topics: [testing, environment, tooling]
-changes: [5, 6]
+changes: [5, 6, 8]
 created: 2026-08-07
 updated: 2026-08-07
 promotion_state: candidate
@@ -23,3 +23,4 @@ Before running this repo's suite, provision the project venv and run pytest **th
 
 - 2026-08-07 (#5, PR #6) — At the finalize merge gate for change 0005, a bare `pytest -q` in a fresh feature worktree crashed at startup with the `TracerProvider.get_tracer()` TypeError (global `deepeval` plugin) and, once that was disabled, `ModuleNotFoundError: trafilatura` (project deps never installed in the shared pyenv). Neither was a code failure. Installing deps (`pip install -e ".[dev]"`) and disabling the polluting plugin (`-p no:plugins`) yielded a clean **98 passed**, confirming the gate green. The change's own results file had already flagged the canonical command as `uv run python -m pytest` after `uv sync --extra dev` — harvested here so a future gate run recognizes the tell immediately instead of re-diagnosing it.
 - 2026-08-07 (#6, PR #7) — Finalize gate for change 0006 followed this finding's canonical form directly: `uv sync --extra dev` then `uv run python -m pytest` in the feature worktree, yielding a clean **102 passed** with **no** `deepeval`/`TracerProvider` crash and **no** `trafilatura` ImportError. The venv module form sidestepped the polluting global shim entirely — first confirmation the recorded command works as prescribed with zero re-diagnosis, reinforcing the `candidate` promotion case.
+- 2026-08-07 (#8, PR #8) — Finalize gate for change 0008 (post-rebase onto a merged 0006) ran `uv sync --extra dev` then `uv run python -m pytest` in the feature worktree: a clean **118 passed** (0006's 4 tag tests + 0008's provider-abstraction tests) with no `deepeval`/`TracerProvider` crash and no `trafilatura` ImportError. Third consecutive gate where the recorded command worked as prescribed with zero re-diagnosis — the promotion case is now well-established.
