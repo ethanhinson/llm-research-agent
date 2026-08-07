@@ -12,7 +12,7 @@ related: [4, 5]
 discovered_from: [4]
 adrs: []
 spec: docs/superpowers/specs/2026-08-03-llm-topic-tags.md
-plan:
+plan: docs/superpowers/plans/2026-08-07-llm-topic-tags.md
 results:
 trivial: false
 auto_groomable: false
@@ -29,6 +29,7 @@ reconciled: true
 | Artifact | Link |
 |---|---|
 | Spec | [2026-08-03-llm-topic-tags.md](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/superpowers/specs/2026-08-03-llm-topic-tags.md) |
+| Plan | [2026-08-07-llm-topic-tags.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/llm-topic-tags/docs/superpowers/plans/2026-08-07-llm-topic-tags.md) |
 <!-- docket:artifacts:end -->
 
 ## Why
