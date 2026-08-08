@@ -1,18 +1,26 @@
 # Backlog
 
-**16 changes** — 🟡 2 proposed · ✅ 14 done
+**20 changes** — 🟡 6 proposed · ✅ 14 done
 
-## 🟡 Proposed (2)
+## 🟡 Proposed (6)
 
 | # | Title | Priority | Type | Readiness |
 |---|-------|----------|------|-----------|
 | [0014](active/0014-cross-source-corroboration-ranking.md) | Cross-source corroboration + citation-velocity signals | `medium` | `feat` | needs-brainstorm |
 | [0015](active/0015-embedding-topic-prefilter.md) | Embedding-based topic pre-filter (replace/augment regex filter) | `medium` | `feat` | needs-brainstorm |
+| [0017](active/0017-ensemble-novelty-scoring.md) | Ensemble / rubric-calibrated novelty scoring with confidence | `medium` | `feat` | needs-brainstorm |
+| [0018](active/0018-weekly-trend-synthesis-note.md) | Weekly trend/cluster synthesis note over the vault | `medium` | `feat` | needs-brainstorm |
+| [0019](active/0019-synthesis-prompt-injection-hardening.md) | Prompt-injection hardening of fetched content before synthesis/eval | `medium` | `feat` | needs-brainstorm |
+| [0020](active/0020-tiered-model-eval-cascade.md) | Tiered model cascade for evaluation (cheap first-pass, escalate borderline) | `low` | `feat` | needs-brainstorm |
 
 ```mermaid
 graph TD
   0014
   0015
+  0017
+  0018
+  0019
+  0020
 ```
 
 <details><summary>✅ Archive — done (14)</summary>
