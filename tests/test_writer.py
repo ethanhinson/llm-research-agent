@@ -148,3 +148,35 @@ def test_writer_regenerates_index_grouped_by_type(tmp_path):
     assert "## Releases" in index
     assert "Flash Attention 3" in index
     assert "GPT-5 launch" in index
+
+
+# --- Task 3: update_corroboration ---
+
+
+def test_update_corroboration_rewrites_frontmatter_and_appends_source(tmp_path):
+    from agent.writer import Writer
+    note = tmp_path / "note.md"
+    note.write_text(
+        "---\ntitle: \"Paper\"\ndate: 2026-08-08\ntype: research\nscore: 7\n"
+        "score_label: novelty\ntags: [rag]\nvalidated: false\nsources_count: 1\n"
+        "content_source: snippet\nstatus: new\n---\n\n# Paper\n\n## Summary\nx\n\n"
+        "## Sources\n- [Paper](https://a) — hackernews · 10\n\n## Related\n"
+    )
+    w = Writer(vault_path=tmp_path)
+    w.update_corroboration(
+        str(note), sources_count=2, validated=True,
+        new_source_line="- [Paper](https://b) — hf-papers · 5",
+    )
+    text = note.read_text()
+    assert "sources_count: 2" in text
+    assert "validated: true" in text
+    assert "hf-papers" in text
+    # body untouched
+    assert "# Paper" in text and "## Summary\nx" in text
+
+
+def test_update_corroboration_missing_file_is_failsoft(tmp_path):
+    from agent.writer import Writer
+    w = Writer(vault_path=tmp_path)
+    # must not raise
+    w.update_corroboration(str(tmp_path / "nope.md"), 2, True, "- [x](y) — z · 0")

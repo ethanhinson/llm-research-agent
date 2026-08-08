@@ -117,6 +117,36 @@ class Writer:
         path.write_text(content)
         return path
 
+    def update_corroboration(self, note_path, sources_count, validated, new_source_line):
+        """Targeted frontmatter rewrite (sources_count, validated) + ## Sources
+        append. No body regeneration. Fail-soft: a bad/missing file logs + skips."""
+        try:
+            path = Path(note_path)
+            text = path.read_text()
+        except Exception as exc:
+            print(f"[warn] update_corroboration: cannot read {note_path}: {exc}")
+            return
+        try:
+            lines = text.splitlines()
+            for i, line in enumerate(lines):
+                if line.startswith("sources_count:"):
+                    lines[i] = f"sources_count: {sources_count}"
+                elif line.startswith("validated:"):
+                    lines[i] = f"validated: {str(validated).lower()}"
+            # append the new source line into the ## Sources block (before ## Related if present)
+            out = []
+            inserted = False
+            for line in lines:
+                if line.strip() == "## Related" and not inserted:
+                    out.append(new_source_line)
+                    inserted = True
+                out.append(line)
+            if not inserted:
+                out.append(new_source_line)
+            path.write_text("\n".join(out) + ("\n" if text.endswith("\n") else ""))
+        except Exception as exc:
+            print(f"[warn] update_corroboration: failed on {note_path}: {exc}")
+
     def regenerate_index(self):
         groups: dict[str, list[tuple]] = {t: [] for t in CONTENT_TYPES}
 

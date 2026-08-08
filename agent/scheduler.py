@@ -58,6 +58,15 @@ def _write_kept(
     )
 
     for item in kept:
+        upd = dedup.corroboration_update(item)
+        if upd is not None:
+            writer.update_corroboration(
+                upd["note_path"],
+                upd["sources_count"],
+                upd["validated"],
+                upd["new_source_line"],
+            )
+            continue
         sections = None
         if enabled and item.score >= min_score:
             try:
@@ -67,10 +76,15 @@ def _write_kept(
                 print(f"[warn] synthesis pipeline failed for {item.url}: {exc}")
                 sections = None
         if sections:
-            writer.write_note(item, sections=sections)
+            note_path = writer.write_note(item, sections=sections)
         else:
-            writer.write_note(item)
-        dedup.mark_seen(item)
+            note_path = writer.write_note(item)
+        # record the identity so later sweeps corroborate against it
+        try:
+            rel = str(note_path.relative_to(writer._vault))
+        except Exception:
+            rel = str(note_path)
+        dedup.record(item, note_path=rel)
 
     if kept:
         writer.regenerate_index()
