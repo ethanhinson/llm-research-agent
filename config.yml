@@ -17,6 +17,10 @@ corroboration:
 citation_velocity:
   enabled: true
   min_delta: 25
+  # Citation counts come from keyless OpenAlex by default. Set an email to join
+  # OpenAlex's faster "polite pool" (optional; still no key). Semantic Scholar
+  # is used instead only when S2_API_KEY is set in the environment.
+  mailto:
 
 search:
   interval_hours: 6

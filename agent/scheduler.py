@@ -186,8 +186,9 @@ def run_sweep(
             run_citation_velocity(
                 vault_path,
                 min_delta=citation_velocity_cfg.get("min_delta", 25),
-                api_key=None,  # S2_API_KEY read from env inside
+                api_key=None,  # S2_API_KEY read from env inside; else keyless OpenAlex
                 today=date,
+                mailto=citation_velocity_cfg.get("mailto"),
             )
         except Exception as exc:
             print(f"[warn] citation-velocity re-poll failed, skipping: {exc}")
