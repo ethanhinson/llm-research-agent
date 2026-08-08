@@ -167,8 +167,9 @@ class Writer:
                 score = fm.get("score", 0)
                 validated = fm.get("validated", False)
                 category = fm.get("category", "")
+                rising = fm.get("rising", False)
                 link = f"[[strategies/{subdir}/{note_path.name}|{title}]]"
-                groups[content_type].append((score, title, link, validated, category))
+                groups[content_type].append((score, title, link, validated, category, rising))
 
         lines = ["# Strategy Index\n"]
 
@@ -184,18 +185,20 @@ class Writer:
             rows = groups.get(content_type, [])
             if not rows:
                 continue
-            rows.sort(key=lambda r: -r[0])
+            # rising papers sort first within their section, then by score desc
+            rows.sort(key=lambda r: (not r[5], -r[0]))
             lines.append(f"## {heading}\n")
             col_headers = ["Title"] + extra_cols
             lines.append("| " + " | ".join(col_headers) + " |")
             lines.append("|" + "---|" * len(col_headers))
-            for score, title, link, validated, category in rows:
+            for score, title, link, validated, category, rising in rows:
+                cell = f"📈 {link}" if rising else link
                 if content_type == "research":
-                    lines.append(f"| {link} | {category} | {score} | {validated} |")
+                    lines.append(f"| {cell} | {category} | {score} | {validated} |")
                 elif content_type in ("release", "benchmark"):
-                    lines.append(f"| {link} | {score} | {validated} |")
+                    lines.append(f"| {cell} | {score} | {validated} |")
                 else:
-                    lines.append(f"| {link} | {score} |")
+                    lines.append(f"| {cell} | {score} |")
             lines.append("")
 
         (self._vault / "index.md").write_text("\n".join(lines) + "\n")

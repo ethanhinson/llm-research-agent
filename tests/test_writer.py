@@ -150,6 +150,30 @@ def test_writer_regenerates_index_grouped_by_type(tmp_path):
     assert "GPT-5 launch" in index
 
 
+def test_regenerate_index_rising_marker_and_sort(tmp_path):
+    vault = _vault(tmp_path)
+    writer = Writer(vault_path=vault, date="2026-08-01")
+    # higher-score non-rising note
+    high = make_item("High Score Paper", content_type="research", score=9)
+    writer.write_note(high)
+    # lower-score rising note -> mark rising in frontmatter after writing
+    low_path = writer.write_note(make_item("Rising Paper", content_type="research", score=5))
+    low_text = low_path.read_text().replace("status: new", "status: new\nrising: true")
+    low_path.write_text(low_text)
+
+    writer.regenerate_index()
+    index = (vault / "index.md").read_text()
+
+    # rising note renders the marker
+    assert "📈" in index
+    rising_line = next(l for l in index.splitlines() if "Rising Paper" in l)
+    assert "📈" in rising_line
+    high_line = next(l for l in index.splitlines() if "High Score Paper" in l)
+    assert "📈" not in high_line
+    # rising sorts above the higher-score non-rising note within the section
+    assert index.index("Rising Paper") < index.index("High Score Paper")
+
+
 # --- Task 3: update_corroboration ---
 
 

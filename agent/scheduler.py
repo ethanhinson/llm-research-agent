@@ -102,6 +102,7 @@ def run_sweep(
     date: str | None = None,
     llm_cfg: dict | None = None,
     sources_cfg: dict | None = None,
+    citation_velocity_cfg: dict | None = None,
 ) -> list[RawItem]:
     vault_path = Path(vault_path)
     index_path = Path(index_path)
@@ -153,6 +154,19 @@ def run_sweep(
     # Fail-soft — a discovery error must never abort the sweep.
     if deep:
         _run_source_discovery(vault_path, api_key, llm_cfg=llm_cfg, date=date)
+
+    # Weekly citation-velocity re-poll: deep-only, config-gated, fail-soft.
+    if deep and (citation_velocity_cfg or {}).get("enabled"):
+        try:
+            from agent.tools.citation_velocity import run_citation_velocity
+            run_citation_velocity(
+                vault_path,
+                min_delta=citation_velocity_cfg.get("min_delta", 25),
+                api_key=None,  # S2_API_KEY read from env inside
+                today=date,
+            )
+        except Exception as exc:
+            print(f"[warn] citation-velocity re-poll failed, skipping: {exc}")
 
     return kept
 
