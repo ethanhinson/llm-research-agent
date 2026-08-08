@@ -19,3 +19,4 @@ class RawItem:
     tags: list = field(default_factory=list)
     content_source: str = "snippet"  # snippet | full — where the note body text came from
     canonical_id: str = ""           # stable identity: arxiv:/doi:/url:/title: (set post-fetch)
+    corroboration_sources: list = field(default_factory=list)  # (source, url, engagement) tuples on the representative

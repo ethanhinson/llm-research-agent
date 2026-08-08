@@ -25,7 +25,8 @@ from agent.fetchers.hackernews import HNFetcher  # noqa: F401  (test patch seam)
 from agent.fetchers.hf_papers import HFPapersAdapter  # noqa: F401  (test patch seam)
 from agent.fetchers.multi_search import MultiSearchFetcher  # noqa: F401  (patch seam)
 from agent.fetchers.web import WebFetcher  # noqa: F401  (test patch seam)
-from agent.tools.cross_validate import cross_validate
+from agent.canonical import canonical_id
+from agent.tools.corroborate import corroborate
 from agent.tools.search_query_generator import SearchQueryGenerator
 from agent.tools.source_discovery import SourceDiscovery, append_suggestions
 from agent.topic_filter import is_relevant
@@ -115,12 +116,15 @@ def run_sweep(
     for adapter in adapters:
         raw.extend(_fetch(adapter))
 
+    for item in raw:
+        item.canonical_id = canonical_id(item)
+
     dedup = Deduplicator(index_path)
     after_dedup = [item for item in raw if not dedup.is_duplicate(item)]
 
     after_topic = [item for item in after_dedup if is_relevant(item)]
 
-    after_cv = cross_validate(after_topic)
+    after_cv = corroborate(after_topic)
 
     evaluator = Evaluator(api_key=api_key, llm_cfg=llm_cfg)
     scored = evaluator.score(after_cv)
@@ -202,6 +206,9 @@ def search_sweep(
     )
     raw = fetcher.fetch()
 
+    for item in raw:
+        item.canonical_id = canonical_id(item)
+
     dedup = Deduplicator(index_path)
     after_dedup = [item for item in raw if not dedup.is_duplicate(item)]
 
@@ -209,7 +216,7 @@ def search_sweep(
     # sweep-level engagement allowlist here either.
     after_topic = [item for item in after_dedup if is_relevant(item)]
 
-    after_cv = cross_validate(after_topic)
+    after_cv = corroborate(after_topic)
 
     evaluator = Evaluator(api_key=api_key, llm_cfg=llm_cfg)
     scored = evaluator.score(after_cv)
