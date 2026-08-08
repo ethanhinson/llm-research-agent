@@ -55,6 +55,8 @@ Example output for a mixed batch:
 4. 9 prompting
 5. 6
 
+Note: a trailing corroboration marker of the form "[... by N sources]" means the item independently surfaced on N sources — treat it as supporting evidence of relevance/significance, NOT an automatic keep.
+
 Items (with pre-classified types):
 {items}"""
 
@@ -91,8 +93,14 @@ Keep an item if it is genuinely worth a researcher reading and saving.
 Skip an item if it is noise, too low-signal, or not relevant to LLM/AI work regardless of type.
 Be selective but not overly conservative — a score of 6+ generally warrants keeping.
 
+Note: a trailing corroboration marker of the form "[... by N sources]" means the item independently surfaced on N sources — treat it as supporting evidence of relevance/significance, NOT an automatic keep.
+
 Items (with type and score):
 {items}"""
+
+
+def _corroboration_suffix(item) -> str:
+    return f" [corroborated by {item.sources_count} sources]" if item.sources_count >= 2 else ""
 
 
 class Evaluator:
@@ -167,7 +175,7 @@ class Evaluator:
 
     def _score_batch(self, batch: list[RawItem]):
         item_lines = "\n".join(
-            f"{i+1}. [{item.content_type}] {item.title} — {item.body[:150]}"
+            f"{i+1}. [{item.content_type}] {item.title}{_corroboration_suffix(item)} — {item.body[:150]}"
             for i, item in enumerate(batch)
         )
         text = self._call(SCORE_PROMPT.format(items=item_lines))
@@ -191,7 +199,7 @@ class Evaluator:
 
     def _validate_batch(self, batch: list[RawItem]):
         item_lines = "\n".join(
-            f"{i+1}. [{item.content_type}, {item.score_label}={item.score}] {item.title}"
+            f"{i+1}. [{item.content_type}, {item.score_label}={item.score}]{_corroboration_suffix(item)} {item.title}"
             for i, item in enumerate(batch)
         )
         text = self._call(VALIDATE_PROMPT.format(items=item_lines))
