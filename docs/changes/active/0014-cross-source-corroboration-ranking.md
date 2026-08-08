@@ -19,8 +19,8 @@ auto_groomable: false
 branch: feat/cross-source-corroboration-ranking
 pr:
 blocked_by:
-claimed_at: 2026-08-08T03:45:02Z
-reconciled: false
+claimed_at: 2026-08-08T03:46:41Z
+reconciled: true
 ---
 
 ## Artifacts
@@ -50,3 +50,19 @@ Introduce a canonical item identity (`arXiv-ID > DOI > normalized-URL > normaliz
 _Resolved during grooming (scope, corroboration effect, cross-sweep inclusion, citation-velocity backend) — see the linked spec._
 
 ## Reconcile log
+
+### 2026-08-08 — reconciled against current `main` (tip 832adca)
+
+Re-read the spec against the live pipeline; the design holds with no scope drift and no work already done elsewhere. Confirmed:
+
+- **Pipeline shape intact.** Both `scheduler.run_sweep` and `scheduler.search_sweep` run `fetch → dedup(`Deduplicator.is_duplicate`) → topic(`is_relevant`) → `cross_validate(after_topic)` → `Evaluator.score` → `_write_kept``. S2's replacement point (`cross_validate` → `corroborate`) and S4's eval-signal point are exactly where the spec says.
+- **`RawItem`** (`agent/models.py`) already carries `validated` + `sources_count` (defaults `False`/`1`); it has **no** `canonical_id` — S1 adds it as specified.
+- **Dedup index** is `vault/.index.json` with schema `{urls, titles}` (`Deduplicator._load`), wired from `cli.py` `INDEX_PATH`. S3's v2 `items` map + v1-migration (legacy keys read, absent `items` → empty map) is accurate. `cli.py cmd_status` also reads `.index.json["urls"]` — S3 must keep the legacy keys present so status does not break.
+- **`Writer.regenerate_index()`** writes the **markdown** `vault/index.md` (distinct from the JSON dedup index); S5's "📈 marker / sort tiebreak" lands there. `write_note` names files `{date}-{slug(title)}.md` — the S2 collapse (one item per identity) is what removes defects 1–2.
+- **S2 reuse (S5).** `agent/fetchers/semantic_scholar.py` uses the `/paper/search` endpoint with a one-shot 429 backoff + `S2_API_KEY` header + polite sleep. S5's citation-velocity re-poll needs the **`/paper/batch`** endpoint (different), so it is a new `agent/tools/citation_velocity.py` reusing the same key/backoff/pacing patterns — not the search adapter.
+- **Weekly gating** for S5 uses the existing `deep: bool` param on `run_sweep` (already threaded from `cli.py`/`start_scheduler`).
+- **Config threading.** New `corroboration` and `citation_velocity` sections must be read in `cli.py cmd_sweep`/`cmd_start` and passed into `run_sweep`/`search_sweep` alongside the existing `sources_cfg`/`synthesis_cfg`/`llm_cfg`; absent ⇒ byte-identical behavior (fail-soft, config-gated).
+- **Dependencies:** `depends_on: []` satisfied; related changes 0010 and 0012 are both `done` (merged). No ADRs bear on this change (only ADR-0001 exists: LLM-provider abstraction).
+- **Build/test note (learnings):** run the suite as `uv run python -m pytest` after `uv sync --extra dev` (pytest-shim finding). For the S5 live check, an S2 429 from the unkeyed pool is a *valid fail-soft verification*, not a deferral (live-testing finding); route any LLM live check through the repo-default OpenRouter provider.
+
+Verdict: **build-ready, design valid.** No obsolescence, no fundamental invalidation. AUTO_CAPTURE disabled — no adjacent follow-ups minted this pass; none surfaced beyond the already-scoped out-of-scope items (OpenAlex adapter, LLM re-score, spend-gating, vault backfill).
