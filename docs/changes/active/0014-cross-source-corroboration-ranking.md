@@ -12,14 +12,14 @@ related: [10, 12]
 discovered_from: []
 adrs: []
 spec: docs/superpowers/specs/2026-08-07-cross-source-corroboration-ranking-design.md
-plan:
+plan: docs/superpowers/plans/2026-08-08-cross-source-corroboration-ranking-plan.md
 results:
 trivial: false
 auto_groomable: false
 branch: feat/cross-source-corroboration-ranking
 pr:
 blocked_by:
-claimed_at: 2026-08-08T03:46:41Z
+claimed_at: 2026-08-08T03:52:28Z
 reconciled: true
 ---
 
@@ -29,6 +29,7 @@ reconciled: true
 | Artifact | Link |
 |---|---|
 | Spec | [2026-08-07-cross-source-corroboration-ranking-design.md](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/superpowers/specs/2026-08-07-cross-source-corroboration-ranking-design.md) |
+| Plan | [2026-08-08-cross-source-corroboration-ranking-plan.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/cross-source-corroboration-ranking/docs/superpowers/plans/2026-08-08-cross-source-corroboration-ranking-plan.md) |
 <!-- docket:artifacts:end -->
 
 ## Why
