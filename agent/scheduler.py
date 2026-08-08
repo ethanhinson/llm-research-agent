@@ -33,6 +33,16 @@ from agent.topic_filter import is_relevant
 from agent.writer import Writer
 
 
+def _make_deduplicator(index_path: Path, corroboration_cfg: dict | None) -> Deduplicator:
+    """Construct the Deduplicator, threading window_hours from config when the
+    corroboration section is enabled. Absent/disabled keeps today's construction
+    (72h default), so behavior is unchanged when the section is absent."""
+    cfg = corroboration_cfg or {}
+    if cfg.get("enabled", True) and "window_hours" in cfg:
+        return Deduplicator(index_path, window_hours=cfg.get("window_hours", 72))
+    return Deduplicator(index_path)
+
+
 def _write_kept(
     kept: list[RawItem],
     writer: Writer,
@@ -103,6 +113,7 @@ def run_sweep(
     llm_cfg: dict | None = None,
     sources_cfg: dict | None = None,
     citation_velocity_cfg: dict | None = None,
+    corroboration_cfg: dict | None = None,
 ) -> list[RawItem]:
     vault_path = Path(vault_path)
     index_path = Path(index_path)
@@ -134,7 +145,7 @@ def run_sweep(
     for item in raw:
         item.canonical_id = canonical_id(item)
 
-    dedup = Deduplicator(index_path)
+    dedup = _make_deduplicator(index_path, corroboration_cfg)
     after_dedup = [item for item in raw if not dedup.is_duplicate(item)]
 
     after_topic = [item for item in after_dedup if is_relevant(item)]
@@ -208,6 +219,7 @@ def search_sweep(
     synthesis_cfg: dict | None = None,
     date: str | None = None,
     llm_cfg: dict | None = None,
+    corroboration_cfg: dict | None = None,
 ) -> list[RawItem]:
     vault_path = Path(vault_path)
     index_path = Path(index_path)
@@ -237,7 +249,7 @@ def search_sweep(
     for item in raw:
         item.canonical_id = canonical_id(item)
 
-    dedup = Deduplicator(index_path)
+    dedup = _make_deduplicator(index_path, corroboration_cfg)
     after_dedup = [item for item in raw if not dedup.is_duplicate(item)]
 
     # The search adapter owns its own engagement policy, so there is no
@@ -268,6 +280,8 @@ def start_scheduler(
     search_cfg: dict | None = None,
     llm_cfg: dict | None = None,
     sources_cfg: dict | None = None,
+    corroboration_cfg: dict | None = None,
+    citation_velocity_cfg: dict | None = None,
 ):
     weekly_day = weekly_day[:3].lower()
     parts = daily_time.split(":")
@@ -291,6 +305,7 @@ def start_scheduler(
             "deep": False,
             "llm_cfg": llm_cfg,
             "sources_cfg": sources_cfg,
+            "corroboration_cfg": corroboration_cfg,
         },
         id="daily_sweep",
         name="Daily LLM research sweep",
@@ -311,6 +326,8 @@ def start_scheduler(
             "deep": True,
             "llm_cfg": llm_cfg,
             "sources_cfg": sources_cfg,
+            "corroboration_cfg": corroboration_cfg,
+            "citation_velocity_cfg": citation_velocity_cfg,
         },
         id="weekly_deep_sweep",
         name="Weekly deep LLM research sweep",
@@ -327,6 +344,7 @@ def start_scheduler(
                 "search_cfg": search_cfg,
                 "api_key": api_key,
                 "llm_cfg": llm_cfg,
+                "corroboration_cfg": corroboration_cfg,
             },
             id="search_sweep",
             name="Multi-backend web search sweep",

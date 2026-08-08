@@ -10,6 +10,14 @@ synthesis:
   min_score: 6
   max_chars: 8000
 
+corroboration:
+  enabled: true
+  window_hours: 72
+
+citation_velocity:
+  enabled: true
+  min_delta: 25
+
 search:
   interval_hours: 6
   max_results_per_query: 10

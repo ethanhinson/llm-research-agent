@@ -223,6 +223,76 @@ def test_run_sweep_deep_triggers_source_discovery(config, mocker):
     assert "r/LocalLLaMA" in sources_text
 
 
+def test_run_sweep_threads_window_hours_into_deduplicator(config, mocker):
+    """corroboration_cfg.window_hours must reach the Deduplicator ctor; absent
+    it defaults to 72 (today's construction)."""
+    mocker.patch("agent.scheduler.build_adapters", return_value=[])
+    mocker.patch("agent.scheduler.Evaluator.score", side_effect=lambda items: items)
+
+    fake_dedup = MagicMock()
+    fake_dedup.is_duplicate.return_value = False
+    fake_dedup.corroboration_update.return_value = None
+    dedup_ctor = mocker.patch(
+        "agent.scheduler.Deduplicator", return_value=fake_dedup
+    )
+
+    sched_module.run_sweep(
+        vault_path=config["vault_path"],
+        index_path=config["index_path"],
+        thresholds=config["thresholds"],
+        api_key="test",
+        feeds=[],
+        corroboration_cfg={"enabled": True, "window_hours": 48},
+    )
+    assert dedup_ctor.call_args.kwargs.get("window_hours") == 48
+
+
+def test_run_sweep_deduplicator_defaults_window_hours_when_absent(config, mocker):
+    mocker.patch("agent.scheduler.build_adapters", return_value=[])
+    mocker.patch("agent.scheduler.Evaluator.score", side_effect=lambda items: items)
+
+    fake_dedup = MagicMock()
+    fake_dedup.is_duplicate.return_value = False
+    fake_dedup.corroboration_update.return_value = None
+    dedup_ctor = mocker.patch(
+        "agent.scheduler.Deduplicator", return_value=fake_dedup
+    )
+
+    sched_module.run_sweep(
+        vault_path=config["vault_path"],
+        index_path=config["index_path"],
+        thresholds=config["thresholds"],
+        api_key="test",
+        feeds=[],
+    )
+    # absent -> positional index_path only, no window_hours kwarg (72 default)
+    assert dedup_ctor.call_args.kwargs.get("window_hours") is None
+
+
+def test_search_sweep_threads_window_hours_into_deduplicator(config, mocker):
+    mocker.patch("agent.scheduler.build_adapters", return_value=[MagicMock(fetch=lambda: [])])
+    mocker.patch(
+        "agent.scheduler.SearchQueryGenerator.queries", return_value=["q"]
+    )
+    mocker.patch("agent.scheduler.Evaluator.score", side_effect=lambda items: items)
+
+    fake_dedup = MagicMock()
+    fake_dedup.is_duplicate.return_value = False
+    fake_dedup.corroboration_update.return_value = None
+    dedup_ctor = mocker.patch(
+        "agent.scheduler.Deduplicator", return_value=fake_dedup
+    )
+
+    sched_module.search_sweep(
+        vault_path=config["vault_path"],
+        index_path=config["index_path"],
+        search_cfg={"enabled": True},
+        api_key="test",
+        corroboration_cfg={"enabled": True, "window_hours": 12},
+    )
+    assert dedup_ctor.call_args.kwargs.get("window_hours") == 12
+
+
 def test_start_scheduler_registers_two_jobs(config, mocker):
     mock_scheduler = MagicMock()
     mock_scheduler.start.side_effect = KeyboardInterrupt
