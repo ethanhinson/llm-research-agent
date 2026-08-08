@@ -1,12 +1,17 @@
 # Backlog
 
-**20 changes** — 🟡 6 proposed · ✅ 14 done
+**20 changes** — 🟢 1 in progress · 🟡 5 proposed · ✅ 14 done
 
-## 🟡 Proposed (6)
+## 🟢 In progress (1)
+
+| # | Title | Priority | Type | Spec | Branch |
+|---|-------|----------|------|------|--------|
+| [0014](active/0014-cross-source-corroboration-ranking.md) | Cross-source corroboration + citation-velocity signals | `medium` | `feat` | [spec](../superpowers/specs/2026-08-07-cross-source-corroboration-ranking-design.md) | `feat/cross-source-corroboration-ranking` |
+
+## 🟡 Proposed (5)
 
 | # | Title | Priority | Type | Readiness |
 |---|-------|----------|------|-----------|
-| [0014](active/0014-cross-source-corroboration-ranking.md) | Cross-source corroboration + citation-velocity signals | `medium` | `feat` | build-ready |
 | [0015](active/0015-embedding-topic-prefilter.md) | Embedding-based topic pre-filter (replace/augment regex filter) | `medium` | `feat` | needs-brainstorm |
 | [0017](active/0017-ensemble-novelty-scoring.md) | Ensemble / rubric-calibrated novelty scoring with confidence | `medium` | `feat` | needs-brainstorm |
 | [0018](active/0018-weekly-trend-synthesis-note.md) | Weekly trend/cluster synthesis note over the vault | `medium` | `feat` | needs-brainstorm |
