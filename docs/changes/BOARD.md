@@ -1,12 +1,6 @@
 # Backlog
 
-**20 changes** — 🟢 1 in progress · 🟡 5 proposed · ✅ 14 done
-
-## 🟢 In progress (1)
-
-| # | Title | Priority | Type | Spec | Branch |
-|---|-------|----------|------|------|--------|
-| [0014](active/0014-cross-source-corroboration-ranking.md) | Cross-source corroboration + citation-velocity signals | `medium` | `feat` | [spec](../superpowers/specs/2026-08-07-cross-source-corroboration-ranking-design.md) | `feat/cross-source-corroboration-ranking` |
+**20 changes** — 🟡 5 proposed · 🔵 1 implemented · ✅ 14 done
 
 ## 🟡 Proposed (5)
 
@@ -17,6 +11,12 @@
 | [0018](active/0018-weekly-trend-synthesis-note.md) | Weekly trend/cluster synthesis note over the vault | `medium` | `feat` | needs-brainstorm |
 | [0019](active/0019-synthesis-prompt-injection-hardening.md) | Prompt-injection hardening of fetched content before synthesis/eval | `medium` | `feat` | needs-brainstorm |
 | [0020](active/0020-tiered-model-eval-cascade.md) | Tiered model cascade for evaluation (cheap first-pass, escalate borderline) | `low` | `feat` | needs-brainstorm |
+
+## 🔵 Implemented — awaiting merge (1)
+
+| # | Title | Priority | Type | PR | Readiness |
+|---|-------|----------|------|----|-----------|
+| [0014](active/0014-cross-source-corroboration-ranking.md) | Cross-source corroboration + citation-velocity signals | `medium` | `feat` | [#16](https://github.com/ethanhinson/llm-research-agent/pull/16) |  |
 
 ```mermaid
 graph TD
