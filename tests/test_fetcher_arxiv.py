@@ -10,7 +10,10 @@ def make_result(title, url, summary="Abstract text"):
     r.title = title
     r.entry_id = url
     r.summary = summary
-    r.published = datetime.datetime(2026, 8, 1, tzinfo=datetime.timezone.utc)
+    # Recent (within the fetcher's default 7-day lookback) so it survives the
+    # date-window filter regardless of when the suite runs. A fixed calendar
+    # date turns this into a time-bomb once the window advances past it.
+    r.published = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=1)
     return r
 
 

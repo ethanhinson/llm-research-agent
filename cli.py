@@ -31,6 +31,8 @@ def cmd_sweep(args, cfg):
     search_cfg = cfg.get("search", {})
     synthesis_cfg = cfg.get("synthesis", {})
     llm_cfg = cfg.get("llm", {})
+    corroboration_cfg = cfg.get("corroboration", {})
+    citation_velocity_cfg = cfg.get("citation_velocity", {})
     api_key = os.getenv("ANTHROPIC_API_KEY")
 
     # Feed / HN / arXiv path.
@@ -46,6 +48,8 @@ def cmd_sweep(args, cfg):
         date=date,
         llm_cfg=llm_cfg,
         sources_cfg=sources_cfg,
+        corroboration_cfg=corroboration_cfg,
+        citation_velocity_cfg=citation_velocity_cfg,
     )
 
     # Search-backend path (Tavily/Bing/SerpAPI) — each client self-skips
@@ -60,6 +64,7 @@ def cmd_sweep(args, cfg):
             synthesis_cfg=synthesis_cfg,
             date=date,
             llm_cfg=llm_cfg,
+            corroboration_cfg=corroboration_cfg,
         )
 
     total = len(feed_items) + len(search_items)
@@ -167,6 +172,8 @@ def cmd_start(args, cfg):
     schedule = cfg.get("schedule", {})
     search_cfg = cfg.get("search", {})
     llm_cfg = cfg.get("llm", {})
+    corroboration_cfg = cfg.get("corroboration", {})
+    citation_velocity_cfg = cfg.get("citation_velocity", {})
     api_key = os.getenv("ANTHROPIC_API_KEY")
     print("Starting scheduler. Press Ctrl+C to stop.")
     start_scheduler(
@@ -180,6 +187,8 @@ def cmd_start(args, cfg):
         search_cfg=search_cfg,
         llm_cfg=llm_cfg,
         sources_cfg=sources_cfg,
+        corroboration_cfg=corroboration_cfg,
+        citation_velocity_cfg=citation_velocity_cfg,
     )
 
 

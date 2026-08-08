@@ -143,7 +143,8 @@ def test_load_config_surfaces_llm_section():
     import cli
     cfg = cli.load_config()
     assert "llm" in cfg
-    assert cfg["llm"].get("provider") == "anthropic"
+    # config.yml defaults the provider to openrouter (see ops commit 74553b5).
+    assert cfg["llm"].get("provider") == "openrouter"
 
 
 def test_cmd_sweep_threads_llm_cfg(mocker):

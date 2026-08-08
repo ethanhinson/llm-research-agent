@@ -223,6 +223,133 @@ def test_run_sweep_deep_triggers_source_discovery(config, mocker):
     assert "r/LocalLLaMA" in sources_text
 
 
+def test_run_sweep_threads_window_hours_into_deduplicator(config, mocker):
+    """corroboration_cfg.window_hours must reach the Deduplicator ctor; absent
+    it defaults to 72 (today's construction)."""
+    mocker.patch("agent.scheduler.build_adapters", return_value=[])
+    mocker.patch("agent.scheduler.Evaluator.score", side_effect=lambda items: items)
+
+    fake_dedup = MagicMock()
+    fake_dedup.is_duplicate.return_value = False
+    fake_dedup.corroboration_update.return_value = None
+    dedup_ctor = mocker.patch(
+        "agent.scheduler.Deduplicator", return_value=fake_dedup
+    )
+
+    sched_module.run_sweep(
+        vault_path=config["vault_path"],
+        index_path=config["index_path"],
+        thresholds=config["thresholds"],
+        api_key="test",
+        feeds=[],
+        corroboration_cfg={"enabled": True, "window_hours": 48},
+    )
+    assert dedup_ctor.call_args.kwargs.get("window_hours") == 48
+
+
+def test_run_sweep_deduplicator_defaults_window_hours_when_absent(config, mocker):
+    mocker.patch("agent.scheduler.build_adapters", return_value=[])
+    mocker.patch("agent.scheduler.Evaluator.score", side_effect=lambda items: items)
+
+    fake_dedup = MagicMock()
+    fake_dedup.is_duplicate.return_value = False
+    fake_dedup.corroboration_update.return_value = None
+    dedup_ctor = mocker.patch(
+        "agent.scheduler.Deduplicator", return_value=fake_dedup
+    )
+
+    sched_module.run_sweep(
+        vault_path=config["vault_path"],
+        index_path=config["index_path"],
+        thresholds=config["thresholds"],
+        api_key="test",
+        feeds=[],
+    )
+    # absent -> positional index_path only, no window_hours kwarg (72 default)
+    assert dedup_ctor.call_args.kwargs.get("window_hours") is None
+
+
+def test_search_sweep_threads_window_hours_into_deduplicator(config, mocker):
+    mocker.patch("agent.scheduler.build_adapters", return_value=[MagicMock(fetch=lambda: [])])
+    mocker.patch(
+        "agent.scheduler.SearchQueryGenerator.queries", return_value=["q"]
+    )
+    mocker.patch("agent.scheduler.Evaluator.score", side_effect=lambda items: items)
+
+    fake_dedup = MagicMock()
+    fake_dedup.is_duplicate.return_value = False
+    fake_dedup.corroboration_update.return_value = None
+    dedup_ctor = mocker.patch(
+        "agent.scheduler.Deduplicator", return_value=fake_dedup
+    )
+
+    sched_module.search_sweep(
+        vault_path=config["vault_path"],
+        index_path=config["index_path"],
+        search_cfg={"enabled": True},
+        api_key="test",
+        corroboration_cfg={"enabled": True, "window_hours": 12},
+    )
+    assert dedup_ctor.call_args.kwargs.get("window_hours") == 12
+
+
+def test_run_sweep_corroboration_disabled_skips_update(config, mocker):
+    """With corroboration_cfg={"enabled": False}, a within-window re-surface of a
+    known identity must NOT take the corroboration_update path — it falls through
+    to the normal write+record path. We assert via a mocked Deduplicator whose
+    corroboration_update would otherwise fire, and confirm the writer never gets
+    update_corroboration and does get write_note instead."""
+    mocker.patch("agent.scheduler.build_adapters", return_value=[
+        MagicMock(fetch=lambda: [make_item("Flash Attention 3", engagement=200)])
+    ])
+    mocker.patch("agent.scheduler.is_relevant", return_value=True)
+    mocker.patch("agent.scheduler.corroborate", side_effect=lambda items: items)
+
+    def mock_score(items):
+        for item in items:
+            item.keep = True
+        return items
+
+    mocker.patch("agent.scheduler.Evaluator.score", side_effect=mock_score)
+
+    fake_dedup = MagicMock()
+    fake_dedup.is_duplicate.return_value = False
+    # If this were consulted, it would trigger the corroboration_update path.
+    fake_dedup.corroboration_update.return_value = {
+        "note_path": "n.md",
+        "sources_count": 2,
+        "validated": True,
+        "new_source_line": "- line",
+    }
+    mocker.patch("agent.scheduler.Deduplicator", return_value=fake_dedup)
+
+    updated = []
+    written = []
+    mocker.patch(
+        "agent.scheduler.Writer.update_corroboration",
+        side_effect=lambda *a, **k: updated.append(a),
+    )
+    mocker.patch(
+        "agent.scheduler.Writer.write_note",
+        side_effect=lambda i, **k: written.append(i) or Path("/tmp/x.md"),
+    )
+    mocker.patch("agent.scheduler.Writer.regenerate_index")
+
+    sched_module.run_sweep(
+        vault_path=config["vault_path"],
+        index_path=config["index_path"],
+        thresholds=config["thresholds"],
+        api_key="test",
+        feeds=[],
+        corroboration_cfg={"enabled": False},
+    )
+
+    # disabled: corroboration_update must not be honored; normal write path taken.
+    assert updated == []
+    assert len(written) == 1
+    fake_dedup.record.assert_called_once()
+
+
 def test_start_scheduler_registers_two_jobs(config, mocker):
     mock_scheduler = MagicMock()
     mock_scheduler.start.side_effect = KeyboardInterrupt

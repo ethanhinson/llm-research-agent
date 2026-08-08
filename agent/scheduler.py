@@ -25,11 +25,22 @@ from agent.fetchers.hackernews import HNFetcher  # noqa: F401  (test patch seam)
 from agent.fetchers.hf_papers import HFPapersAdapter  # noqa: F401  (test patch seam)
 from agent.fetchers.multi_search import MultiSearchFetcher  # noqa: F401  (patch seam)
 from agent.fetchers.web import WebFetcher  # noqa: F401  (test patch seam)
-from agent.tools.cross_validate import cross_validate
+from agent.canonical import canonical_id
+from agent.tools.corroborate import corroborate
 from agent.tools.search_query_generator import SearchQueryGenerator
 from agent.tools.source_discovery import SourceDiscovery, append_suggestions
 from agent.topic_filter import is_relevant
 from agent.writer import Writer
+
+
+def _make_deduplicator(index_path: Path, corroboration_cfg: dict | None) -> Deduplicator:
+    """Construct the Deduplicator, threading window_hours from config when the
+    corroboration section is enabled. Absent/disabled keeps today's construction
+    (72h default), so behavior is unchanged when the section is absent."""
+    cfg = corroboration_cfg or {}
+    if cfg.get("enabled", True) and "window_hours" in cfg:
+        return Deduplicator(index_path, window_hours=cfg.get("window_hours", 72))
+    return Deduplicator(index_path)
 
 
 def _write_kept(
@@ -39,12 +50,17 @@ def _write_kept(
     api_key: str | None,
     synthesis_cfg: dict | None,
     llm_cfg: dict | None = None,
+    corroboration_enabled: bool = True,
 ):
     """Write each kept item, enriching + synthesizing above-threshold items.
 
     Fully fail-soft: if synthesis config is absent/disabled, or an item is below
     the score gate, or enrichment/synthesis raises, the item is written via the
     legacy template path. A single item's failure never aborts the batch.
+
+    `corroboration_enabled` gates the cross-sweep corroboration-update path: when
+    falsy, a within-window re-surface of a known identity falls through to a
+    normal write+record instead of updating the prior note in place.
     """
     cfg = synthesis_cfg or {}
     enabled = cfg.get("enabled", False)
@@ -57,6 +73,15 @@ def _write_kept(
     )
 
     for item in kept:
+        upd = dedup.corroboration_update(item) if corroboration_enabled else None
+        if upd is not None:
+            writer.update_corroboration(
+                upd["note_path"],
+                upd["sources_count"],
+                upd["validated"],
+                upd["new_source_line"],
+            )
+            continue
         sections = None
         if enabled and item.score >= min_score:
             try:
@@ -66,10 +91,15 @@ def _write_kept(
                 print(f"[warn] synthesis pipeline failed for {item.url}: {exc}")
                 sections = None
         if sections:
-            writer.write_note(item, sections=sections)
+            note_path = writer.write_note(item, sections=sections)
         else:
-            writer.write_note(item)
-        dedup.mark_seen(item)
+            note_path = writer.write_note(item)
+        # record the identity so later sweeps corroborate against it
+        try:
+            rel = str(note_path.relative_to(writer._vault))
+        except Exception:
+            rel = str(note_path)
+        dedup.record(item, note_path=rel)
 
     if kept:
         writer.regenerate_index()
@@ -87,6 +117,8 @@ def run_sweep(
     date: str | None = None,
     llm_cfg: dict | None = None,
     sources_cfg: dict | None = None,
+    citation_velocity_cfg: dict | None = None,
+    corroboration_cfg: dict | None = None,
 ) -> list[RawItem]:
     vault_path = Path(vault_path)
     index_path = Path(index_path)
@@ -115,12 +147,15 @@ def run_sweep(
     for adapter in adapters:
         raw.extend(_fetch(adapter))
 
-    dedup = Deduplicator(index_path)
+    for item in raw:
+        item.canonical_id = canonical_id(item)
+
+    dedup = _make_deduplicator(index_path, corroboration_cfg)
     after_dedup = [item for item in raw if not dedup.is_duplicate(item)]
 
     after_topic = [item for item in after_dedup if is_relevant(item)]
 
-    after_cv = cross_validate(after_topic)
+    after_cv = corroborate(after_topic)
 
     evaluator = Evaluator(api_key=api_key, llm_cfg=llm_cfg)
     scored = evaluator.score(after_cv)
@@ -128,13 +163,34 @@ def run_sweep(
     kept = [item for item in scored if item.keep]
 
     writer = Writer(vault_path=vault_path, date=date)
-    _write_kept(kept, writer, dedup, api_key, synthesis_cfg, llm_cfg=llm_cfg)
+    _write_kept(
+        kept,
+        writer,
+        dedup,
+        api_key,
+        synthesis_cfg,
+        llm_cfg=llm_cfg,
+        corroboration_enabled=(corroboration_cfg or {}).get("enabled", True),
+    )
 
     # Close the SourceDiscovery loop on the weekly deep sweep: propose new
     # sources for human review (append to vault/sources.md), never edit config.
     # Fail-soft — a discovery error must never abort the sweep.
     if deep:
         _run_source_discovery(vault_path, api_key, llm_cfg=llm_cfg, date=date)
+
+    # Weekly citation-velocity re-poll: deep-only, config-gated, fail-soft.
+    if deep and (citation_velocity_cfg or {}).get("enabled"):
+        try:
+            from agent.tools.citation_velocity import run_citation_velocity
+            run_citation_velocity(
+                vault_path,
+                min_delta=citation_velocity_cfg.get("min_delta", 25),
+                api_key=None,  # S2_API_KEY read from env inside
+                today=date,
+            )
+        except Exception as exc:
+            print(f"[warn] citation-velocity re-poll failed, skipping: {exc}")
 
     return kept
 
@@ -176,6 +232,7 @@ def search_sweep(
     synthesis_cfg: dict | None = None,
     date: str | None = None,
     llm_cfg: dict | None = None,
+    corroboration_cfg: dict | None = None,
 ) -> list[RawItem]:
     vault_path = Path(vault_path)
     index_path = Path(index_path)
@@ -202,14 +259,17 @@ def search_sweep(
     )
     raw = fetcher.fetch()
 
-    dedup = Deduplicator(index_path)
+    for item in raw:
+        item.canonical_id = canonical_id(item)
+
+    dedup = _make_deduplicator(index_path, corroboration_cfg)
     after_dedup = [item for item in raw if not dedup.is_duplicate(item)]
 
     # The search adapter owns its own engagement policy, so there is no
     # sweep-level engagement allowlist here either.
     after_topic = [item for item in after_dedup if is_relevant(item)]
 
-    after_cv = cross_validate(after_topic)
+    after_cv = corroborate(after_topic)
 
     evaluator = Evaluator(api_key=api_key, llm_cfg=llm_cfg)
     scored = evaluator.score(after_cv)
@@ -217,7 +277,15 @@ def search_sweep(
     kept = [item for item in scored if item.keep]
 
     writer = Writer(vault_path=vault_path, date=date)
-    _write_kept(kept, writer, dedup, api_key, synthesis_cfg, llm_cfg=llm_cfg)
+    _write_kept(
+        kept,
+        writer,
+        dedup,
+        api_key,
+        synthesis_cfg,
+        llm_cfg=llm_cfg,
+        corroboration_enabled=(corroboration_cfg or {}).get("enabled", True),
+    )
 
     return kept
 
@@ -233,6 +301,8 @@ def start_scheduler(
     search_cfg: dict | None = None,
     llm_cfg: dict | None = None,
     sources_cfg: dict | None = None,
+    corroboration_cfg: dict | None = None,
+    citation_velocity_cfg: dict | None = None,
 ):
     weekly_day = weekly_day[:3].lower()
     parts = daily_time.split(":")
@@ -256,6 +326,7 @@ def start_scheduler(
             "deep": False,
             "llm_cfg": llm_cfg,
             "sources_cfg": sources_cfg,
+            "corroboration_cfg": corroboration_cfg,
         },
         id="daily_sweep",
         name="Daily LLM research sweep",
@@ -276,6 +347,8 @@ def start_scheduler(
             "deep": True,
             "llm_cfg": llm_cfg,
             "sources_cfg": sources_cfg,
+            "corroboration_cfg": corroboration_cfg,
+            "citation_velocity_cfg": citation_velocity_cfg,
         },
         id="weekly_deep_sweep",
         name="Weekly deep LLM research sweep",
@@ -292,6 +365,7 @@ def start_scheduler(
                 "search_cfg": search_cfg,
                 "api_key": api_key,
                 "llm_cfg": llm_cfg,
+                "corroboration_cfg": corroboration_cfg,
             },
             id="search_sweep",
             name="Multi-backend web search sweep",

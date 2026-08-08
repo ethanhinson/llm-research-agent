@@ -117,6 +117,36 @@ class Writer:
         path.write_text(content)
         return path
 
+    def update_corroboration(self, note_path, sources_count, validated, new_source_line):
+        """Targeted frontmatter rewrite (sources_count, validated) + ## Sources
+        append. No body regeneration. Fail-soft: a bad/missing file logs + skips."""
+        try:
+            path = Path(note_path)
+            text = path.read_text()
+        except Exception as exc:
+            print(f"[warn] update_corroboration: cannot read {note_path}: {exc}")
+            return
+        try:
+            lines = text.splitlines()
+            for i, line in enumerate(lines):
+                if line.startswith("sources_count:"):
+                    lines[i] = f"sources_count: {sources_count}"
+                elif line.startswith("validated:"):
+                    lines[i] = f"validated: {str(validated).lower()}"
+            # append the new source line into the ## Sources block (before ## Related if present)
+            out = []
+            inserted = False
+            for line in lines:
+                if line.strip() == "## Related" and not inserted:
+                    out.append(new_source_line)
+                    inserted = True
+                out.append(line)
+            if not inserted:
+                out.append(new_source_line)
+            path.write_text("\n".join(out) + ("\n" if text.endswith("\n") else ""))
+        except Exception as exc:
+            print(f"[warn] update_corroboration: failed on {note_path}: {exc}")
+
     def regenerate_index(self):
         groups: dict[str, list[tuple]] = {t: [] for t in CONTENT_TYPES}
 
@@ -137,8 +167,9 @@ class Writer:
                 score = fm.get("score", 0)
                 validated = fm.get("validated", False)
                 category = fm.get("category", "")
+                rising = fm.get("rising", False)
                 link = f"[[strategies/{subdir}/{note_path.name}|{title}]]"
-                groups[content_type].append((score, title, link, validated, category))
+                groups[content_type].append((score, title, link, validated, category, rising))
 
         lines = ["# Strategy Index\n"]
 
@@ -154,18 +185,20 @@ class Writer:
             rows = groups.get(content_type, [])
             if not rows:
                 continue
-            rows.sort(key=lambda r: -r[0])
+            # rising papers sort first within their section, then by score desc
+            rows.sort(key=lambda r: (not r[5], -r[0]))
             lines.append(f"## {heading}\n")
             col_headers = ["Title"] + extra_cols
             lines.append("| " + " | ".join(col_headers) + " |")
             lines.append("|" + "---|" * len(col_headers))
-            for score, title, link, validated, category in rows:
+            for score, title, link, validated, category, rising in rows:
+                cell = f"📈 {link}" if rising else link
                 if content_type == "research":
-                    lines.append(f"| {link} | {category} | {score} | {validated} |")
+                    lines.append(f"| {cell} | {category} | {score} | {validated} |")
                 elif content_type in ("release", "benchmark"):
-                    lines.append(f"| {link} | {score} | {validated} |")
+                    lines.append(f"| {cell} | {score} | {validated} |")
                 else:
-                    lines.append(f"| {link} | {score} |")
+                    lines.append(f"| {cell} | {score} |")
             lines.append("")
 
         (self._vault / "index.md").write_text("\n".join(lines) + "\n")

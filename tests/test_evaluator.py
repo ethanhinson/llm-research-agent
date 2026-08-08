@@ -110,6 +110,36 @@ def test_tag_batch_normalizes_commas_and_case():
     assert item.tags == ["research", "rag", "fine-tuning", "reasoning"]
 
 
+def test_score_prompt_includes_corroboration_when_multi_source():
+    captured = {}
+
+    class Cap:
+        def complete(self, prompt, max_tokens=512):
+            captured.setdefault("prompts", []).append(prompt)
+            return "1. 7 agentic"
+
+    it = RawItem(title="Corro Paper", body="b", url="u", source="s", engagement=1, timestamp="t")
+    it.content_type = "research"
+    it.sources_count = 3
+    Evaluator(client=Cap())._score_batch([it])
+    assert any("[corroborated by 3 sources]" in p for p in captured["prompts"])
+
+
+def test_score_prompt_omits_corroboration_when_single_source():
+    captured = {}
+
+    class Cap:
+        def complete(self, prompt, max_tokens=512):
+            captured.setdefault("prompts", []).append(prompt)
+            return "1. 7 agentic"
+
+    it = RawItem(title="Solo", body="b", url="u", source="s", engagement=1, timestamp="t")
+    it.content_type = "research"
+    it.sources_count = 1
+    Evaluator(client=Cap())._score_batch([it])
+    assert all("corroborated by" not in p for p in captured["prompts"])
+
+
 def test_score_includes_topic_tags():
     fake = FakeLLM([
         "1. research\n",
