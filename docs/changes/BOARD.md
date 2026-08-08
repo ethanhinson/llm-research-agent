@@ -6,7 +6,7 @@
 
 | # | Title | Priority | Type | Readiness |
 |---|-------|----------|------|-----------|
-| [0014](active/0014-cross-source-corroboration-ranking.md) | Cross-source corroboration + citation-velocity signals | `medium` | `feat` | needs-brainstorm |
+| [0014](active/0014-cross-source-corroboration-ranking.md) | Cross-source corroboration + citation-velocity signals | `medium` | `feat` | build-ready |
 | [0015](active/0015-embedding-topic-prefilter.md) | Embedding-based topic pre-filter (replace/augment regex filter) | `medium` | `feat` | needs-brainstorm |
 | [0017](active/0017-ensemble-novelty-scoring.md) | Ensemble / rubric-calibrated novelty scoring with confidence | `medium` | `feat` | needs-brainstorm |
 | [0018](active/0018-weekly-trend-synthesis-note.md) | Weekly trend/cluster synthesis note over the vault | `medium` | `feat` | needs-brainstorm |
