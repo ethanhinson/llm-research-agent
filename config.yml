@@ -1,5 +1,5 @@
 llm:
-  provider: anthropic        # anthropic (default) | openrouter
+  provider: openrouter       # anthropic (default) | openrouter
   model:                     # optional; per-provider default when unset
 
 thresholds:
