@@ -2,11 +2,11 @@
 id: 14
 slug: cross-source-corroboration-ranking
 title: Cross-source corroboration + citation-velocity signals
-status: proposed
+status: in-progress
 priority: medium
 type: feat
 created: 2026-08-07
-updated: 2026-08-07
+updated: 2026-08-08
 depends_on: []
 related: [10, 12]
 discovered_from: []
@@ -16,9 +16,10 @@ plan:
 results:
 trivial: false
 auto_groomable: false
-branch:
+branch: feat/cross-source-corroboration-ranking
 pr:
 blocked_by:
+claimed_at: 2026-08-08T03:45:02Z
 reconciled: false
 ---
 
