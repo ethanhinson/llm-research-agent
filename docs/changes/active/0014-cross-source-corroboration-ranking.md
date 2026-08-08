@@ -2,7 +2,7 @@
 id: 14
 slug: cross-source-corroboration-ranking
 title: Cross-source corroboration + citation-velocity signals
-status: in-progress
+status: implemented
 priority: medium
 type: feat
 created: 2026-08-07
@@ -13,13 +13,13 @@ discovered_from: []
 adrs: []
 spec: docs/superpowers/specs/2026-08-07-cross-source-corroboration-ranking-design.md
 plan: docs/superpowers/plans/2026-08-08-cross-source-corroboration-ranking-plan.md
-results:
+results: docs/results/2026-08-08-cross-source-corroboration-ranking-results.md
 trivial: false
 auto_groomable: false
 branch: feat/cross-source-corroboration-ranking
-pr:
+pr: https://github.com/ethanhinson/llm-research-agent/pull/16
 blocked_by:
-claimed_at: 2026-08-08T03:52:28Z
+claimed_at: 2026-08-08T04:15:13Z
 reconciled: true
 ---
 
@@ -30,6 +30,8 @@ reconciled: true
 |---|---|
 | Spec | [2026-08-07-cross-source-corroboration-ranking-design.md](https://github.com/ethanhinson/llm-research-agent/blob/docket/docs/superpowers/specs/2026-08-07-cross-source-corroboration-ranking-design.md) |
 | Plan | [2026-08-08-cross-source-corroboration-ranking-plan.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/cross-source-corroboration-ranking/docs/superpowers/plans/2026-08-08-cross-source-corroboration-ranking-plan.md) |
+| Results | [2026-08-08-cross-source-corroboration-ranking-results.md](https://github.com/ethanhinson/llm-research-agent/blob/feat/cross-source-corroboration-ranking/docs/results/2026-08-08-cross-source-corroboration-ranking-results.md) |
+| PR | [#16](https://github.com/ethanhinson/llm-research-agent/pull/16) |
 <!-- docket:artifacts:end -->
 
 ## Why
