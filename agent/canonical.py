@@ -14,7 +14,14 @@ _ARXIV_URL = re.compile(
     re.IGNORECASE,
 )
 _ARXIV_TITLE = re.compile(r"^\s*\[(\d{4}\.\d{4,5})(?:v\d+)?\]")
-_DOI = re.compile(r"(10\.\d{4,9}/[^\s?#]+)")
+# Only recognize a DOI from a genuine DOI context: a (dx.)doi.org host with the
+# 10.NNNN/… starting the path right after the host. This avoids reading an
+# incidental /10.NNNN/ segment inside an ordinary URL (e.g. a github release tag)
+# as a DOI.
+_DOI = re.compile(
+    r"(?:^|//|\.)(?:dx\.)?doi\.org/(10\.\d{4,9}/[^\s?#]+)",
+    re.IGNORECASE,
+)
 _TRACKING = re.compile(r"^(utm_.*|ref)$", re.IGNORECASE)
 
 
@@ -30,7 +37,7 @@ def _arxiv_id(item: RawItem) -> str:
 
 def _doi(url: str) -> str:
     m = _DOI.search(url or "")
-    return m.group(1).lower() if m else ""
+    return m.group(1).lower().rstrip("/") if m else ""
 
 
 def _normalized_url(url: str) -> str:

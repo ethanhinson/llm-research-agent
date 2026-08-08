@@ -17,7 +17,12 @@ import yaml
 S2_BATCH_API = "https://api.semanticscholar.org/graph/v1/paper/batch"
 BACKOFF_SECONDS = 2
 _ARXIV = re.compile(r"arxiv\.org/(?:abs|pdf)/(\d{4}\.\d{4,5})(?:v\d+)?", re.IGNORECASE)
-_DOI = re.compile(r"(10\.\d{4,9}/[^\s?#)]+)")
+# Only recognize a DOI from a genuine (dx.)doi.org context so an incidental
+# /10.NNNN/ segment inside an ordinary URL is not read as a DOI paper id.
+_DOI = re.compile(
+    r"(?:^|//|\.)(?:dx\.)?doi\.org/(10\.\d{4,9}/[^\s?#)]+)",
+    re.IGNORECASE,
+)
 
 
 def paper_ids_from_note(text: str) -> str | None:
@@ -26,7 +31,7 @@ def paper_ids_from_note(text: str) -> str | None:
         return f"ARXIV:{m.group(1)}"
     m = _DOI.search(text)
     if m:
-        return f"DOI:{m.group(1).lower()}"
+        return f"DOI:{m.group(1).lower().rstrip('/')}"
     return None
 
 
@@ -106,7 +111,7 @@ def run_citation_velocity(vault_path, *, min_delta: int, api_key: str | None, to
                     "citation_count": new_count,
                     "citation_delta": delta,
                     "citation_checked": today,
-                    **({"rising": True} if rising else {}),
+                    "rising": rising,
                 })
             except Exception as exc:
                 print(f"[warn] citation_velocity: {note}: {exc}")

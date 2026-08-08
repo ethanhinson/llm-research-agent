@@ -50,12 +50,17 @@ def _write_kept(
     api_key: str | None,
     synthesis_cfg: dict | None,
     llm_cfg: dict | None = None,
+    corroboration_enabled: bool = True,
 ):
     """Write each kept item, enriching + synthesizing above-threshold items.
 
     Fully fail-soft: if synthesis config is absent/disabled, or an item is below
     the score gate, or enrichment/synthesis raises, the item is written via the
     legacy template path. A single item's failure never aborts the batch.
+
+    `corroboration_enabled` gates the cross-sweep corroboration-update path: when
+    falsy, a within-window re-surface of a known identity falls through to a
+    normal write+record instead of updating the prior note in place.
     """
     cfg = synthesis_cfg or {}
     enabled = cfg.get("enabled", False)
@@ -68,7 +73,7 @@ def _write_kept(
     )
 
     for item in kept:
-        upd = dedup.corroboration_update(item)
+        upd = dedup.corroboration_update(item) if corroboration_enabled else None
         if upd is not None:
             writer.update_corroboration(
                 upd["note_path"],
@@ -158,7 +163,15 @@ def run_sweep(
     kept = [item for item in scored if item.keep]
 
     writer = Writer(vault_path=vault_path, date=date)
-    _write_kept(kept, writer, dedup, api_key, synthesis_cfg, llm_cfg=llm_cfg)
+    _write_kept(
+        kept,
+        writer,
+        dedup,
+        api_key,
+        synthesis_cfg,
+        llm_cfg=llm_cfg,
+        corroboration_enabled=(corroboration_cfg or {}).get("enabled", True),
+    )
 
     # Close the SourceDiscovery loop on the weekly deep sweep: propose new
     # sources for human review (append to vault/sources.md), never edit config.
@@ -264,7 +277,15 @@ def search_sweep(
     kept = [item for item in scored if item.keep]
 
     writer = Writer(vault_path=vault_path, date=date)
-    _write_kept(kept, writer, dedup, api_key, synthesis_cfg, llm_cfg=llm_cfg)
+    _write_kept(
+        kept,
+        writer,
+        dedup,
+        api_key,
+        synthesis_cfg,
+        llm_cfg=llm_cfg,
+        corroboration_enabled=(corroboration_cfg or {}).get("enabled", True),
+    )
 
     return kept
 
